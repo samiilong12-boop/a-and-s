@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="studioGlow" cx="65%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#2D3B38" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#141C1B" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#080C0B" stop-opacity="1"/>
+    </radialGradient>
+    
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2DFB3"/>
+      <stop offset="35%" stop-color="#D4AF37"/>
+      <stop offset="70%" stop-color="#AA7C11"/>
+      <stop offset="100%" stop-color="#583F05"/>
+    </linearGradient>
+
+    <linearGradient id="mistGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#66D9C5" stop-opacity="0.8"/>
+      <stop offset="30%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+      <stop offset="70%" stop-color="#D4AF37" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#66D9C5" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="suitShading" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A2422"/>
+      <stop offset="50%" stop-color="#0D1312"/>
+      <stop offset="100%" stop-color="#050807"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="mistBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+    </filter>
+  </defs>
+
+  <!-- Studio Background -->
+  <rect width="1920" height="1080" fill="url(#studioGlow)"/>
+
+  <!-- Warm Atmospheric Rim Lighting -->
+  <circle cx="1250" cy="450" r="500" fill="#D4AF37" opacity="0.08" filter="url(#softGlow)"/>
+  <circle cx="1100" cy="380" r="300" fill="#66D9C5" opacity="0.06" filter="url(#softGlow)"/>
+
+  <!-- MODEL SILHOUETTE & HAUTE COUTURE ATTIRE -->
+  <!-- Shoulders & Tuxedo Body -->
+  <path d="M 1000 1080 L 1050 650 L 1150 520 L 1300 480 L 1450 530 L 1580 680 L 1680 1080 Z" fill="url(#suitShading)"/>
+  <!-- Velvet Lapel with subtle gold pin -->
+  <path d="M 1240 540 L 1300 750 L 1260 900 L 1220 700 Z" fill="#0A0F0E" stroke="#AA7C11" stroke-width="0.7"/>
+  <path d="M 1360 540 L 1300 750 L 1340 900 L 1380 700 Z" fill="#0A0F0E" stroke="#AA7C11" stroke-width="0.7"/>
+  <!-- White Crisp Collar -->
+  <polygon points="1270,510 1330,510 1300,560" fill="#FFFFFF" opacity="0.95"/>
+  <!-- Bowtie or Silk Scarf -->
+  <polygon points="1285,550 1315,550 1300,565" fill="#050807"/>
+
+  <!-- Neck & Jawline (High Editorial Profile) -->
+  <path d="M 1260 510 L 1260 410 C 1260 380, 1270 340, 1310 320 L 1350 330 C 1370 370, 1360 420, 1340 510 Z" fill="#D9BAA0" opacity="0.85"/>
+  <!-- Head Profile turned toward fragrance mist -->
+  <path d="M 1270 350 C 1270 240, 1330 200, 1380 230 C 1420 260, 1420 340, 1370 380 C 1340 400, 1290 380, 1270 350 Z" fill="#C8A589" opacity="0.85"/>
+  <!-- Styled Dark Hair -->
+  <path d="M 1265 290 C 1260 210, 1320 180, 1385 190 C 1430 200, 1440 260, 1420 300 C 1390 240, 1320 230, 1265 290 Z" fill="#080C0B"/>
+
+  <!-- RAISED ARM & HAND HOLDING A AND S FLACON -->
+  <!-- Forearm in tailored sleeve -->
+  <path d="M 850 680 L 1020 540 L 1060 570 L 920 740 Z" fill="url(#suitShading)"/>
+  <!-- Cuff -->
+  <polygon points="1010,535 1035,515 1045,528 1020,548" fill="#FFFFFF"/>
+  <!-- Sculpted Hand -->
+  <path d="M 1025 520 C 1030 480, 1060 460, 1075 480 C 1085 495, 1070 535, 1045 540 Z" fill="#D9BAA0"/>
+  <!-- Index finger pressing the atomizer pump -->
+  <path d="M 1060 460 C 1070 440, 1095 440, 1095 455 L 1080 475 Z" fill="#C8A589"/>
+
+  <!-- THE A AND S LUXURY PERFUME BOTTLE -->
+  <g transform="translate(1070, 440)">
+    <!-- Heavy Glass Flacon -->
+    <rect x="0" y="25" width="55" height="85" rx="5" fill="#14211E" stroke="url(#goldGradient)" stroke-width="2"/>
+    <!-- Liquid Gold Fragrance Glow Inside Flacon -->
+    <rect x="5" y="38" width="45" height="66" rx="3" fill="#D4AF37" opacity="0.35"/>
+    <!-- Gold Sprayer & Collar -->
+    <rect x="18" y="10" width="18" height="15" fill="url(#goldGradient)" rx="2"/>
+    <rect x="22" y="2" width="10" height="8" fill="url(#goldGradient)" rx="1"/>
+    <!-- Nozzle with Spray Aperture -->
+    <circle cx="21" cy="6" r="1.5" fill="#080C0B"/>
+    <!-- Luxury Emblem on Bottle -->
+    <rect x="10" y="48" width="35" height="42" fill="#080A0A" stroke="#D4AF37" stroke-width="0.8" rx="2"/>
+    <text x="27.5" y="65" fill="#D4AF37" font-family="serif" font-size="7" font-weight="bold" text-anchor="middle">A AND S</text>
+    <line x1="16" y1="70" x2="39" y2="70" stroke="#D4AF37" stroke-width="0.5"/>
+    <text x="27.5" y="80" fill="#66D9C5" font-family="sans-serif" font-size="4" letter-spacing="1" text-anchor="middle">EXTRAIT</text>
+  </g>
+
+  <!-- CINEMATIC ATOMIZED PERFUME MIST & DROPLETS -->
+  <!-- Wide Dispersion Cone -->
+  <path d="M 1090 445 C 1140 435, 1200 420, 1260 410 C 1270 460, 1200 485, 1100 455 Z" fill="url(#mistGlow)" opacity="0.75" filter="url(#mistBlur)"/>
+  <path d="M 1090 445 C 1150 415, 1240 380, 1320 370 C 1330 450, 1220 490, 1095 455 Z" fill="url(#mistGlow)" opacity="0.5" filter="url(#mistBlur)"/>
+
+  <!-- Microdroplets catching golden & turquoise light -->
+  <g fill="#FFFFFF" opacity="0.9">
+    <circle cx="1115" cy="442" r="2.5" filter="url(#softGlow)"/>
+    <circle cx="1135" cy="435" r="1.8"/>
+    <circle cx="1150" cy="448" r="2.2" fill="#66D9C5"/>
+    <circle cx="1170" cy="425" r="3" fill="#D4AF37" filter="url(#softGlow)"/>
+    <circle cx="1190" cy="440" r="1.5"/>
+    <circle cx="1210" cy="418" r="2.8" fill="#FFFFFF"/>
+    <circle cx="1230" cy="432" r="2" fill="#66D9C5"/>
+    <circle cx="1245" cy="410" r="3.2" fill="#F2DFB3" filter="url(#softGlow)"/>
+    <circle cx="1265" cy="395" r="2.4" fill="#FFFFFF"/>
+    <circle cx="1285" cy="420" r="1.8" fill="#D4AF37"/>
+    <circle cx="1305" cy="405" r="2.5" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Ambient Luxury Floating Dust Particles -->
+  <g fill="#D4AF37" opacity="0.4">
+    <circle cx="950" cy="350" r="1.5"/>
+    <circle cx="1020" cy="280" r="2"/>
+    <circle cx="1180" cy="220" r="1.2"/>
+    <circle cx="1350" cy="180" r="2.5"/>
+    <circle cx="1450" cy="320" r="1.8"/>
+    <circle cx="1100" cy="600" r="2"/>
+  </g>
+
+  <!-- Subtle Vignette Frame -->
+  <rect width="1920" height="1080" fill="none" stroke="#D4AF37" stroke-width="1" opacity="0.2"/>
+</svg>

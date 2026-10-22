@@ -30,15 +30,21 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'announcement.cod': { en: 'Cash on Delivery Available', ar: 'الدفع عند الاستلام متاح' },
   'announcement.location': { en: 'Cairo, Egypt', ar: 'القاهرة، مصر' },
 
-  // Hero Section
-  'hero.tag': { en: 'Haute Parfumerie • Cairo Edition', ar: 'دار عطور فاخرة • إصدار القاهرة' },
-  'hero.title': { en: 'THE ART OF LEAVING AN IMPRESSION.', ar: 'فن ترك انطباع لا يُمحى من الذاكرة.' },
-  'hero.subtitle': {
-    en: 'Discover a world of distinctive fragrances, crafted for those who make every moment unforgettable. Blended with exceptional oil concentrations for enduring sillage.',
-    ar: 'اكتشف عالماً من العطور الاستثنائية، مصممة خصيصاً لمن يتركون أثراً لا يُنسى. صُنعت بنسب زيوت نقية عالية لثبات وفوحان يدوم طويلاً.',
+  // Hero Section - Royal Luxury Phrasing
+  'hero.tag': {
+    en: 'Royal Haute Parfumerie • Cairo Private Atelier',
+    ar: 'دار العطور الملكية الخاصة • صُنعت في القاهرة',
   },
-  'hero.cta_explore': { en: 'Explore The Collection', ar: 'استكشف تشكيلة العطور' },
-  'hero.cta_guide': { en: 'Fragrance Notes Guide', ar: 'دليل النوتات العطرية' },
+  'hero.title': {
+    en: 'THE INVISIBLE CROWN OF UNFORGETTABLE PRESENCE.',
+    ar: 'عِـطْـرٌ يَـسْـبِـقُ حُـضُـورَكَ.. وَأَثَـرٌ لَا يَـمْـحُـوهُ الـزَّمَـانْ',
+  },
+  'hero.subtitle': {
+    en: 'Where majestic Egyptian botanical heritage meets French Haute Parfumerie. Masterfully formulated with up to 35% rare aged oils—crafted exclusively for those whose presence commands the room.',
+    ar: 'سلطان الحضور ونفحات صيغت لأصحاب الذوق الملكي الرفيع. أندر زيوت الشرق المعتقة ممزوجة بأنقى خلاصات العطور الباريسية، لتمنحك هيبة آسرة وثباتاً يُخلّد حضورك أينما حللت.',
+  },
+  'hero.cta_explore': { en: 'Discover Royal Fragrances', ar: 'اكتشف التشكيلة الملكية' },
+  'hero.cta_guide': { en: 'Scent Architecture Guide', ar: 'دليل النوتات والهرم العطري' },
   'hero.video_playing': { en: 'Atmospheric Video Active', ar: 'الفيديو السينمائي يعمل' },
 
   // Stats

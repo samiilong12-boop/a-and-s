@@ -43,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl" className={`${bodoniModa.variable} ${jost.variable}`}>
-      <body className="min-h-screen flex flex-col bg-[#080A0A] text-[#F5F2EB] font-sans antialiased selection:bg-[#66D9C5] selection:text-[#080A0A]">
+      <body className="min-h-screen flex flex-col bg-white text-[#0A0D0D] font-sans antialiased selection:bg-[#B8934A] selection:text-white">
         <LanguageProvider>
           <ProductProvider>
             <CartProvider>

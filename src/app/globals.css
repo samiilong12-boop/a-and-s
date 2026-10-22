@@ -3,31 +3,24 @@
 @tailwind utilities;
 
 :root {
-  /* Approved Brand Color Tokens (Section 2 & E10) */
-  --luxury-black: #080A0A;
-  --light-turquoise: #66D9C5;
-  --deep-teal: #0B665D;
-  --warm-ivory: #F5F2EB;
-  --champagne-gold: #C6A66B;
+  /* Ultra-Luxury White & Pearl Palette */
+  --bg-primary: #FFFFFF;              /* Primary Pristine White Canvas */
+  --bg-surface: #FAFAF7;              /* Pearl Ivory Secondary Surfaces */
+  --bg-elevated: #F3F2EB;             /* Elevated Ivory Sections */
+  --bg-card: #FFFFFF;                 /* Pure White Cards */
+  --bg-accent: #0B665D;               /* Deep Regal Teal */
 
-  /* Semantic UI Surfaces */
-  --bg-primary: #080A0A;
-  --bg-surface: #0E1212;
-  --bg-elevated: #141A19;
-  --bg-card: #111716;
-  --bg-accent: #66D9C5;
+  /* High-Contrast Typography */
+  --text-primary: #0A0D0D;            /* Deep Obsidian Black (18.5:1 Contrast on White) */
+  --text-secondary: #4A5553;          /* Elegant Charcoal for Body Copy */
+  --text-muted: #788784;              /* Subtle Labels */
+  --text-gold: #B8934A;               /* Regal Champagne Gold */
+  --text-on-accent: #FFFFFF;
 
-  /* Typography Colors */
-  --text-primary: #F5F2EB;
-  --text-secondary: #9EABA7;
-  --text-muted: #6C7A77;
-  --text-on-accent: #080A0A; /* STRICT WCAG AA: Text on #66D9C5 must always be #080A0A */
-  --text-gold: #C6A66B;
-
-  /* Borders & Dividers */
-  --border-subtle: #192422;
-  --border-accent: #66D9C5;
-  --border-gold: rgba(198, 166, 107, 0.3);
+  /* Borders & Accents */
+  --border-subtle: #E8E6DF;           /* Delicate Pearl Gray */
+  --border-accent: #0B665D;           /* Deep Teal Accent */
+  --border-gold: rgba(184, 147, 74, 0.4); /* Refined Gold Trims */
 }
 
 * {
@@ -50,7 +43,7 @@ body {
   min-height: 100vh;
 }
 
-/* Headings font styling */
+/* Headings font styling (Bodoni Moda Editorial Serif) */
 h1, h2, h3, h4, .font-editorial {
   font-family: var(--font-bodoni-moda), Georgia, serif;
   letter-spacing: -0.01em;
@@ -63,86 +56,74 @@ h1, h2, h3, h4, .font-editorial {
 }
 
 ::-webkit-scrollbar-track {
-  background: #080A0A;
+  background: #FAFAF7;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #192422;
+  background: #D5D1C7;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0B665D;
+  background: #B8934A;
 }
 
 /* Luxury button styling */
 .btn-primary {
-  background-color: #66D9C5;
-  color: #080A0A !important;
+  background-color: #0A0D0D;
+  color: #FFFFFF !important;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid #0A0D0D;
 }
 
 .btn-primary:hover {
-  background-color: #82E2D1;
+  background-color: #1A2422;
+  border-color: #B8934A;
+  color: #F5F2EB !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(102, 217, 197, 0.25);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
+  box-shadow: 0 8px 25px rgba(10, 13, 13, 0.15);
 }
 
 .btn-secondary {
-  background-color: transparent;
-  color: #F5F2EB;
-  border: 1px solid #1C2B28;
+  background-color: #FFFFFF;
+  color: #0A0D0D;
+  border: 1px solid #D5D1C7;
   transition: all 0.2s ease;
+  font-weight: 600;
 }
 
 .btn-secondary:hover {
-  border-color: #66D9C5;
-  color: #66D9C5;
-  background-color: rgba(102, 217, 197, 0.05);
+  border-color: #0B665D;
+  color: #0B665D;
+  background-color: #F8FAF9;
 }
 
-/* Luxury card with subtle border glow */
+/* Luxury card with subtle pearl & gold elevation */
 .luxury-card {
-  background: linear-gradient(180deg, #111716 0%, #0E1212 100%);
-  border: 1px solid #1A2624;
+  background: #FFFFFF;
+  border: 1px solid #E8E6DF;
+  box-shadow: 0 4px 20px -2px rgba(10, 13, 13, 0.04);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .luxury-card:hover {
-  border-color: rgba(102, 217, 197, 0.4);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7), 0 0 15px -3px rgba(102, 217, 197, 0.1);
-  transform: translateY(-2px);
+  border-color: #B8934A;
+  box-shadow: 0 16px 35px -8px rgba(184, 147, 74, 0.15), 0 4px 12px rgba(0, 0, 0, 0.03);
+  transform: translateY(-3px);
 }
 
-/* Gold badge accent (<5% restraint) */
+/* Gold badge accent */
 .badge-gold {
-  border: 1px solid rgba(198, 166, 107, 0.4);
-  color: #C6A66B;
-  background: rgba(198, 166, 107, 0.08);
+  border: 1px solid rgba(184, 147, 74, 0.4);
+  color: #8C6A23;
+  background: rgba(184, 147, 74, 0.08);
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-
-/* Logical CSS properties for future RTL */
-.ps-start {
-  padding-inline-start: 1rem;
-}
-.pe-end {
-  padding-inline-end: 1rem;
-}
-.ms-start {
-  margin-inline-start: 1rem;
-}
-.me-end {
-  margin-inline-end: 1rem;
+  font-weight: 700;
 }
