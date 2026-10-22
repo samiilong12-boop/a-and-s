@@ -15,8 +15,10 @@ import {
   User,
   AlertCircle,
   Sparkles,
+  MessageSquare,
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { SHIPPING_ZONES } from '@/lib/data/products';
 import { formatPrice, calculateOrderTotals } from '@/lib/currency';
 import { validateEgyptianPhone } from '@/lib/phone-validation';
@@ -24,6 +26,7 @@ import { validateEgyptianPhone } from '@/lib/phone-validation';
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotalInPiasters, clearCart } = useCart();
+  const { t, isRtl } = useLanguage();
 
   // Form State
   const [formData, setFormData] = useState({
@@ -65,20 +68,20 @@ export default function CheckoutPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.customerName.trim() || formData.customerName.trim().length < 3) {
-      newErrors.customerName = 'Please enter your full name (at least 3 characters)';
+      newErrors.customerName = isRtl ? 'يرجى كتابة الاسم بالكامل (3 أحرف على الأقل)' : 'Please enter your full name (at least 3 characters)';
     }
 
     const phoneValidation = validateEgyptianPhone(formData.customerPhone);
     if (!phoneValidation.isValid) {
-      newErrors.customerPhone = phoneValidation.errorMessage || 'Invalid Egyptian phone number';
+      newErrors.customerPhone = isRtl ? 'يرجى إدخال رقم محمول مصري صحيح مكون من 11 رقماً (مثال: 01012345678)' : (phoneValidation.errorMessage || 'Invalid Egyptian phone number');
     }
 
     if (!formData.city.trim()) {
-      newErrors.city = 'City / District is required (e.g. Zamalek, Nasr City, Smouha)';
+      newErrors.city = isRtl ? 'المدينة أو الحي مطلوب (مثال: التجمع، المعادي، سموحة)' : 'City / District is required (e.g. Zamalek, Nasr City, Smouha)';
     }
 
     if (!formData.streetAddress.trim() || formData.streetAddress.trim().length < 5) {
-      newErrors.streetAddress = 'Please enter your detailed street address';
+      newErrors.streetAddress = isRtl ? 'يرجى إدخال اسم الشارع وتفاصيل العنوان' : 'Please enter your detailed street address';
     }
 
     setErrors(newErrors);
@@ -89,7 +92,7 @@ export default function CheckoutPage() {
     e.preventDefault();
 
     if (items.length === 0) {
-      alert('Your cart is empty');
+      alert(isRtl ? 'حقيبة المشتريات فارغة' : 'Your cart is empty');
       return;
     }
 
@@ -100,12 +103,10 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // Generate clean unique Order Number in format AS-YYYYMM-XXXX
       const dateStr = new Date().toISOString().slice(0, 7).replace('-', '');
       const randomSuffix = Math.floor(1000 + Math.random() * 9000);
       const orderNumber = `AS-${dateStr}-${randomSuffix}`;
 
-      // In-browser mock persistent order store for Stage A demo
       const orderPayload = {
         id: `order-${Date.now()}`,
         orderNumber,
@@ -143,19 +144,15 @@ export default function CheckoutPage() {
         })),
       };
 
-      // Save order to localStorage for tracking and admin retrieval
       const existingOrdersStr = localStorage.getItem('a_and_s_demo_orders');
       const existingOrders = existingOrdersStr ? JSON.parse(existingOrdersStr) : [];
       localStorage.setItem('a_and_s_demo_orders', JSON.stringify([orderPayload, ...existingOrders]));
 
-      // Clear shopping bag
       clearCart();
-
-      // Redirect to Confirmation
       router.push(`/order-confirmation/${orderNumber}`);
     } catch (err) {
-      console.error('Order submission error:', err);
-      alert('An unexpected error occurred while placing your order. Please try again.');
+      console.error(err);
+      alert('Error placing order');
       setIsSubmitting(false);
     }
   };
@@ -163,10 +160,14 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-24 text-center space-y-6">
-        <h1 className="font-serif text-3xl font-bold text-[#F5F2EB]">Your Bag is Empty</h1>
-        <p className="text-sm text-[#9EABA7]">Please select your desired fragrance before proceeding to checkout.</p>
+        <h1 className="font-serif text-3xl font-bold text-[#F5F2EB]">
+          {isRtl ? 'حقيبة المشتريات فارغة' : 'Your Bag is Empty'}
+        </h1>
+        <p className="text-sm text-[#9EABA7]">
+          {isRtl ? 'يرجى اختيار عطرك المفضل قبل المتابعة لإتمام الطلب.' : 'Please select your desired fragrance before proceeding to checkout.'}
+        </p>
         <Link href="/catalog" className="btn-primary py-3 px-8 rounded text-xs tracking-widest uppercase font-bold inline-block">
-          Explore The Collection
+          {isRtl ? 'تصفح تشكيلة العطور' : 'Explore The Collection'}
         </Link>
       </div>
     );
@@ -179,40 +180,40 @@ export default function CheckoutPage() {
       <div className="border-b border-[#1A2624] pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-semibold tracking-[0.25em] text-[#C6A66B] uppercase">
-            Secure Checkout
+            {isRtl ? 'إتمام الشراء الآمن' : 'Secure Checkout'}
           </span>
           <h1 className="font-serif text-3xl font-bold text-[#F5F2EB] mt-1">
-            Cash On Delivery Checkout
+            {t('checkout.title')}
           </h1>
         </div>
         <div className="flex items-center gap-2 text-xs text-[#66D9C5] bg-[#66D9C5]/10 border border-[#66D9C5]/20 px-3.5 py-1.5 rounded-full self-start sm:self-auto">
           <ShieldCheck className="w-4 h-4" />
-          <span>Pay in Cash Upon Hand Delivery</span>
+          <span>{isRtl ? 'الدفع نقداً بعد المعاينة عند باب بيتك' : 'Pay in Cash Upon Hand Delivery'}</span>
         </div>
       </div>
 
       <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         
-        {/* Left Column: Delivery Information (7 cols) */}
+        {/* Left Column: Delivery Information */}
         <div className="lg:col-span-7 space-y-8">
           
           {/* Customer Contact */}
           <div className="bg-[#0E1212] p-6 rounded-xl border border-[#1A2624] space-y-4">
             <h2 className="font-serif text-lg font-bold text-[#F5F2EB] flex items-center gap-2">
               <User className="w-4 h-4 text-[#66D9C5]" />
-              <span>Customer Contact Details</span>
+              <span>{t('checkout.customer_info')}</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[#D5D1C7] block">
-                  Full Name <span className="text-rose-400">*</span>
+                  {t('checkout.full_name')} <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.customerName}
                   onChange={(e) => handleInputChange('customerName', e.target.value)}
-                  placeholder="e.g. Dr. Omar El-Sherif"
+                  placeholder={isRtl ? 'الاسم ثلاثي (مثال: د. عمر الشريف)' : 'e.g. Dr. Omar El-Sherif'}
                   className={`w-full bg-[#111716] border rounded-lg px-3.5 py-2.5 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5] ${
                     errors.customerName ? 'border-rose-500' : 'border-[#1A2624]'
                   }`}
@@ -227,7 +228,7 @@ export default function CheckoutPage() {
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[#D5D1C7] block">
-                  Egyptian Mobile Phone (11 digits) <span className="text-rose-400">*</span>
+                  {t('checkout.phone')} <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="tel"
@@ -244,14 +245,16 @@ export default function CheckoutPage() {
                     <span>{errors.customerPhone}</span>
                   </p>
                 ) : (
-                  <p className="text-[10px] text-[#6C7A77]">Our concierge will call or WhatsApp you to confirm shipment.</p>
+                  <p className="text-[10px] text-[#6C7A77]">
+                    {isRtl ? 'سيتواصل معك معملنا هاتفياً أو عبر واتساب لتأكيد الشحن.' : 'Our concierge will call or WhatsApp you to confirm shipment.'}
+                  </p>
                 )}
               </div>
             </div>
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-[#D5D1C7] block">
-                Email Address <span className="text-[#6C7A77]">(Optional for tracking receipt)</span>
+                {t('checkout.email_optional')}
               </label>
               <input
                 type="email"
@@ -267,14 +270,14 @@ export default function CheckoutPage() {
           <div className="bg-[#0E1212] p-6 rounded-xl border border-[#1A2624] space-y-4">
             <h2 className="font-serif text-lg font-bold text-[#F5F2EB] flex items-center gap-2">
               <MapPin className="w-4 h-4 text-[#66D9C5]" />
-              <span>Delivery Address in Egypt</span>
+              <span>{t('checkout.address_section')}</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Governorate Dropdown */}
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[#D5D1C7] block">
-                  Governorate (المحافظة) <span className="text-rose-400">*</span>
+                  {t('checkout.governorate')} <span className="text-rose-400">*</span>
                 </label>
                 <select
                   value={formData.governorate}
@@ -283,25 +286,27 @@ export default function CheckoutPage() {
                 >
                   {SHIPPING_ZONES.map((zone) => (
                     <option key={zone.governorateEn} value={zone.governorateEn}>
-                      {zone.governorateEn} ({zone.governorateAr}) — {financials.isEligibleForFreeShipping ? 'FREE' : formatPrice(zone.rateInPiasters)}
+                      {zone.governorateAr} ({zone.governorateEn}) — {financials.isEligibleForFreeShipping ? (isRtl ? 'شحن مجاني' : 'FREE') : formatPrice(zone.rateInPiasters)}
                     </option>
                   ))}
                 </select>
                 <p className="text-[10px] text-[#66D9C5]">
-                  Est. Delivery: {selectedZone.minDays}–{selectedZone.maxDays} Business Days
+                  {isRtl
+                    ? `توصيل متوقع: خلال ${selectedZone.minDays}–${selectedZone.maxDays} أيام عمل`
+                    : `Est. Delivery: ${selectedZone.minDays}–${selectedZone.maxDays} Business Days`}
                 </p>
               </div>
 
               {/* City / District */}
               <div className="space-y-1">
                 <label className="text-xs font-medium text-[#D5D1C7] block">
-                  City / District (المدينة / الحي) <span className="text-rose-400">*</span>
+                  {t('checkout.city')} <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
-                  placeholder="e.g. New Cairo, Dokki, Maadi"
+                  placeholder={isRtl ? 'مثال: التجمع الخامس، الدقي، سيدي جابر' : 'e.g. New Cairo, Dokki, Maadi'}
                   className={`w-full bg-[#111716] border rounded-lg px-3.5 py-2.5 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5] ${
                     errors.city ? 'border-rose-500' : 'border-[#1A2624]'
                   }`}
@@ -318,13 +323,13 @@ export default function CheckoutPage() {
             {/* Street Address */}
             <div className="space-y-1">
               <label className="text-xs font-medium text-[#D5D1C7] block">
-                Street Address (اسم الشارع) <span className="text-rose-400">*</span>
+                {t('checkout.street')} <span className="text-rose-400">*</span>
               </label>
               <input
                 type="text"
                 value={formData.streetAddress}
                 onChange={(e) => handleInputChange('streetAddress', e.target.value)}
-                placeholder="e.g. 14 El-Thawra Street, off Palestine Square"
+                placeholder={isRtl ? 'اسم الشارع، رقم العمارة أو الفيلا، علامة مميزة' : 'e.g. 14 El-Thawra Street, off Palestine Square'}
                 className={`w-full bg-[#111716] border rounded-lg px-3.5 py-2.5 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5] ${
                   errors.streetAddress ? 'border-rose-500' : 'border-[#1A2624]'
                 }`}
@@ -340,13 +345,13 @@ export default function CheckoutPage() {
             {/* Building / Floor / Apt */}
             <div className="space-y-1">
               <label className="text-xs font-medium text-[#D5D1C7] block">
-                Building, Floor & Apartment (رقم المبنى / الدور / الشقة)
+                {t('checkout.building')}
               </label>
               <input
                 type="text"
                 value={formData.buildingDetails}
                 onChange={(e) => handleInputChange('buildingDetails', e.target.value)}
-                placeholder="e.g. Building 22, Floor 4, Apt 402"
+                placeholder={isRtl ? 'مثال: عمارة 24، الدور الرابع، شقة 12' : 'e.g. Building 22, Floor 4, Apt 402'}
                 className="w-full bg-[#111716] border border-[#1A2624] rounded-lg px-3.5 py-2.5 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5]"
               />
             </div>
@@ -354,12 +359,12 @@ export default function CheckoutPage() {
             {/* Delivery Notes */}
             <div className="space-y-1">
               <label className="text-xs font-medium text-[#D5D1C7] block">
-                Delivery Instructions (ملاحظات للمندوب)
+                {t('checkout.notes')}
               </label>
               <textarea
                 value={formData.deliveryNotes}
                 onChange={(e) => handleInputChange('deliveryNotes', e.target.value)}
-                placeholder="e.g. Ring doorbell twice, deliver after 3 PM"
+                placeholder={isRtl ? 'مثال: رن الجرس مرتين، التسليم بعد الساعة 4 عصراً' : 'e.g. Ring doorbell twice, deliver after 3 PM'}
                 rows={2}
                 className="w-full bg-[#111716] border border-[#1A2624] rounded-lg px-3.5 py-2 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5]"
               />
@@ -370,32 +375,31 @@ export default function CheckoutPage() {
           <div className="bg-[#0E1212] p-6 rounded-xl border border-[#1A2624] space-y-4">
             <h2 className="font-serif text-lg font-bold text-[#F5F2EB] flex items-center gap-2">
               <Lock className="w-4 h-4 text-[#66D9C5]" />
-              <span>Payment Method at Launch</span>
+              <span>{t('checkout.payment_method')}</span>
             </h2>
 
-            {/* Cash on Delivery Card */}
             <div className="p-4 bg-[#141A19] border border-[#66D9C5] rounded-lg flex items-start gap-4">
               <div className="w-5 h-5 rounded-full border-2 border-[#66D9C5] flex items-center justify-center flex-shrink-0 mt-0.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#66D9C5]" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-[#F5F2EB]">Cash On Delivery (الدفع عند الاستلام)</span>
-                  <span className="badge-gold px-2 py-0.2 rounded text-[10px]">Guaranteed Safe</span>
+                  <span className="text-sm font-bold text-[#F5F2EB]">{t('checkout.cod_badge')}</span>
+                  <span className="badge-gold px-2 py-0.2 rounded text-[10px]">100% Guaranteed</span>
                 </div>
                 <p className="text-xs text-[#9EABA7] leading-relaxed">
-                  Pay the total order amount in cash directly to the courier upon delivery and visual inspection. No card required.
+                  {t('checkout.cod_explain')}
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Order Summary (5 cols) */}
+        {/* Right Column: Order Summary */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-[#0E1212] p-6 rounded-xl border border-[#1A2624] space-y-6 sticky top-28 shadow-2xl">
             <h3 className="font-serif text-lg font-bold text-[#F5F2EB] pb-3 border-b border-[#1A2624]">
-              Order Summary ({items.length} {items.length === 1 ? 'item' : 'items'})
+              {isRtl ? `ملخص الطلب (${items.length} عطور)` : `Order Summary (${items.length} items)`}
             </h3>
 
             {/* Item Mini Cards */}
@@ -421,28 +425,28 @@ export default function CheckoutPage() {
             {/* Financial Calculations Breakdown */}
             <div className="space-y-2 text-xs pt-2">
               <div className="flex justify-between text-[#9EABA7]">
-                <span>Items Subtotal</span>
+                <span>{isRtl ? 'المجموع الفرعي للعطور' : 'Items Subtotal'}</span>
                 <span className="font-semibold text-[#F5F2EB]">{formatPrice(financials.subtotalInPiasters)}</span>
               </div>
 
               <div className="flex justify-between text-[#9EABA7]">
-                <span>Shipping to {formData.governorate}</span>
+                <span>{isRtl ? `الشحن إلى محافظة ${selectedZone.governorateAr}` : `Shipping to ${formData.governorate}`}</span>
                 {financials.isEligibleForFreeShipping ? (
-                  <span className="text-[#66D9C5] font-bold">COMPLIMENTARY (FREE)</span>
+                  <span className="text-[#66D9C5] font-bold">{isRtl ? 'شحن فاخر مجاني' : 'COMPLIMENTARY'}</span>
                 ) : (
                   <span className="font-semibold text-[#F5F2EB]">{formatPrice(financials.shippingInPiasters)}</span>
                 )}
               </div>
 
               <div className="flex justify-between text-[#6C7A77] text-[11px]">
-                <span>Applicable Egyptian VAT (14%)</span>
-                <span>Included in prices</span>
+                <span>{isRtl ? 'ضريبة القيمة المضافة 14%' : 'Egyptian VAT (14%)'}</span>
+                <span>{isRtl ? 'شاملة في الأسعار' : 'Included in prices'}</span>
               </div>
 
               <div className="pt-3 border-t border-[#1A2624] flex justify-between items-baseline">
                 <div>
-                  <span className="font-serif text-base font-bold text-[#F5F2EB]">Total Cash Due</span>
-                  <p className="text-[10px] text-[#9EABA7]">Payable to courier upon delivery</p>
+                  <span className="font-serif text-base font-bold text-[#F5F2EB]">{isRtl ? 'إجمالي المبلغ المطلوب نقداً' : 'Total Cash Due'}</span>
+                  <p className="text-[10px] text-[#9EABA7]">{isRtl ? 'يدفع للمندوب عند استلام ومعاينة الشحنة' : 'Payable to courier upon delivery'}</p>
                 </div>
                 <span className="font-serif text-2xl font-bold text-[#66D9C5]">
                   {formatPrice(financials.totalInPiasters)}
@@ -457,11 +461,11 @@ export default function CheckoutPage() {
               className="w-full btn-primary py-4 px-6 rounded-lg text-xs tracking-widest uppercase font-bold flex items-center justify-center gap-2 shadow-2xl disabled:opacity-50"
             >
               {isSubmitting ? (
-                <span>Confirming Order...</span>
+                <span>{t('checkout.submitting')}</span>
               ) : (
                 <>
-                  <span>Place Cash-on-Delivery Order</span>
-                  <ArrowRight className="w-4 h-4 text-[#080A0A]" />
+                  <span>{t('checkout.place_order')}</span>
+                  <ArrowRight className={`w-4 h-4 text-[#080A0A] ${isRtl ? 'rotate-180' : ''}`} />
                 </>
               )}
             </button>
@@ -469,11 +473,11 @@ export default function CheckoutPage() {
             <div className="space-y-2 pt-2 border-t border-[#1A2624] text-[11px] text-[#6C7A77]">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#66D9C5]" />
-                <span>Orders start as &quot;Pending Confirmation&quot;</span>
+                <span>{isRtl ? 'تأكيد فوري للطلب عبر الهاتف أو واتساب' : 'Orders start as "Pending Confirmation"'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Truck className="w-3.5 h-3.5 text-[#C6A66B]" />
-                <span>Concierge will verify delivery address prior to dispatch</span>
+                <span>{isRtl ? 'تغليف فاخر محكم مع شمع ختم الأمان' : 'Concierge will verify delivery address prior to dispatch'}</span>
               </div>
             </div>
           </div>

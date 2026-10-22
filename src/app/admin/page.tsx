@@ -13,12 +13,14 @@ import {
   DollarSign,
   Package,
   Layers,
+  Lock,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
-import { DEMO_PRODUCTS } from '@/lib/data/products';
+import { useProducts } from '@/context/ProductContext';
 import { getOrderStatusLabel, getPaymentStatusLabel } from '@/lib/state-machines';
 
 export default function AdminOverviewPage() {
+  const { products } = useProducts();
   const [orders, setOrders] = useState<any[]>([]);
 
   useEffect(() => {
@@ -26,95 +28,6 @@ export default function AdminOverviewPage() {
       const stored = localStorage.getItem('a_and_s_demo_orders');
       if (stored) {
         setOrders(JSON.parse(stored));
-      } else {
-        // Seed initial demo orders if empty to display realistic analytics
-        const seedOrders = [
-          {
-            id: 'ord-seed-01',
-            orderNumber: 'AS-202610-1001',
-            customerName: 'Youssef El-Gendy',
-            customerPhone: '01012345678',
-            governorate: 'Cairo',
-            city: 'New Cairo',
-            streetAddress: 'Road 90 North, Villa 12',
-            status: 'PENDING_CONFIRMATION',
-            paymentStatus: 'PENDING_COLLECTION',
-            subtotalInPiasters: 480000,
-            shippingInPiasters: 0,
-            totalInPiasters: 480000,
-            totalCostInPiasters: 168000,
-            createdAt: new Date(Date.now() - 3600000).toISOString(),
-            items: [
-              {
-                id: 'itm-1',
-                productNameSnapshot: 'A AND S — Royal Sovereign Oud',
-                variantTitleSnapshot: '100ml Eau De Parfum',
-                skuSnapshot: 'AS-001-100ML',
-                quantity: 1,
-                unitPriceInPiasters: 480000,
-                subtotalInPiasters: 480000,
-              },
-            ],
-          },
-          {
-            id: 'ord-seed-02',
-            orderNumber: 'AS-202610-1002',
-            customerName: 'Mariam Soliman',
-            customerPhone: '01223456789',
-            governorate: 'Alexandria',
-            city: 'Gleem',
-            streetAddress: '15 Corniche Road',
-            status: 'CONFIRMED',
-            paymentStatus: 'PENDING_COLLECTION',
-            subtotalInPiasters: 240000,
-            shippingInPiasters: 6500,
-            totalInPiasters: 246500,
-            totalCostInPiasters: 84000,
-            createdAt: new Date(Date.now() - 14400000).toISOString(),
-            items: [
-              {
-                id: 'itm-2',
-                productNameSnapshot: 'A AND S — Saffron Mirage',
-                variantTitleSnapshot: '50ml Eau De Parfum',
-                skuSnapshot: 'AS-002-50ML',
-                quantity: 1,
-                unitPriceInPiasters: 240000,
-                subtotalInPiasters: 240000,
-              },
-            ],
-          },
-          {
-            id: 'ord-seed-03',
-            orderNumber: 'AS-202610-1003',
-            customerName: 'Karim Mansour',
-            customerPhone: '01134567890',
-            governorate: 'Giza',
-            city: 'Sheikh Zayed',
-            streetAddress: 'Beverly Hills, Compound 4',
-            status: 'DELIVERED',
-            paymentStatus: 'COLLECTED_BY_COURIER',
-            courierName: 'Aramex Egypt',
-            trackingNumber: 'ARAMEX-EG-998812',
-            subtotalInPiasters: 520000,
-            shippingInPiasters: 0,
-            totalInPiasters: 520000,
-            totalCostInPiasters: 182000,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            items: [
-              {
-                id: 'itm-3',
-                productNameSnapshot: 'A AND S — Velvet Ambergris',
-                variantTitleSnapshot: '100ml Eau De Parfum',
-                skuSnapshot: 'AS-003-100ML',
-                quantity: 1,
-                unitPriceInPiasters: 520000,
-                subtotalInPiasters: 520000,
-              },
-            ],
-          },
-        ];
-        localStorage.setItem('a_and_s_demo_orders', JSON.stringify(seedOrders));
-        setOrders(seedOrders);
       }
     } catch (e) {
       console.error(e);
@@ -135,138 +48,149 @@ export default function AdminOverviewPage() {
   const deliveredCount = orders.filter((o) => o.status === 'DELIVERED').length;
 
   // Inventory analysis
-  const lowStockCount = DEMO_PRODUCTS.filter((p) =>
+  const lowStockCount = products.filter((p) =>
     p.variants.some((v) => v.stockQuantity <= v.lowStockThreshold)
   ).length;
 
   return (
     <div className="space-y-8">
-      {/* Page Title & Context */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header Banner (Clean White UI) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
         <div>
-          <span className="text-xs font-semibold tracking-wider text-[#C6A66B] uppercase">
-            A AND S Executive Analytics
-          </span>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#F5F2EB] mt-0.5">
-            Store Performance & Orders
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold tracking-wider text-teal-800 uppercase">
+              لوحة الإدارة والتحليلات المالية المباشرة
+            </span>
+            <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-300 font-mono">
+              خاص بالمالك والإدارة فقط
+            </span>
+          </div>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
+            Store Performance & Financial Analytics
           </h1>
-          <p className="text-xs text-[#9EABA7]">
-            Real-time financial metrics, inventory indicators, and Egypt Cash-on-Delivery fulfillment status.
+          <p className="text-xs text-slate-500 mt-0.5">
+            متابعة حية للأرباح والمبيعات بالجنيه المصري (EGP)، وتأكيدات الدفع عند الاستلام، وتنبيهات المخزون.
           </p>
         </div>
 
         <Link
           href="/admin/orders"
-          className="btn-primary px-4 py-2 rounded text-xs tracking-wider uppercase font-bold self-start sm:self-auto flex items-center gap-2"
+          className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-4 py-2.5 rounded-lg text-xs tracking-wider uppercase self-start sm:self-auto flex items-center gap-2 shadow-sm transition-all"
         >
-          <span>Manage Orders</span>
-          <ArrowRight className="w-4 h-4 text-[#080A0A]" />
+          <span>إدارة ومتابعة الطلبات ({orders.length})</span>
+          <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
 
-      {/* Financial KPIs Matrix (E1 Financial Integrity) */}
+      {/* Financial KPIs Matrix (E1 Financial Integrity - Clean High-Contrast Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Gross Sales */}
-        <div className="p-5 bg-[#0E1212] border border-[#1A2624] rounded-xl space-y-2">
-          <div className="flex justify-between items-center text-xs text-[#9EABA7]">
-            <span>Gross Merchandise Sales</span>
-            <TrendingUp className="w-4 h-4 text-[#66D9C5]" />
+        <div className="p-5 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
+          <div className="flex justify-between items-center text-xs text-slate-500 font-semibold">
+            <span>إجمالي المبيعات (Gross Sales)</span>
+            <TrendingUp className="w-4 h-4 text-teal-600" />
           </div>
-          <p className="font-serif text-2xl font-bold text-[#66D9C5]">
+          <p className="font-serif text-2xl font-bold text-teal-800">
             {formatPrice(grossSalesInPiasters)}
           </p>
-          <p className="text-[10px] text-[#6C7A77]">Calculated from all placed orders</p>
+          <p className="text-[10px] text-slate-400">إجمالي قيمة جميع الطلبات المستلمة</p>
         </div>
 
-        {/* Estimated Gross Profit (E1: clearly distinguished from revenue) */}
-        <div className="p-5 bg-[#0E1212] border border-[#1A2624] rounded-xl space-y-2">
-          <div className="flex justify-between items-center text-xs text-[#9EABA7]">
-            <span>Est. Gross Profit (COGS Deducted)</span>
-            <DollarSign className="w-4 h-4 text-[#C6A66B]" />
+        {/* Estimated Gross Profit */}
+        <div className="p-5 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
+          <div className="flex justify-between items-center text-xs text-slate-500 font-semibold">
+            <span>صافي الربح التقديري (Gross Profit)</span>
+            <DollarSign className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="font-serif text-2xl font-bold text-[#C6A66B]">
+          <p className="font-serif text-2xl font-bold text-amber-800">
             {formatPrice(estimatedGrossProfitInPiasters)}
           </p>
-          <p className="text-[10px] text-[#6C7A77]">Gross Sales minus estimated product costs</p>
+          <p className="text-[10px] text-slate-400">بعد خصم التكلفة الباطنية للزيوت والزجاجات</p>
         </div>
 
         {/* Total Orders & AOV */}
-        <div className="p-5 bg-[#0E1212] border border-[#1A2624] rounded-xl space-y-2">
-          <div className="flex justify-between items-center text-xs text-[#9EABA7]">
-            <span>Total Orders & AOV</span>
-            <ShoppingBag className="w-4 h-4 text-[#F5F2EB]" />
+        <div className="p-5 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
+          <div className="flex justify-between items-center text-xs text-slate-500 font-semibold">
+            <span>الطلبات ومتوسط الفاتورة (AOV)</span>
+            <ShoppingBag className="w-4 h-4 text-slate-700" />
           </div>
-          <p className="font-serif text-2xl font-bold text-[#F5F2EB]">
-            {totalOrders} Orders
+          <p className="font-serif text-2xl font-bold text-slate-900">
+            {totalOrders} طلبات
           </p>
-          <p className="text-[10px] text-[#9EABA7]">
-            Average Value: <strong className="text-[#66D9C5]">{formatPrice(averageOrderValueInPiasters)}</strong>
+          <p className="text-[10px] text-slate-500">
+            متوسط قيمة الطلب: <strong className="text-teal-700">{formatPrice(averageOrderValueInPiasters)}</strong>
           </p>
         </div>
 
         {/* Low Stock Watch */}
-        <div className="p-5 bg-[#0E1212] border border-[#1A2624] rounded-xl space-y-2">
-          <div className="flex justify-between items-center text-xs text-[#9EABA7]">
-            <span>Low Inventory Alerts</span>
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
+        <div className="p-5 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
+          <div className="flex justify-between items-center text-xs text-slate-500 font-semibold">
+            <span>عطور قريبة من النفاد (Low Stock)</span>
+            <AlertTriangle className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="font-serif text-2xl font-bold text-amber-400">
-            {lowStockCount} Products
+          <p className="font-serif text-2xl font-bold text-amber-700">
+            {lowStockCount} عطور
           </p>
-          <p className="text-[10px] text-[#6C7A77]">Stock below threshold ({DEMO_PRODUCTS.length} total)</p>
+          <p className="text-[10px] text-slate-400">من إجمالي {products.length} تركيبة مسجلة</p>
         </div>
       </div>
 
       {/* Cash on Delivery Fulfillment Pipeline (E10) */}
-      <div className="p-6 bg-[#0E1212] border border-[#1A2624] rounded-xl space-y-4 shadow-xl">
-        <h3 className="font-serif text-base font-bold text-[#F5F2EB]">
-          Egypt Cash-on-Delivery Lifecycle Pipeline
-        </h3>
+      <div className="p-6 bg-white border border-slate-200 rounded-xl space-y-4 shadow-sm">
+        <div className="flex justify-between items-center">
+          <h3 className="font-serif text-base font-bold text-slate-900">
+            مسار دورة حياة طلبات الدفع عند الاستلام (Egypt COD Pipeline)
+          </h3>
+          <span className="text-xs text-slate-500">تحديث فوري</span>
+        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div className="p-3 bg-[#111716] border border-amber-400/30 rounded-lg">
-            <span className="text-[#9EABA7] block text-[11px]">1. Pending Confirmation</span>
-            <span className="text-xl font-bold text-amber-400 block mt-1">{pendingCount}</span>
-            <span className="text-[10px] text-[#6C7A77]">Awaiting phone verify</span>
+          <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-xl">
+            <span className="text-amber-800 font-semibold block text-[11px]">1. بانتظار التأكيد الهاتفي</span>
+            <span className="text-2xl font-bold text-amber-900 block mt-1">{pendingCount}</span>
+            <span className="text-[10px] text-amber-700">مطلوب اتصال / واتساب</span>
           </div>
 
-          <div className="p-3 bg-[#111716] border border-teal-400/30 rounded-lg">
-            <span className="text-[#9EABA7] block text-[11px]">2. Confirmed & Packing</span>
-            <span className="text-xl font-bold text-teal-400 block mt-1">{confirmedCount}</span>
-            <span className="text-[10px] text-[#6C7A77]">Ready for courier</span>
+          <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-xl">
+            <span className="text-teal-800 font-semibold block text-[11px]">2. تم التأكيد وجاري التجهيز</span>
+            <span className="text-2xl font-bold text-teal-900 block mt-1">{confirmedCount}</span>
+            <span className="text-[10px] text-teal-700">تغليف بالمعمل</span>
           </div>
 
-          <div className="p-3 bg-[#111716] border border-purple-400/30 rounded-lg">
-            <span className="text-[#9EABA7] block text-[11px]">3. Out For Delivery</span>
-            <span className="text-xl font-bold text-purple-400 block mt-1">{outForDeliveryCount}</span>
-            <span className="text-[10px] text-[#6C7A77]">With courier in transit</span>
+          <div className="p-4 bg-indigo-50/70 border border-indigo-200 rounded-xl">
+            <span className="text-indigo-800 font-semibold block text-[11px]">3. مع المندوب للتوصيل</span>
+            <span className="text-2xl font-bold text-indigo-900 block mt-1">{outForDeliveryCount}</span>
+            <span className="text-[10px] text-indigo-700">جاري الشحن</span>
           </div>
 
-          <div className="p-3 bg-[#111716] border border-emerald-400/30 rounded-lg">
-            <span className="text-[#9EABA7] block text-[11px]">4. Delivered & Collected</span>
-            <span className="text-xl font-bold text-emerald-400 block mt-1">{deliveredCount}</span>
-            <span className="text-[10px] text-[#6C7A77]">Cash collected</span>
+          <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl">
+            <span className="text-emerald-800 font-semibold block text-[11px]">4. تم التسليم وتحصيل النقد</span>
+            <span className="text-2xl font-bold text-emerald-900 block mt-1">{deliveredCount}</span>
+            <span className="text-[10px] text-emerald-700">تم التوريد للمتجر</span>
           </div>
         </div>
       </div>
 
       {/* Recent Orders Table */}
-      <div className="p-6 bg-[#0E1212] border border-[#1A2624] rounded-xl space-y-4">
+      <div className="p-6 bg-white border border-slate-200 rounded-xl space-y-4 shadow-sm">
         <div className="flex justify-between items-center">
-          <h3 className="font-serif text-base font-bold text-[#F5F2EB]">
-            Recent Customer Orders
-          </h3>
+          <div>
+            <h3 className="font-serif text-base font-bold text-slate-900">
+              أحدث طلبات العملاء (Recent Orders)
+            </h3>
+            <p className="text-xs text-slate-500">اضغط على أي طلب لتحديث حالته وتعيين شركة الشحن</p>
+          </div>
           <Link
             href="/admin/orders"
-            className="text-xs text-[#66D9C5] hover:underline"
+            className="text-xs font-bold text-teal-700 hover:text-teal-900"
           >
-            View All ({orders.length}) →
+            عرض جميع الطلبات ({orders.length}) →
           </Link>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#111716] text-[#9EABA7] uppercase tracking-wider text-[10px] border-b border-[#1A2624]">
+            <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-[10px] border-b border-slate-200 font-bold">
               <tr>
                 <th className="p-3">Order Ref</th>
                 <th className="p-3">Customer</th>
@@ -277,39 +201,39 @@ export default function AdminOverviewPage() {
                 <th className="p-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1A2624]">
+            <tbody className="divide-y divide-slate-100">
               {orders.slice(0, 5).map((order) => {
                 const statusMeta = getOrderStatusLabel(order.status);
                 const payMeta = getPaymentStatusLabel(order.paymentStatus);
                 return (
-                  <tr key={order.id} className="hover:bg-[#141A19]/50 transition-colors">
-                    <td className="p-3 font-mono text-[#66D9C5] font-semibold">
+                  <tr key={order.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="p-3 font-mono text-teal-700 font-bold text-sm">
                       {order.orderNumber}
                     </td>
                     <td className="p-3">
-                      <p className="font-medium text-[#F5F2EB]">{order.customerName}</p>
-                      <p className="text-[11px] text-[#6C7A77]">{order.customerPhone}</p>
+                      <p className="font-bold text-slate-900">{order.customerName}</p>
+                      <p className="text-[11px] text-slate-500 font-mono">{order.customerPhone}</p>
                     </td>
-                    <td className="p-3 text-[#D5D1C7]">{order.governorate}</td>
+                    <td className="p-3 text-slate-700 font-medium">{order.governorate}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${statusMeta.colorClass}`}>
+                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${statusMeta.colorClass}`}>
                         {statusMeta.labelEn}
                       </span>
                     </td>
                     <td className="p-3">
-                      <span className={`text-[11px] font-medium ${payMeta.colorClass}`}>
+                      <span className={`text-[11px] font-semibold ${payMeta.colorClass}`}>
                         {payMeta.labelEn}
                       </span>
                     </td>
-                    <td className="p-3 font-semibold text-[#F5F2EB]">
+                    <td className="p-3 font-bold text-slate-900">
                       {formatPrice(order.totalInPiasters)}
                     </td>
                     <td className="p-3 text-right">
                       <Link
                         href={`/admin/orders?highlight=${order.orderNumber}`}
-                        className="text-xs text-[#66D9C5] hover:underline"
+                        className="px-3 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded font-semibold text-xs border border-teal-200 transition-colors"
                       >
-                        Manage
+                        Manage Order
                       </Link>
                     </td>
                   </tr>

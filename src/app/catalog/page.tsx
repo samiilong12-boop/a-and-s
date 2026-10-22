@@ -3,14 +3,18 @@
 import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles } from 'lucide-react';
-import { DEMO_PRODUCTS, FRAGRANCE_FAMILIES, CONCENTRATIONS } from '@/lib/data/products';
+import { useProducts } from '@/context/ProductContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { FRAGRANCE_FAMILIES, CONCENTRATIONS } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
-import { FragranceConcentration } from '@/types';
 
 function CatalogContent() {
   const searchParams = useSearchParams();
   const initialFamily = searchParams.get('family') || 'All';
   const initialSort = searchParams.get('sort') || 'featured';
+
+  const { products } = useProducts();
+  const { t, isRtl } = useLanguage();
 
   // State
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,8 +29,8 @@ function CatalogContent() {
 
   // Filtering and Sorting
   const filteredProducts = useMemo(() => {
-    return DEMO_PRODUCTS.filter((product) => {
-      // Search term (name, sku, notes)
+    return products.filter((product) => {
+      // Search term
       if (searchTerm.trim()) {
         const term = searchTerm.toLowerCase();
         const matchesName = product.nameEn.toLowerCase().includes(term);
@@ -64,9 +68,9 @@ function CatalogContent() {
       if (sortBy === 'price-desc') return priceB - priceA;
       if (sortBy === 'newest') return a.isNewArrival ? -1 : 1;
       if (sortBy === 'bestselling') return a.isBestseller ? -1 : 1;
-      return 0; // 'featured' retains natural curation order
+      return 0;
     });
-  }, [searchTerm, selectedFamily, selectedConcentration, priceRange, sortBy]);
+  }, [products, searchTerm, selectedFamily, selectedConcentration, priceRange, sortBy]);
 
   // Pagination calculation
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
@@ -91,19 +95,21 @@ function CatalogContent() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <span className="text-xs font-semibold tracking-[0.25em] text-[#C6A66B] uppercase">
-              The Permanent Collection
+              {isRtl ? 'المجموعة الدائمة والأرشيف العطري' : 'The Permanent Collection'}
             </span>
             <h1 className="font-serif text-3xl sm:text-5xl font-bold text-[#F5F2EB] mt-1">
-              All Fragrances
+              {isRtl ? 'جميع العطور الملكية' : 'All Fragrances'}
             </h1>
             <p className="text-sm text-[#9EABA7] mt-1">
-              Showing {filteredProducts.length} curated creations • Formulated with rare oils and aged in Cairo.
+              {isRtl
+                ? `عرض ${filteredProducts.length} عطر فاخر من إجمالي ${products.length} تركيبة في معمل القاهرة.`
+                : `Showing ${filteredProducts.length} curated creations out of ${products.length} bespoke perfumes.`}
             </p>
           </div>
 
-          {/* Quick Search Input */}
+          {/* Search Input */}
           <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-[#9EABA7] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className={`w-4 h-4 text-[#9EABA7] absolute ${isRtl ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2`} />
             <input
               type="text"
               value={searchTerm}
@@ -111,13 +117,13 @@ function CatalogContent() {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search by perfume, notes, or SKU..."
-              className="w-full bg-[#111716] border border-[#1A2624] rounded-lg pl-10 pr-4 py-2.5 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5] transition-colors"
+              placeholder={t('nav.search_placeholder')}
+              className={`w-full bg-[#111716] border border-[#1A2624] rounded-lg ${isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5] transition-colors`}
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6C7A77] hover:text-[#F5F2EB]"
+                className={`absolute ${isRtl ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-[#6C7A77] hover:text-[#F5F2EB]`}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -135,11 +141,11 @@ function CatalogContent() {
             className="btn-secondary px-3.5 py-2 rounded text-xs flex items-center gap-2"
           >
             <SlidersHorizontal className="w-4 h-4 text-[#66D9C5]" />
-            <span>Filter Catalog ({filteredProducts.length})</span>
+            <span>{isRtl ? `فلترة العطور (${filteredProducts.length})` : `Filter Catalog (${filteredProducts.length})`}</span>
           </button>
 
           <span className="text-xs text-[#9EABA7]">
-            Page {currentPage} of {totalPages || 1}
+            {isRtl ? `صفحة ${currentPage} من ${totalPages || 1}` : `Page ${currentPage} of ${totalPages || 1}`}
           </span>
         </div>
 
@@ -154,7 +160,7 @@ function CatalogContent() {
             }}
             className="bg-[#111716] border border-[#1A2624] rounded px-3 py-2 text-xs text-[#F5F2EB] focus:outline-none focus:border-[#66D9C5]"
           >
-            <option value="All">All Fragrance Families</option>
+            <option value="All">{isRtl ? 'جميع العائلات العطرية' : 'All Fragrance Families'}</option>
             {FRAGRANCE_FAMILIES.map((fam) => (
               <option key={fam} value={fam}>{fam}</option>
             ))}
@@ -169,7 +175,7 @@ function CatalogContent() {
             }}
             className="bg-[#111716] border border-[#1A2624] rounded px-3 py-2 text-xs text-[#F5F2EB] focus:outline-none focus:border-[#66D9C5]"
           >
-            <option value="All">All Concentrations</option>
+            <option value="All">{isRtl ? 'جميع التركيزات' : 'All Concentrations'}</option>
             {CONCENTRATIONS.map((c) => (
               <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
             ))}
@@ -184,11 +190,11 @@ function CatalogContent() {
             }}
             className="bg-[#111716] border border-[#1A2624] rounded px-3 py-2 text-xs text-[#F5F2EB] focus:outline-none focus:border-[#66D9C5]"
           >
-            <option value="All">All Prices (EGP)</option>
-            <option value="under-2000">Under 2,000 EGP</option>
-            <option value="2000-3000">2,000 – 3,000 EGP</option>
-            <option value="3000-4000">3,000 – 4,000 EGP</option>
-            <option value="above-4000">Above 4,000 EGP</option>
+            <option value="All">{isRtl ? 'جميع الأسعار (جنيه مصري)' : 'All Prices (EGP)'}</option>
+            <option value="under-2000">{isRtl ? 'أقل من 2,000 ج.م' : 'Under 2,000 EGP'}</option>
+            <option value="2000-3000">{isRtl ? '2,000 – 3,000 ج.م' : '2,000 – 3,000 EGP'}</option>
+            <option value="3000-4000">{isRtl ? '3,000 – 4,000 ج.م' : '3,000 – 4,000 EGP'}</option>
+            <option value="above-4000">{isRtl ? 'أكثر من 4,000 ج.م' : 'Above 4,000 EGP'}</option>
           </select>
 
           {(selectedFamily !== 'All' || selectedConcentration !== 'All' || priceRange !== 'All' || searchTerm) && (
@@ -197,7 +203,7 @@ function CatalogContent() {
               className="text-xs text-[#66D9C5] hover:underline flex items-center gap-1"
             >
               <X className="w-3.5 h-3.5" />
-              <span>Reset</span>
+              <span>{isRtl ? 'إعادة ضبط' : 'Reset'}</span>
             </button>
           )}
         </div>
@@ -205,96 +211,20 @@ function CatalogContent() {
         {/* Sorting Dropdown */}
         <div className="flex items-center gap-2 self-end lg:self-auto">
           <ArrowUpDown className="w-3.5 h-3.5 text-[#9EABA7]" />
-          <span className="text-xs text-[#9EABA7]">Sort By:</span>
+          <span className="text-xs text-[#9EABA7]">{isRtl ? 'الترتيب حسب:' : 'Sort By:'}</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="bg-[#111716] border border-[#1A2624] rounded px-3 py-2 text-xs text-[#F5F2EB] focus:outline-none focus:border-[#66D9C5]"
           >
-            <option value="featured">Featured Masterpieces</option>
-            <option value="bestselling">Bestsellers</option>
-            <option value="newest">Newest Releases</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
+            <option value="featured">{isRtl ? 'المميزة والمختارة' : 'Featured Masterpieces'}</option>
+            <option value="bestselling">{isRtl ? 'الأكثر طلباً' : 'Bestsellers'}</option>
+            <option value="newest">{isRtl ? 'أحدث الإصدارات' : 'Newest Releases'}</option>
+            <option value="price-asc">{isRtl ? 'السعر: من الأقل للأعلى' : 'Price: Low to High'}</option>
+            <option value="price-desc">{isRtl ? 'السعر: من الأعلى للأقل' : 'Price: High to Low'}</option>
           </select>
         </div>
       </div>
-
-      {/* Mobile Filters Modal */}
-      {mobileFiltersOpen && (
-        <div className="lg:hidden p-4 bg-[#111716] border border-[#1A2624] rounded-lg space-y-4">
-          <div className="flex justify-between items-center pb-2 border-b border-[#1A2624]">
-            <span className="text-xs font-bold text-[#F5F2EB] uppercase tracking-wider">Filter Perfumes</span>
-            <button onClick={() => setMobileFiltersOpen(false)} className="text-[#9EABA7]">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="space-y-3 text-xs">
-            <div>
-              <label className="text-[#9EABA7] block mb-1">Fragrance Family</label>
-              <select
-                value={selectedFamily}
-                onChange={(e) => {
-                  setSelectedFamily(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full bg-[#080A0A] border border-[#1A2624] rounded px-3 py-2 text-[#F5F2EB]"
-              >
-                <option value="All">All Fragrance Families</option>
-                {FRAGRANCE_FAMILIES.map((fam) => (
-                  <option key={fam} value={fam}>{fam}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-[#9EABA7] block mb-1">Concentration</label>
-              <select
-                value={selectedConcentration}
-                onChange={(e) => {
-                  setSelectedConcentration(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full bg-[#080A0A] border border-[#1A2624] rounded px-3 py-2 text-[#F5F2EB]"
-              >
-                <option value="All">All Concentrations</option>
-                {CONCENTRATIONS.map((c) => (
-                  <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-[#9EABA7] block mb-1">Price Range</label>
-              <select
-                value={priceRange}
-                onChange={(e) => {
-                  setPriceRange(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full bg-[#080A0A] border border-[#1A2624] rounded px-3 py-2 text-[#F5F2EB]"
-              >
-                <option value="All">All Prices (EGP)</option>
-                <option value="under-2000">Under 2,000 EGP</option>
-                <option value="2000-3000">2,000 – 3,000 EGP</option>
-                <option value="3000-4000">3,000 – 4,000 EGP</option>
-                <option value="above-4000">Above 4,000 EGP</option>
-              </select>
-            </div>
-
-            <button
-              onClick={() => {
-                resetFilters();
-                setMobileFiltersOpen(false);
-              }}
-              className="w-full py-2 bg-[#1A2624] hover:bg-[#233532] text-xs font-semibold rounded text-[#F5F2EB]"
-            >
-              Reset Filters
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Product Grid */}
       {paginatedProducts.length === 0 ? (
@@ -302,15 +232,17 @@ function CatalogContent() {
           <div className="w-16 h-16 rounded-full bg-[#141A19] flex items-center justify-center mx-auto text-[#66D9C5]/50 border border-[#1A2624]">
             <Sparkles className="w-8 h-8" />
           </div>
-          <h3 className="font-serif text-2xl font-bold text-[#F5F2EB]">No fragrances matched your selection</h3>
+          <h3 className="font-serif text-2xl font-bold text-[#F5F2EB]">
+            {isRtl ? 'لم يتم العثور على عطور تطابق بحثك' : 'No fragrances matched your selection'}
+          </h3>
           <p className="text-xs text-[#9EABA7] max-w-md mx-auto">
-            Try adjusting your search query, changing fragrance families, or resetting filters to browse the complete 120 editions.
+            {isRtl ? 'جرّب تعديل كلمات البحث أو تصفية العائلات لعرض جميع العطور.' : 'Try adjusting your search query, changing fragrance families, or resetting filters.'}
           </p>
           <button
             onClick={resetFilters}
             className="btn-primary text-xs py-2.5 px-6 rounded font-semibold uppercase tracking-wider"
           >
-            Show All 120 Fragrances
+            {isRtl ? 'عرض جميع العطور' : 'Show All Fragrances'}
           </button>
         </div>
       ) : (
@@ -325,7 +257,9 @@ function CatalogContent() {
       {totalPages > 1 && (
         <div className="pt-8 border-t border-[#1A2624] flex items-center justify-between">
           <span className="text-xs text-[#9EABA7]">
-            Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} fragrances
+            {isRtl
+              ? `عرض ${(currentPage - 1) * ITEMS_PER_PAGE + 1}–${Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} من إجمالي ${filteredProducts.length} عطر`
+              : `Showing ${(currentPage - 1) * ITEMS_PER_PAGE + 1}–${Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} of ${filteredProducts.length} fragrances`}
           </span>
 
           <div className="flex items-center gap-1 sm:gap-2">
@@ -334,7 +268,7 @@ function CatalogContent() {
               disabled={currentPage === 1}
               className="px-3 py-1.5 rounded text-xs border border-[#1A2624] text-[#F5F2EB] hover:border-[#66D9C5] disabled:opacity-40 disabled:pointer-events-none"
             >
-              Previous
+              {isRtl ? 'السابق' : 'Previous'}
             </button>
 
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -356,7 +290,7 @@ function CatalogContent() {
               disabled={currentPage === totalPages}
               className="px-3 py-1.5 rounded text-xs border border-[#1A2624] text-[#F5F2EB] hover:border-[#66D9C5] disabled:opacity-40 disabled:pointer-events-none"
             >
-              Next
+              {isRtl ? 'التالي' : 'Next'}
             </button>
           </div>
         </div>

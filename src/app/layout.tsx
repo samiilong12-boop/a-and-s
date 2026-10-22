@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
 import { Bodoni_Moda, Jost } from 'next/font/google';
 import './globals.css';
+import { LanguageProvider } from '@/context/LanguageContext';
+import { ProductProvider } from '@/context/ProductContext';
 import { CartProvider } from '@/context/CartContext';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
 import { Navbar } from '@/components/Navbar';
 import { CartDrawer } from '@/components/CartDrawer';
 import { Footer } from '@/components/Footer';
+import { FloatingContact } from '@/components/FloatingContact';
 
 const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
@@ -22,14 +25,14 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  title: 'A AND S — Haute Parfumerie | Luxury Fragrances',
-  description: 'The art of leaving an impression. Discover handcrafted luxury fragrances and rare essences from A AND S, delivered across Egypt.',
-  keywords: ['luxury perfume Egypt', 'A AND S fragrance', 'high concentration oud', 'extrait de parfum Cairo', 'niche perfumes Egypt'],
+  title: 'A AND S — Haute Parfumerie | دار العطور الفاخرة',
+  description: 'The art of leaving an impression. Discover handcrafted luxury fragrances and rare essences from A AND S, delivered across Egypt with cash on delivery. فن ترك الانطباع الذي لا يُنسى.',
+  keywords: ['luxury perfume Egypt', 'A AND S fragrance', 'عطور فاخرة مصر', 'عود فاخر القاهرة', 'extrait de parfum Cairo', 'niche perfumes Egypt'],
   openGraph: {
     title: 'A AND S — Haute Parfumerie',
     description: 'The art of leaving an impression. Handcrafted luxury fragrances, delivered across Egypt with cash on delivery.',
     type: 'website',
-    locale: 'en_EG',
+    locale: 'ar_EG',
   },
 };
 
@@ -39,17 +42,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bodoniModa.variable} ${jost.variable}`}>
+    <html lang="ar" dir="rtl" className={`${bodoniModa.variable} ${jost.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#080A0A] text-[#F5F2EB] font-sans antialiased selection:bg-[#66D9C5] selection:text-[#080A0A]">
-        <CartProvider>
-          <AnnouncementBar />
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <CartDrawer />
-          <Footer />
-        </CartProvider>
+        <LanguageProvider>
+          <ProductProvider>
+            <CartProvider>
+              <AnnouncementBar />
+              <Navbar />
+              <main className="flex-1">
+                {children}
+              </main>
+              <CartDrawer />
+              <Footer />
+              <FloatingContact />
+            </CartProvider>
+          </ProductProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

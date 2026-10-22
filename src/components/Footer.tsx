@@ -2,12 +2,15 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Truck, Clock, Phone, MapPin, Mail } from 'lucide-react';
+import { ShieldCheck, Truck, Clock, Phone, MapPin, Mail, Lock } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export function Footer() {
+  const { t, isRtl } = useLanguage();
+
   return (
     <footer className="bg-[#080A0A] border-t border-[#1A2624] text-[#F5F2EB] mt-20">
-      {/* Brand Values / Value Proposition Bar */}
+      {/* Brand Values Bar */}
       <div className="border-b border-[#1A2624] py-10 bg-[#0E1212]/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
@@ -16,8 +19,12 @@ export function Footer() {
                 <Truck className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-sm text-[#F5F2EB]">Complimentary Egypt Shipping</h4>
-                <p className="text-xs text-[#9EABA7] mt-0.5">Free luxury courier delivery on orders over 1,000 EGP.</p>
+                <h4 className="font-serif font-bold text-sm text-[#F5F2EB]">
+                  {isRtl ? 'شحن فاخر مجاني لجميع محافظات مصر' : 'Complimentary Egypt Shipping'}
+                </h4>
+                <p className="text-xs text-[#9EABA7] mt-0.5">
+                  {isRtl ? 'توصيل مجاني لجميع الطلبات فوق 1,000 جنيه مصري.' : 'Free luxury courier delivery on orders over 1,000 EGP.'}
+                </p>
               </div>
             </div>
 
@@ -26,8 +33,12 @@ export function Footer() {
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-sm text-[#F5F2EB]">Cash on Delivery (COD)</h4>
-                <p className="text-xs text-[#9EABA7] mt-0.5">Inspect your fragrance upon delivery before handing payment.</p>
+                <h4 className="font-serif font-bold text-sm text-[#F5F2EB]">
+                  {isRtl ? 'الدفع نقداً عند الاستلام والمعاينة' : 'Cash on Delivery (COD)'}
+                </h4>
+                <p className="text-xs text-[#9EABA7] mt-0.5">
+                  {isRtl ? 'عاين طردك الفاخر عند وصول المندوب قبل دفع أي مليم.' : 'Inspect your fragrance upon delivery before handing payment.'}
+                </p>
               </div>
             </div>
 
@@ -36,8 +47,12 @@ export function Footer() {
                 <Clock className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-sm text-[#F5F2EB]">Precious Oil Formulations</h4>
-                <p className="text-xs text-[#9EABA7] mt-0.5">High concentration extrait and EDP for unmatched sillage.</p>
+                <h4 className="font-serif font-bold text-sm text-[#F5F2EB]">
+                  {isRtl ? 'تركيز زيوت عطرية نقية 35%' : 'Precious Oil Formulations'}
+                </h4>
+                <p className="text-xs text-[#9EABA7] mt-0.5">
+                  {isRtl ? 'إكستري دي بارفان لثبات استثنائي يتجاوز 14 ساعة.' : 'High concentration extrait and EDP for unmatched sillage.'}
+                </p>
               </div>
             </div>
           </div>
@@ -59,16 +74,18 @@ export function Footer() {
               </p>
             </Link>
             <p className="text-sm text-[#9EABA7] max-w-sm leading-relaxed">
-              &ldquo;The art of leaving an impression.&rdquo; Discover a world of distinctive fragrances, crafted for those who make every moment unforgettable.
+              &ldquo;{isRtl ? 'فن ترك الانطباع الذي لا يُنسى' : 'The art of leaving an impression'}.&rdquo; {isRtl ? 'اكتشف عالماً من العطور الفاخرة المصنوعة في القاهرة لمن يبحثون عن التميز الدائم.' : 'Discover a world of distinctive fragrances, crafted for those who make every moment unforgettable.'}
             </p>
             <div className="space-y-2 text-xs text-[#9EABA7] pt-2">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-[#66D9C5]" />
-                <span>Cairo, Egypt</span>
+                <span>{isRtl ? 'معمل العطور — القاهرة، جمهورية مصر العربية' : 'Cairo Atelier, Egypt'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#66D9C5]" />
-                <span>+20 10 1234 5678 (WhatsApp Support)</span>
+                <a href="tel:+201012345678" className="hover:text-[#66D9C5]">
+                  +20 10 1234 5678 (WhatsApp & Calls)
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#66D9C5]" />
@@ -80,32 +97,22 @@ export function Footer() {
           {/* Catalog Links */}
           <div className="space-y-3">
             <h5 className="font-serif text-sm font-semibold text-[#F5F2EB] tracking-wider uppercase">
-              Collections
+              {isRtl ? 'المجموعات العطرية' : 'Collections'}
             </h5>
             <ul className="space-y-2 text-xs text-[#9EABA7]">
               <li>
                 <Link href="/catalog" className="hover:text-[#66D9C5] transition-colors">
-                  All 120 Fragrances
+                  {t('nav.all_fragrances')}
                 </Link>
               </li>
               <li>
                 <Link href="/catalog?family=Oriental+Woody" className="hover:text-[#66D9C5] transition-colors">
-                  Oriental Woody & Oud
+                  {t('nav.oud_woods')}
                 </Link>
               </li>
               <li>
                 <Link href="/catalog?family=Floral+Amber" className="hover:text-[#66D9C5] transition-colors">
-                  Floral Amber
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalog?family=Smoky+Oud+%26+Leather" className="hover:text-[#66D9C5] transition-colors">
-                  Smoky Leather
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalog?family=Fresh+Citrus+%26+Aquatic" className="hover:text-[#66D9C5] transition-colors">
-                  Fresh Citrus & Aquatic
+                  {t('nav.floral_amber')}
                 </Link>
               </li>
             </ul>
@@ -114,28 +121,18 @@ export function Footer() {
           {/* Customer Care */}
           <div className="space-y-3">
             <h5 className="font-serif text-sm font-semibold text-[#F5F2EB] tracking-wider uppercase">
-              Client Care
+              {isRtl ? 'خدمة العملاء والتوصيل' : 'Client Care'}
             </h5>
             <ul className="space-y-2 text-xs text-[#9EABA7]">
               <li>
                 <Link href="/track-order" className="hover:text-[#66D9C5] transition-colors">
-                  Track Your Order
+                  {t('nav.track_order')}
                 </Link>
               </li>
               <li>
-                <Link href="/#shipping-policy" className="hover:text-[#66D9C5] transition-colors">
-                  Shipping Across Egypt
-                </Link>
-              </li>
-              <li>
-                <Link href="/#returns" className="hover:text-[#66D9C5] transition-colors">
-                  Returns & Exchange Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/admin" className="hover:text-[#C6A66B] transition-colors">
-                  Staff & Admin Portal
-                </Link>
+                <a href="https://wa.me/201012345678" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 text-emerald-400 font-semibold transition-colors">
+                  {isRtl ? 'واتساب مباشر: 01012345678' : 'WhatsApp Concierge'}
+                </a>
               </li>
             </ul>
           </div>
@@ -143,36 +140,46 @@ export function Footer() {
           {/* Newsletter Box */}
           <div className="space-y-3">
             <h5 className="font-serif text-sm font-semibold text-[#F5F2EB] tracking-wider uppercase">
-              The Private Club
+              {isRtl ? 'النادي الخاص' : 'The Private Club'}
             </h5>
             <p className="text-xs text-[#9EABA7]">
-              Subscribe to receive exclusive invitations to private launches and private batches.
+              {isRtl ? 'اشترك لتصلك دعوات إطلاق الدفعات العطرية المحدودة والخاصة.' : 'Subscribe to receive invitations to private launches.'}
             </p>
             <form onSubmit={(e) => e.preventDefault()} className="space-y-2">
               <input
                 type="email"
-                placeholder="Your email address"
+                placeholder={isRtl ? 'بريدك الإلكتروني' : 'Your email address'}
                 className="w-full bg-[#111716] border border-[#1A2624] rounded px-3 py-2 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5]"
               />
               <button
                 type="submit"
                 className="w-full btn-primary text-xs py-2 rounded font-semibold tracking-wider uppercase"
               >
-                Join Private List
+                {isRtl ? 'انضمام للقائمة الخاصة' : 'Join Private List'}
               </button>
             </form>
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* Bottom Bar with discrete owner access */}
         <div className="mt-16 pt-8 border-t border-[#1A2624] flex flex-col sm:flex-row items-center justify-between text-xs text-[#6C7A77] gap-4">
           <p>© {new Date().getFullYear()} A AND S Haute Parfumerie. All rights reserved.</p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <span>Egyptian Pound (EGP)</span>
             <span>•</span>
             <span>Cash on Delivery</span>
             <span>•</span>
             <span className="text-[#C6A66B]">Cairo, Egypt</span>
+            <span>•</span>
+            {/* Discrete Private Admin Link - only known to owner */}
+            <Link
+              href="/admin"
+              className="text-[#3A4543] hover:text-[#C6A66B] flex items-center gap-1 transition-colors"
+              title="Staff & Owner Portal (خاص بالإدارة)"
+            >
+              <Lock className="w-3 h-3" />
+              <span>Portal</span>
+            </Link>
           </div>
         </div>
       </div>

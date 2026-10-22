@@ -6,6 +6,7 @@ import { ShoppingBag, Eye, Star } from 'lucide-react';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/currency';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+  const { isRtl } = useLanguage();
   const primaryImage = product.images.find((img) => img.isPrimary)?.url || product.images[0]?.url;
   const defaultVariant = product.variants[0];
 
@@ -29,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="luxury-card rounded-lg overflow-hidden flex flex-col group relative">
+    <div className="luxury-card rounded-xl overflow-hidden flex flex-col group relative border border-[#1A2624] hover:border-[#66D9C5]/50 transition-all duration-300">
       {/* Visual Image Container */}
       <Link href={`/product/${product.slug}`} className="relative block aspect-[4/5] bg-[#0E1212] overflow-hidden">
         <img
@@ -40,20 +42,20 @@ export function ProductCard({ product }: ProductCardProps) {
         />
 
         {/* Badges Overlay */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+        <div className={`absolute top-3 ${isRtl ? 'right-3' : 'left-3'} flex flex-col gap-1.5 z-10`}>
           {product.isBestseller && (
             <span className="badge-gold px-2.5 py-0.5 rounded-sm font-semibold shadow-sm">
-              Bestseller
+              {isRtl ? 'الأكثر طلباً' : 'Bestseller'}
             </span>
           )}
           {product.isNewArrival && (
             <span className="bg-[#66D9C5] text-[#080A0A] text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-sm shadow-sm">
-              New Arrival
+              {isRtl ? 'وصل حديثاً' : 'New Arrival'}
             </span>
           )}
           {hasSale && (
             <span className="bg-rose-500/90 text-white text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-sm shadow-sm">
-              Sale Offer
+              {isRtl ? 'عرض خاص' : 'Sale Offer'}
             </span>
           )}
         </div>
@@ -95,7 +97,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* Key Notes Snippet */}
           <p className="text-xs text-[#6C7A77] mt-1.5 line-clamp-1">
-            <span className="text-[#9EABA7]">Notes:</span> {product.topNotes.slice(0, 2).join(', ')}, {product.heartNotes[0]}, {product.baseNotes[0]}
+            <span className="text-[#9EABA7]">{isRtl ? 'النوتات:' : 'Notes:'}</span> {product.topNotes.slice(0, 2).join(', ')}, {product.heartNotes[0]}, {product.baseNotes[0]}
           </p>
 
           {/* Rating */}
@@ -122,16 +124,16 @@ export function ProductCard({ product }: ProductCardProps) {
               )}
             </div>
             <span className="text-[10px] text-[#9EABA7] tracking-wider">
-              {defaultVariant?.titleEn || '50ml'}
+              {defaultVariant?.titleEn || '100ml'}
             </span>
           </div>
 
           <Link
             href={`/product/${product.slug}`}
-            className="text-xs tracking-wider uppercase text-[#D5D1C7] group-hover:text-[#66D9C5] transition-colors flex items-center gap-1"
+            className="text-xs tracking-wider uppercase text-[#D5D1C7] group-hover:text-[#66D9C5] transition-colors flex items-center gap-1 font-semibold"
           >
-            <span>Explore</span>
-            <span>→</span>
+            <span>{isRtl ? 'اكتشف' : 'Explore'}</span>
+            <span>{isRtl ? '←' : '→'}</span>
           </Link>
         </div>
       </div>

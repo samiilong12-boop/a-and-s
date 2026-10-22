@@ -2,9 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { X, Plus, Minus, Trash2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/currency';
 
 export function CartDrawer() {
@@ -21,6 +21,8 @@ export function CartDrawer() {
     freeShippingProgressPercentage,
   } = useCart();
 
+  const { t, isRtl } = useLanguage();
+
   if (!isCartOpen) return null;
 
   return (
@@ -31,15 +33,15 @@ export function CartDrawer() {
         onClick={() => setIsCartOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-[#0E1212] border-l border-[#1A2624] text-[#F5F2EB] flex flex-col shadow-2xl">
+      <div className={`fixed inset-y-0 ${isRtl ? 'left-0 pr-10' : 'right-0 pl-10'} max-w-full flex`}>
+        <div className={`w-screen max-w-md bg-[#0E1212] ${isRtl ? 'border-r' : 'border-l'} border-[#1A2624] text-[#F5F2EB] flex flex-col shadow-2xl`}>
           
           {/* Header */}
           <div className="p-6 border-b border-[#1A2624] flex items-center justify-between">
             <div>
-              <h2 className="font-serif text-xl font-bold tracking-wide">Your Fragrance Bag</h2>
+              <h2 className="font-serif text-xl font-bold tracking-wide">{t('cart.bag_title')}</h2>
               <p className="text-xs text-[#9EABA7] tracking-wider uppercase mt-0.5">
-                {itemCount} {itemCount === 1 ? 'Item' : 'Items'} Selected
+                {itemCount} {t('cart.items')}
               </p>
             </div>
             <button
@@ -56,12 +58,16 @@ export function CartDrawer() {
             {freeShippingEligible ? (
               <div className="flex items-center gap-2 text-xs text-[#66D9C5] font-medium">
                 <Sparkles className="w-4 h-4 flex-shrink-0" />
-                <span>You unlocked complimentary luxury delivery across Egypt!</span>
+                <span>{t('cart.free_unlocked')}</span>
               </div>
             ) : (
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
-                  <span className="text-[#D5D1C7]">Add {formatPrice(amountNeededForFreeShipping)} for free shipping</span>
+                  <span className="text-[#D5D1C7]">
+                    {isRtl
+                      ? `أضف ${formatPrice(amountNeededForFreeShipping)} للحصول على توصيل مجاني`
+                      : `Add ${formatPrice(amountNeededForFreeShipping)} for free shipping`}
+                  </span>
                   <span className="text-[#66D9C5] font-semibold">{freeShippingProgressPercentage}%</span>
                 </div>
                 <div className="w-full h-1.5 bg-[#080A0A] rounded-full overflow-hidden">
@@ -81,15 +87,15 @@ export function CartDrawer() {
                 <div className="w-16 h-16 rounded-full bg-[#141A19] flex items-center justify-center mb-4 border border-[#1A2624]">
                   <Sparkles className="w-8 h-8 text-[#66D9C5]/50" />
                 </div>
-                <p className="font-serif text-lg text-[#F5F2EB]">Your bag is currently empty</p>
+                <p className="font-serif text-lg text-[#F5F2EB]">{t('cart.empty')}</p>
                 <p className="text-xs text-[#9EABA7] mt-1 max-w-xs">
-                  Explore our collection of rare essences and artisanal compositions.
+                  {t('cart.empty_desc')}
                 </p>
                 <button
                   onClick={() => setIsCartOpen(false)}
                   className="mt-6 px-6 py-2.5 text-xs font-semibold tracking-wider uppercase text-[#080A0A] bg-[#66D9C5] hover:bg-[#82E2D1] rounded transition-all"
                 >
-                  Discover Fragrances
+                  {isRtl ? 'استكشف تشكيلة العطور' : 'Discover Fragrances'}
                 </button>
               </div>
             ) : (
@@ -160,19 +166,21 @@ export function CartDrawer() {
             <div className="p-6 bg-[#0B0E0E] border-t border-[#1A2624] space-y-4">
               <div className="space-y-1.5 text-sm">
                 <div className="flex justify-between text-[#9EABA7]">
-                  <span>Subtotal</span>
+                  <span>{t('cart.subtotal')}</span>
                   <span className="font-semibold text-[#F5F2EB]">{formatPrice(subtotalInPiasters)}</span>
                 </div>
                 <div className="flex justify-between text-[#9EABA7] text-xs">
-                  <span>Shipping across Egypt</span>
+                  <span>{t('cart.shipping_egypt')}</span>
                   <span className={freeShippingEligible ? 'text-[#66D9C5] font-semibold' : 'text-[#D5D1C7]'}>
-                    {freeShippingEligible ? 'COMPLIMENTARY' : 'Calculated at checkout'}
+                    {freeShippingEligible ? t('cart.complimentary') : (isRtl ? 'يُحسب عند إتمام الطلب' : 'Calculated at checkout')}
                   </span>
                 </div>
               </div>
 
               <div className="pt-2 border-t border-[#1A2624] flex justify-between items-center">
-                <span className="font-serif text-base font-bold text-[#F5F2EB]">Estimated Total</span>
+                <span className="font-serif text-base font-bold text-[#F5F2EB]">
+                  {isRtl ? 'المجموع التقديري' : 'Estimated Total'}
+                </span>
                 <span className="font-serif text-lg font-bold text-[#66D9C5]">
                   {formatPrice(subtotalInPiasters)}
                 </span>
@@ -183,13 +191,13 @@ export function CartDrawer() {
                 onClick={() => setIsCartOpen(false)}
                 className="w-full btn-primary py-3.5 px-4 rounded text-xs tracking-widest uppercase flex items-center justify-center gap-2"
               >
-                <span>Proceed to Cash-on-Delivery Checkout</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>{t('cart.checkout_cta')}</span>
+                <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
               </Link>
 
               <div className="flex items-center justify-center gap-2 text-[11px] text-[#6C7A77] pt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#C6A66B]" />
-                <span>Pay in Cash Upon Inspection & Delivery</span>
+                <span>{isRtl ? 'ادفع نقداً بعد المعاينة عند استلام الطرد' : 'Pay in Cash Upon Inspection & Delivery'}</span>
               </div>
             </div>
           )}

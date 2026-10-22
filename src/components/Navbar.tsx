@@ -2,11 +2,13 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Search, Menu, X, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, Globe, Phone } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export function Navbar() {
   const { itemCount, setIsCartOpen } = useCart();
+  const { language, toggleLanguage, t, isRtl } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -38,56 +40,59 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium tracking-wider uppercase text-[#D5D1C7]">
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 text-xs lg:text-sm font-medium tracking-wider uppercase text-[#D5D1C7]">
             <Link
               href="/catalog"
               className="hover:text-[#66D9C5] transition-colors py-2"
             >
-              All Fragrances
+              {t('nav.all_fragrances')}
             </Link>
             <Link
               href="/catalog?family=Oriental+Woody"
               className="hover:text-[#66D9C5] transition-colors py-2"
             >
-              Oud & Woods
+              {t('nav.oud_woods')}
             </Link>
             <Link
               href="/catalog?family=Floral+Amber"
               className="hover:text-[#66D9C5] transition-colors py-2"
             >
-              Floral Amber
+              {t('nav.floral_amber')}
             </Link>
             <Link
               href="/#brand-story"
               className="hover:text-[#66D9C5] transition-colors py-2"
             >
-              Brand Story
+              {t('nav.brand_story')}
             </Link>
             <Link
               href="/track-order"
               className="hover:text-[#66D9C5] transition-colors py-2 text-xs text-[#9EABA7]"
             >
-              Track Order
+              {t('nav.track_order')}
             </Link>
           </nav>
 
           {/* Action Icons */}
-          <div className="flex items-center space-x-4 sm:space-x-5">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            
+            {/* Language Switcher */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[#1A2624] hover:border-[#66D9C5]/50 text-xs font-semibold text-[#D5D1C7] hover:text-[#66D9C5] transition-all bg-[#0E1212]"
+              title="Change Language"
+            >
+              <Globe className="w-3.5 h-3.5 text-[#C6A66B]" />
+              <span>{language === 'ar' ? 'English' : 'عربي'}</span>
+            </button>
+
+            {/* Catalog Search */}
             <Link
               href="/catalog"
               className="p-2 text-[#D5D1C7] hover:text-[#66D9C5] transition-colors"
-              title="Search Catalog"
+              title={t('nav.search_placeholder')}
             >
               <Search className="w-5 h-5" />
-            </Link>
-
-            <Link
-              href="/admin"
-              className="hidden lg:flex items-center gap-1 text-xs text-[#9EABA7] hover:text-[#C6A66B] px-2.5 py-1 rounded border border-[#1A2624] hover:border-[#C6A66B]/40 transition-colors"
-              title="Administration Dashboard"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#C6A66B]" />
-              <span>Admin</span>
             </Link>
 
             {/* Shopping Cart Trigger */}
@@ -115,35 +120,28 @@ export function Navbar() {
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#F5F2EB] hover:text-[#66D9C5] py-2 text-base font-medium tracking-wide"
           >
-            All Fragrances (120 Items)
+            {t('nav.all_fragrances')}
           </Link>
           <Link
             href="/catalog?family=Oriental+Woody"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#D5D1C7] hover:text-[#66D9C5] py-2 text-sm"
           >
-            Oriental Woody & Oud
+            {t('nav.oud_woods')}
           </Link>
           <Link
             href="/catalog?family=Floral+Amber"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#D5D1C7] hover:text-[#66D9C5] py-2 text-sm"
           >
-            Floral & Amber
-          </Link>
-          <Link
-            href="/catalog?family=Fresh+Citrus+%26+Aquatic"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#D5D1C7] hover:text-[#66D9C5] py-2 text-sm"
-          >
-            Fresh Citrus & Aquatic
+            {t('nav.floral_amber')}
           </Link>
           <Link
             href="/#brand-story"
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#D5D1C7] hover:text-[#66D9C5] py-2 text-sm"
           >
-            Our Brand Story
+            {t('nav.brand_story')}
           </Link>
           <div className="pt-3 border-t border-[#1A2624] flex items-center justify-between">
             <Link
@@ -151,15 +149,19 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
               className="text-xs text-[#66D9C5] font-medium"
             >
-              Track Your Order
+              {t('nav.track_order')}
             </Link>
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-xs text-[#C6A66B]"
+
+            <button
+              onClick={() => {
+                toggleLanguage();
+                setMobileMenuOpen(false);
+              }}
+              className="text-xs font-semibold text-[#C6A66B] flex items-center gap-1"
             >
-              Admin Portal
-            </Link>
+              <Globe className="w-3.5 h-3.5" />
+              <span>{language === 'ar' ? 'English' : 'اللغة العربية'}</span>
+            </button>
           </div>
         </div>
       )}
