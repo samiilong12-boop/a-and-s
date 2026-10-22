@@ -3,24 +3,34 @@
 @tailwind utilities;
 
 :root {
-  /* Ultra-Luxury White & Pearl Palette */
-  --bg-primary: #FFFFFF;              /* Primary Pristine White Canvas */
-  --bg-surface: #FAFAF7;              /* Pearl Ivory Secondary Surfaces */
-  --bg-elevated: #F3F2EB;             /* Elevated Ivory Sections */
-  --bg-card: #FFFFFF;                 /* Pure White Cards */
-  --bg-accent: #0B665D;               /* Deep Regal Teal */
+  /* =========================================================
+     A AND S MASTER LUXURY PALETTE (Beige, Emerald & Obsidian)
+     ========================================================= */
 
-  /* High-Contrast Typography */
-  --text-primary: #0A0D0D;            /* Deep Obsidian Black (18.5:1 Contrast on White) */
-  --text-secondary: #4A5553;          /* Elegant Charcoal for Body Copy */
-  --text-muted: #788784;              /* Subtle Labels */
-  --text-gold: #B8934A;               /* Regal Champagne Gold */
-  --text-on-accent: #FFFFFF;
+  /* 1. Warm Cashmere Beige & Pearl Ivory (Primary Canvas) */
+  --bg-beige: #F6F3EC;                 /* Royal Cashmere Warm Beige */
+  --bg-beige-light: #FAF8F4;           /* Soft Sand Ivory */
+  --bg-white: #FFFFFF;                 /* Crisp Pure White for Cards */
 
-  /* Borders & Accents */
-  --border-subtle: #E8E6DF;           /* Delicate Pearl Gray */
-  --border-accent: #0B665D;           /* Deep Teal Accent */
-  --border-gold: rgba(184, 147, 74, 0.4); /* Refined Gold Trims */
+  /* 2. Luminous Light Emerald (الأخضر الزمردي الفاتح) */
+  --color-emerald-light: #2DD4BF;      /* Gemstone Luminous Emerald */
+  --color-emerald-vibrant: #14B8A6;    /* Deep Malachite Emerald */
+  --color-emerald-glow: rgba(45, 212, 191, 0.35);
+
+  /* 3. Luxury Obsidian Black (الأسود الفاحم الملوكي) */
+  --luxury-black: #080A0A;             /* Deep Obsidian Black */
+  --luxury-slate: #141A19;             /* Secondary Deep Charcoal */
+  --text-obsidian: #080A0A;            /* Crisp High-Contrast Editorial Text */
+  --text-muted: #576563;               /* Elegant Slate-Beige Subtitle */
+
+  /* 4. Imperial Jewelry Accents */
+  --champagne-gold: #C6A66B;           /* Champagne Gold Trim */
+  --border-beige: #E6E1D5;             /* Warm Delicate Border */
+  --border-emerald: #2DD4BF;
+
+  /* Semantic UI */
+  --bg-primary: var(--bg-beige);
+  --text-primary: var(--text-obsidian);
 }
 
 * {
@@ -29,101 +39,175 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: #F6F3EC;
+  color: #080A0A;
   font-family: var(--font-jost), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: #F6F3EC;
+  color: #080A0A;
   overflow-x: hidden;
   margin: 0;
   padding: 0;
   min-height: 100vh;
 }
 
-/* Headings font styling (Bodoni Moda Editorial Serif) */
+/* Headings font styling (High-Contrast Bodoni Moda Editorial Serif) */
 h1, h2, h3, h4, .font-editorial {
   font-family: var(--font-bodoni-moda), Georgia, serif;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
-/* Custom luxury scrollbar */
+/* Custom luxury scrollbar in emerald and obsidian */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #FAFAF7;
+  background: #F6F3EC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D5D1C7;
+  background: #C9C3B4;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8934A;
+  background: #2DD4BF;
 }
 
-/* Luxury button styling */
+/* =========================================================
+   WORLD-CLASS LUXURY MOTION & MICRO-INTERACTIONS
+   ========================================================= */
+
+/* Shimmer Sweep Animation */
+@keyframes luxuryShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-badge {
+  background: linear-gradient(
+    90deg,
+    rgba(45, 212, 191, 0.1) 0%,
+    rgba(45, 212, 191, 0.3) 50%,
+    rgba(45, 212, 191, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: luxuryShimmer 4s infinite linear;
+}
+
+/* Weightless Flacon Float */
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.float-animation {
+  animation: subtleFloat 5s ease-in-out infinite;
+}
+
+/* Primary Luxury CTA Button (Obsidian Black with Light Emerald Glow) */
 .btn-primary {
-  background-color: #0A0D0D;
+  background-color: #080A0A;
   color: #FFFFFF !important;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #0A0D0D;
+  border: 1px solid #080A0A;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary:hover {
-  background-color: #1A2422;
-  border-color: #B8934A;
-  color: #F5F2EB !important;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(10, 13, 13, 0.15);
+  background-color: #0E1615;
+  border-color: #2DD4BF;
+  color: #2DD4BF !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(8, 10, 10, 0.2), 0 0 15px rgba(45, 212, 191, 0.25);
 }
 
-.btn-secondary {
-  background-color: #FFFFFF;
-  color: #0A0D0D;
-  border: 1px solid #D5D1C7;
-  transition: all 0.2s ease;
-  font-weight: 600;
+.btn-primary:active {
+  transform: translateY(0);
 }
 
-.btn-secondary:hover {
-  border-color: #0B665D;
-  color: #0B665D;
-  background-color: #F8FAF9;
-}
-
-/* Luxury card with subtle pearl & gold elevation */
-.luxury-card {
-  background: #FFFFFF;
-  border: 1px solid #E8E6DF;
-  box-shadow: 0 4px 20px -2px rgba(10, 13, 13, 0.04);
+/* Emerald Gemstone Button */
+.btn-emerald {
+  background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%);
+  color: #080A0A !important;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.luxury-card:hover {
-  border-color: #B8934A;
-  box-shadow: 0 16px 35px -8px rgba(184, 147, 74, 0.15), 0 4px 12px rgba(0, 0, 0, 0.03);
-  transform: translateY(-3px);
+.btn-emerald:hover {
+  background: linear-gradient(135deg, #5EEAD4 0%, #2DD4BF 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(45, 212, 191, 0.4);
 }
 
-/* Gold badge accent */
-.badge-gold {
-  border: 1px solid rgba(184, 147, 74, 0.4);
-  color: #8C6A23;
-  background: rgba(184, 147, 74, 0.08);
+/* Secondary Button (Warm Beige with Obsidian Trim) */
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: #080A0A;
+  border: 1px solid #D8D2C2;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-weight: 700;
+}
+
+.btn-secondary:hover {
+  border-color: #080A0A;
+  color: #080A0A;
+  background-color: #FAF8F4;
+  transform: translateY(-1px);
+}
+
+/* Luxury Card in Crisp White on Warm Beige Canvas */
+.luxury-card {
+  background: #FFFFFF;
+  border: 1px solid #E6E1D5;
+  box-shadow: 0 4px 20px -2px rgba(8, 10, 10, 0.03);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-card:hover {
+  border-color: #2DD4BF;
+  box-shadow: 0 20px 40px -10px rgba(8, 10, 10, 0.08), 0 0 20px -2px rgba(45, 212, 191, 0.2);
+  transform: translateY(-4px);
+}
+
+/* Light Emerald Gemstone Badge */
+.badge-emerald {
+  border: 1px solid rgba(45, 212, 191, 0.5);
+  color: #0F766E;
+  background: rgba(45, 212, 191, 0.12);
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
+}
+
+/* Champagne Gold Badge */
+.badge-gold {
+  border: 1px solid rgba(198, 166, 107, 0.4);
+  color: #8C6A23;
+  background: rgba(198, 166, 107, 0.1);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
 }

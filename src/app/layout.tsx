@@ -10,6 +10,8 @@ import { CartDrawer } from '@/components/CartDrawer';
 import { Footer } from '@/components/Footer';
 import { FloatingContact } from '@/components/FloatingContact';
 
+import { CookieConsent } from '@/components/CookieConsent';
+
 const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
   variable: '--font-bodoni-moda',
@@ -43,7 +45,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl" className={`${bodoniModa.variable} ${jost.variable}`}>
-      <body className="min-h-screen flex flex-col bg-white text-[#0A0D0D] font-sans antialiased selection:bg-[#B8934A] selection:text-white">
+      <body className="min-h-screen flex flex-col bg-[#F6F3EC] text-[#080A0A] font-sans antialiased selection:bg-[#2DD4BF] selection:text-[#080A0A]">
         <LanguageProvider>
           <ProductProvider>
             <CartProvider>
@@ -55,6 +57,7 @@ export default function RootLayout({
               <CartDrawer />
               <Footer />
               <FloatingContact />
+              <CookieConsent />
             </CartProvider>
           </ProductProvider>
         </LanguageProvider>
