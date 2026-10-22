@@ -1,0 +1,368 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// -------------------------------------------------------------
+// 1. AUTHENTICATION & USERS (E3, E10)
+// -------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model User {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  passwordHash String
+  name         String
+  role         Role           @default(STAFF)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  
+  sessions             Session[]
+  auditLogs            AuditLog[]
+  inventoryAdjustments InventoryMovement[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   // e.g. "ORDER_STATUS_UPDATE", "STOCK_ADJUSTMENT"
+  entity     String   // e.g. "Order", "ProductVariant"
+  entityId   String
+  details    Json?    // Structured payload of previous & new values
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// -------------------------------------------------------------
+// 2. PRODUCT CATALOG & INVENTORY (E1, E6)
+// -------------------------------------------------------------
+
+enum FragranceConcentration {
+  EXTRAIT_DE_PARFUM
+  EAU_DE_PARFUM
+  EAU_DE_TOILETTE
+  EAU_DE_COLOGNE
+  OIL_PERFUME
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  slug        String    @unique
+  nameEn      String
+  nameAr      String?
+  description String?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Collection {
+  id          String              @id @default(uuid())
+  slug        String              @unique
+  nameEn      String
+  nameAr      String?
+  description String?
+  isFeatured  Boolean             @default(false)
+  bannerImage String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  products    ProductCollection[]
+}
+
+model Product {
+  id              String                  @id @default(uuid())
+  slug            String                  @unique
+  nameEn          String
+  nameAr          String?
+  headlineEn      String?
+  descriptionEn   String                  @db.Text
+  descriptionAr   String?                 @db.Text
+  
+  // Fragrance Specifications
+  concentration   FragranceConcentration  @default(EAU_DE_PARFUM)
+  fragranceFamily String                  // e.g. "Oriental Woody", "Floral Amber"
+  topNotes        String[]                // e.g. ["Bergamot", "Saffron"]
+  heartNotes      String[]                // e.g. ["Damascus Rose", "Oud"]
+  baseNotes       String[]                // e.g. ["Ambergris", "Sandalwood", "Vanilla"]
+  
+  // Categorization & Merchandising
+  categoryId      String
+  category        Category                @relation(fields: [categoryId], references: [id])
+  collections     ProductCollection[]
+  isFeatured      Boolean                 @default(false)
+  isNewArrival    Boolean                 @default(false)
+  isBestseller    Boolean                 @default(false)
+  isPublished     Boolean                 @default(false)
+  isArchived      Boolean                 @default(false)
+  
+  // Private Brand Operations (E6 - Stage B/Confidential)
+  manufacturingPartner String?
+  batchReference       String?
+  internalNotes        String?            @db.Text
+
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  images          ProductImage[]
+  variants        ProductVariant[]
+
+  @@index([categoryId])
+  @@index([isPublished, isArchived])
+}
+
+model ProductCollection {
+  productId    String
+  collectionId String
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+}
+
+model ProductImage {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url         String
+  altTextEn   String?
+  altTextAr   String?
+  sortOrder   Int      @default(0)
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([productId, sortOrder])
+}
+
+model ProductVariant {
+  id               String               @id @default(uuid())
+  productId        String
+  product          Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku              String               @unique
+  volumeMl         Int                  // e.g. 30, 50, 100
+  titleEn          String               // e.g. "100ml Eau De Parfum"
+  
+  // Financials stored in Integer Piasters (1 EGP = 100 piasters) (E1)
+  regularPrice     Int                  // e.g. 240000 = 2,400.00 EGP
+  salePrice        Int?                 // Optional discounted price
+  costPrice        Int?                 // Private COGS: restricted to ADMIN
+  packagingCost    Int?                 // Packaging/Bottle cost
+  
+  // Inventory (E2)
+  stockQuantity    Int                  @default(0)
+  lowStockThreshold Int                 @default(5)
+  
+  isActive         Boolean              @default(true)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  inventoryMovements InventoryMovement[]
+  orderItems         OrderItem[]
+  cartItems          CartItem[]
+
+  @@index([productId])
+  @@index([sku])
+}
+
+enum InventoryMovementType {
+  INITIAL_SEED
+  PURCHASE_DEDUCTION
+  MANUAL_RESTOCK
+  MANUAL_ADJUSTMENT
+  ORDER_CANCELLATION_RESTOCK
+  RETURN_TO_STOCK
+  DAMAGE_WRITEOFF
+}
+
+model InventoryMovement {
+  id             String                @id @default(uuid())
+  variantId      String
+  variant        ProductVariant        @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantityChange Int                   // e.g. -1 for sale, +10 for restock
+  previousStock  Int
+  newStock       Int
+  type           InventoryMovementType
+  reason         String?
+  referenceId    String?               // e.g. orderId or batchId
+  userId         String?
+  user           User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime              @default(now())
+
+  @@index([variantId])
+  @@index([createdAt])
+}
+
+// -------------------------------------------------------------
+// 3. CART SYSTEM (Stage A Guest & Persistent)
+// -------------------------------------------------------------
+
+model Cart {
+  id        String     @id @default(uuid())
+  sessionId String     @unique          // Cookie-based session ID for guests
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String         @id @default(uuid())
+  cartId    String
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity  Int            @default(1)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@unique([cartId, variantId])
+}
+
+// -------------------------------------------------------------
+// 4. ORDERS, COD SETTLEMENT & IMMUTABILITY (E1, E2, E10)
+// -------------------------------------------------------------
+
+enum OrderStatus {
+  PENDING_CONFIRMATION  // Initial state for COD orders
+  CONFIRMED             // Staff verified with customer
+  PROCESSING            // Packing in warehouse
+  OUT_FOR_DELIVERY      // Handed to courier
+  DELIVERED             // Customer received package
+  CANCELLED             // Cancelled prior to delivery
+  RETURNED              // Delivery attempt failed / rejected
+}
+
+enum PaymentStatus {
+  PENDING_COLLECTION    // COD waiting for courier collection
+  COLLECTED_BY_COURIER  // Courier took cash at doorstep
+  REMITTED_TO_STORE     // Cash transferred to store bank
+  FAILED_COLLECTION     // Customer rejected / refused payment
+  REFUNDED              // Returned & refunded
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  CREDIT_CARD           // Stage B
+  DIGITAL_WALLET        // Stage B
+}
+
+model Order {
+  id             String         @id @default(uuid())
+  orderNumber    String         @unique // Formatted: AS-YYYYMM-XXXX
+  
+  // Customer Details (Stage A Guest / Stage B Account)
+  customerName   String
+  customerPhone  String         // Validated 11 digits (01XXXXXXXXX)
+  customerEmail  String?
+  
+  // Delivery Address (Egyptian Specifics)
+  governorate    String         // e.g. "Cairo", "Giza", "Alexandria"
+  city           String
+  streetAddress  String         @db.Text
+  buildingDetails String?       // Apartment, Floor, Building Number
+  deliveryNotes  String?        @db.Text
+  
+  // Order & Payment Status
+  status         OrderStatus    @default(PENDING_CONFIRMATION)
+  paymentMethod  PaymentMethod  @default(CASH_ON_DELIVERY)
+  paymentStatus  PaymentStatus  @default(PENDING_COLLECTION)
+  
+  // Financial Snapshot in Integer Piasters (E1)
+  currency               String @default("EGP")
+  subtotalInPiasters     Int
+  shippingInPiasters     Int
+  discountInPiasters     Int    @default(0)
+  taxInPiasters          Int    @default(0)    // Calculated based on VAT rate
+  totalInPiasters        Int                   // subtotal + shipping + tax - discount
+  
+  // Internal Costs Snapshot for Gross Profit Calculation (Confidential)
+  totalCostInPiasters    Int    @default(0)
+  
+  // Courier Settlement Details (E10)
+  courierName            String?
+  trackingNumber         String?
+  courierCollectedAt     DateTime?
+  storeRemittedAt        DateTime?
+  courierNotes           String? @db.Text
+
+  // Audit Notes
+  adminNotes             String? @db.Text
+  customerCancelReason   String?
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  items          OrderItem[]
+
+  @@index([orderNumber])
+  @@index([status])
+  @@index([customerPhone])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id                  String         @id @default(uuid())
+  orderId             String
+  order               Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId           String?
+  variant             ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  
+  // Immutable Historical Snapshot (E1)
+  productNameSnapshot String
+  variantTitleSnapshot String
+  skuSnapshot         String
+  unitPriceInPiasters Int
+  unitCostInPiasters  Int            @default(0)
+  quantity            Int
+  subtotalInPiasters  Int            // unitPrice * quantity
+  totalCostInPiasters Int            @default(0) // unitCost * quantity
+
+  createdAt           DateTime       @default(now())
+
+  @@index([orderId])
+}
+
+// -------------------------------------------------------------
+// 5. SETTINGS, SHIPPING & LOCALIZATION (E10)
+// -------------------------------------------------------------
+
+model ShippingZone {
+  id                       String   @id @default(uuid())
+  governorateEn            String   @unique // e.g. "Cairo", "Giza", "Alexandria"
+  governorateAr            String
+  rateInPiasters           Int      // Shipping fee in piasters (e.g. 5000 = 50.00 EGP)
+  estimatedDeliveryDaysMin Int      @default(1)
+  estimatedDeliveryDaysMax Int      @default(3)
+  isActive                 Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model StoreSetting {
+  key         String   @id
+  value       String   // JSON or scalar value
+  description String?
+  updatedAt   DateTime @updatedAt
+}
