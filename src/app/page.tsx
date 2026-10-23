@@ -309,16 +309,16 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* The Art of Gifting & Guarantee Trio */}
+              {/* Quality & Craftsmanship Trio */}
               <div className="pt-4 border-t border-[#1A2624] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#2DD4BF]">
+                  <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#54d1b2]">
                     ✓
                   </div>
-                  <span className="text-[#D5D1C7]">{isRtl ? 'عينتان مجانيتان مع كل طلب' : '2 Free discovery samples'}</span>
+                  <span className="text-[#D5D1C7]">{isRtl ? 'زيوت فرنسية نقية 35% Extrait' : 'Pure 35% Extrait French oils'}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#2DD4BF]">
+                  <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#54d1b2]">
                     ✓
                   </div>
                   <span className="text-[#D5D1C7]">{isRtl ? 'معاينة الطرد قبل الدفع كاش' : 'Inspect before cash payment'}</span>
@@ -327,7 +327,7 @@ export default function HomePage() {
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#C6A66B]">
                     ★
                   </div>
-                  <span className="text-[#D5D1C7]">{isRtl ? 'علبة إهداء ملوكية فاخرة' : 'Signature luxury gift box'}</span>
+                  <span className="text-[#D5D1C7]">{isRtl ? 'زجاجة بلورية بغطاء مغناطيسي' : 'Weighted glass flacon with magnetic cap'}</span>
                 </div>
               </div>
             </div>

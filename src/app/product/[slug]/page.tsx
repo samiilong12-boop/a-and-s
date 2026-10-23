@@ -334,19 +334,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </a>
               </div>
 
-              {/* Value Assurances & Discovery Gifting */}
+              {/* Value Assurances & Standards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-[#E6E1D5] text-xs text-[#576563]">
                 <div className="flex items-center gap-2.5 p-3 bg-[#FAF8F4] rounded-xl border border-[#E6E1D5]">
                   <Truck className="w-4 h-4 text-[#0D9488] flex-shrink-0" />
-                  <span>{isRtl ? 'توصيل سريع: 24–48 ساعة' : 'Express: 24–48h delivery'}</span>
+                  <span>{isRtl ? 'توصيل سريع لجميع المحافظات' : 'Express Egypt delivery'}</span>
                 </div>
                 <div className="flex items-center gap-2.5 p-3 bg-[#FAF8F4] rounded-xl border border-[#E6E1D5]">
                   <ShieldCheck className="w-4 h-4 text-[#C6A66B] flex-shrink-0" />
                   <span>{isRtl ? 'معاينة وفحص قبل الدفع كاش' : 'Inspect before payment'}</span>
                 </div>
                 <div className="flex items-center gap-2.5 p-3 bg-[#FAF8F4] rounded-xl border border-[#E6E1D5]">
-                  <Gift className="w-4 h-4 text-[#2DD4BF] flex-shrink-0" />
-                  <span>{isRtl ? 'عينتان مجانيتان مع العبوة' : '2 Free discovery samples'}</span>
+                  <Sparkles className="w-4 h-4 text-[#00bc7d] flex-shrink-0" />
+                  <span>{isRtl ? 'تركيز نقي 35% Extrait' : 'Pure 35% Extrait Sillage'}</span>
                 </div>
               </div>
             </div>

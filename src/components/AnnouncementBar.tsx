@@ -10,12 +10,12 @@ export function AnnouncementBar() {
   return (
     <div className="bg-[#080A0A] text-[#FAF9F5] text-xs py-2 px-4 border-b border-[#2DD4BF]/20">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 text-center sm:text-left">
-        {/* Signature Free Shipping Offer with Turquoise Sparkle */}
+        {/* Atelier Heritage & Cash on Delivery Inspection */}
         <div className="flex items-center justify-center gap-2 font-medium tracking-wide">
-          <Sparkles className="w-3.5 h-3.5 text-[#2DD4BF] animate-pulse" />
+          <Sparkles className="w-3.5 h-3.5 text-[#54d1b2] animate-pulse" />
           <span className="font-bold text-[#FFFFFF]">{t('announcement.free_shipping')}</span>
-          <span className="hidden lg:inline text-[10px] text-[#2DD4BF] font-mono tracking-wider bg-[#2DD4BF]/10 px-2 py-0.5 rounded-full border border-[#2DD4BF]/20">
-            {isRtl ? 'بصمة الفخامة المصرية' : 'Egypt Haute Parfumerie'}
+          <span className="hidden lg:inline text-[10px] text-[#54d1b2] font-mono tracking-wider bg-[#54d1b2]/10 px-2 py-0.5 rounded-full border border-[#54d1b2]/30">
+            {isRtl ? 'معاينة عند الاستلام' : 'Inspection on Delivery'}
           </span>
         </div>
 

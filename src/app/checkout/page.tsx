@@ -464,11 +464,11 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Gifting & Sample Guarantee Badge */}
+              {/* Inspection & COD Guarantee Badge */}
               <div className="p-3 bg-[#FAF9F5] rounded-2xl border border-[#E7E3D6] flex items-center gap-2.5 text-xs text-[#4A5553]">
-                <Gift className="w-5 h-5 text-[#2DD4BF] flex-shrink-0" />
+                <ShieldCheck className="w-5 h-5 text-[#00bc7d] flex-shrink-0" />
                 <span className="text-[11px] leading-relaxed">
-                  {isRtl ? 'يتضمن طلبك علبة إهداء ملوكية وعينتين مجانيتين لاختبار العطر قبل فتح الزجاجة الأصلية.' : 'Includes signature gift box and 2 free discovery samples.'}
+                  {isRtl ? 'معاينة الطرد والتأكد من سلامة الزجاجة عند بابك قبل سداد المبلغ كاش للمندوب.' : 'Visual inspection of package upon delivery before handing cash payment.'}
                 </span>
               </div>
 

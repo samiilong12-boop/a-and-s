@@ -53,31 +53,13 @@ export function CartDrawer() {
             </button>
           </div>
 
-          {/* Free Shipping Progress Indicator (Signature Turquoise) */}
-          <div className="px-6 py-3.5 bg-[#FAF9F5] border-b border-[#E7E3D6]">
-            {freeShippingEligible ? (
-              <div className="flex items-center gap-2 text-xs text-[#0D9488] font-bold">
-                <Sparkles className="w-4 h-4 text-[#2DD4BF] flex-shrink-0 animate-pulse" />
-                <span>{t('cart.free_unlocked')}</span>
-              </div>
-            ) : (
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <span className="text-[#4A5553] font-medium">
-                    {isRtl
-                      ? `أضف ${formatPrice(amountNeededForFreeShipping)} للشحن المجاني الفاخر`
-                      : `Add ${formatPrice(amountNeededForFreeShipping)} for free luxury shipping`}
-                  </span>
-                  <span className="text-[#0D9488] font-mono font-bold">{freeShippingProgressPercentage}%</span>
-                </div>
-                <div className="w-full h-1.5 bg-[#E7E3D6] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#2DD4BF] to-[#0D9488] transition-all duration-300"
-                    style={{ width: `${freeShippingProgressPercentage}%` }}
-                  />
-                </div>
-              </div>
-            )}
+          {/* Service & Delivery Reassurance */}
+          <div className="px-6 py-2.5 bg-[#FAF9F5] border-b border-[#E7E3D6] flex items-center justify-between text-xs text-[#4A5553]">
+            <span className="font-semibold flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#00bc7d]" />
+              <span>{isRtl ? 'الدفع كاش عند الاستلام بعد المعاينة' : 'Cash on Delivery with Inspection'}</span>
+            </span>
+            <span className="text-[#00bc7d] font-bold text-[11px]">• {isRtl ? 'القاهرة وجميع المحافظات' : 'All Egypt'}</span>
           </div>
 
           {/* Item List */}
@@ -171,8 +153,8 @@ export function CartDrawer() {
                 </div>
                 <div className="flex justify-between text-[#4A5553] text-xs">
                   <span>{t('cart.shipping_egypt')}</span>
-                  <span className={freeShippingEligible ? 'text-[#0D9488] font-bold' : 'text-[#788784]'}>
-                    {freeShippingEligible ? t('cart.complimentary') : (isRtl ? 'يُحسب عند إتمام الطلب' : 'Calculated at checkout')}
+                  <span className="text-[#080A0A] font-semibold">
+                    {isRtl ? 'حسب المحافظة عند إتمام الطلب' : 'Calculated at checkout'}
                   </span>
                 </div>
               </div>

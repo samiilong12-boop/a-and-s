@@ -24,8 +24,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
 
   // Announcement Bar
   'announcement.free_shipping': {
-    en: 'COMPLIMENTARY LUXURY DELIVERY ACROSS EGYPT ON ORDERS OVER 1,000 EGP',
-    ar: 'شحن مجاني فاخر لجميع محافظات مصر للطلبات التي تزيد عن 1,000 جنيه',
+    en: 'HAUTE PARFUMERIE • CASH ON DELIVERY & INSPECTION ACROSS EGYPT',
+    ar: 'دار عطور ملكية خاصة • المعاينة الكاملة والدفع عند الاستلام بجميع المحافظات',
   },
   'announcement.cod': { en: 'Cash on Delivery Available', ar: 'الدفع عند الاستلام متاح' },
   'announcement.location': { en: 'Cairo, Egypt', ar: 'القاهرة، مصر' },

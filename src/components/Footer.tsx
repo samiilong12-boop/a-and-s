@@ -15,17 +15,17 @@ export function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-right">
             
-            {/* Free Shipping */}
+            {/* Express Shipping */}
             <div className="flex items-center justify-center md:justify-start gap-4">
               <div className="w-12 h-12 rounded-full bg-[#141A19] border border-[#2DD4BF]/40 flex items-center justify-center text-[#2DD4BF] flex-shrink-0 shadow-lg">
                 <Truck className="w-6 h-6" />
               </div>
               <div>
                 <h4 className="font-serif font-bold text-sm text-[#FFFFFF]">
-                  {isRtl ? 'شحن فاخر مجاني لجميع المحافظات' : 'Complimentary Egypt Shipping'}
+                  {isRtl ? 'شحن خاص لجميع المحافظات' : 'Private Courier Delivery Across Egypt'}
                 </h4>
                 <p className="text-xs text-[#9EABA7] mt-0.5">
-                  {isRtl ? 'توصيل مجاني لجميع الطلبات فوق 1,000 جنيه مصري.' : 'Free courier delivery on orders over 1,000 EGP.'}
+                  {isRtl ? 'توصيل مخصص وسريع لباب بيتك في القاهرة والإسكندرية وجميع محافظات مصر.' : 'Dedicated express courier delivery across all Egyptian governorates.'}
                 </p>
               </div>
             </div>
@@ -40,7 +40,7 @@ export function Footer() {
                   {isRtl ? 'معاينة الطرد قبل الدفع كاش' : 'Cash on Delivery (COD)'}
                 </h4>
                 <p className="text-xs text-[#9EABA7] mt-0.5">
-                  {isRtl ? 'عاين طردك الفاخر مع المندوب وافتح العينات قبل السداد.' : 'Inspect your package before handing cash payment.'}
+                  {isRtl ? 'عاين طردك الفاخر وتأكد من سلامة الزجاجة عند بابك قبل السداد للمندوب.' : 'Inspect your package and flacon upon arrival before handing cash payment.'}
                 </p>
               </div>
             </div>
@@ -60,17 +60,17 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Art of Gifting & Samples */}
+            {/* Crystal Flacon & Magnetic Cap */}
             <div className="flex items-center justify-center md:justify-start gap-4">
               <div className="w-12 h-12 rounded-full bg-[#141A19] border border-[#C6A66B]/50 flex items-center justify-center text-[#C6A66B] flex-shrink-0 shadow-lg">
-                <Gift className="w-6 h-6" />
+                <Sparkles className="w-6 h-6 text-[#54d1b2]" />
               </div>
               <div>
                 <h4 className="font-serif font-bold text-sm text-[#FFFFFF]">
-                  {isRtl ? 'عينتان مجانيتان مع كل طلب' : 'Complimentary Discovery Samples'}
+                  {isRtl ? 'زجاج بلوري ثقيل بغطاء مغناطيسي' : 'Weighted Crystal & Magnetic Cap'}
                 </h4>
                 <p className="text-xs text-[#9EABA7] mt-0.5">
-                  {isRtl ? 'علبة إهداء ملوكية مع عينتين لتجربة العطر أولاً.' : 'Bespoke luxury box with 2 discovery sample vials.'}
+                  {isRtl ? 'زجاجة بلورية محكمة الإغلاق تحفظ كثافة ونقاء الزيوت العطرية النادرة.' : 'Heavy beveled crystal flacon sealing the density of rare perfume oils.'}
                 </p>
               </div>
             </div>
@@ -188,9 +188,9 @@ export function Footer() {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>{isRtl ? 'أصلي 100% معمل القاهرة' : '100% Authentic Cairo Atelier'}</span>
               </li>
-              <li>{isRtl ? 'معاينة الطرد عند الباب' : 'Visual Inspection Upon Delivery'}</li>
-              <li>{isRtl ? 'علبة إهداء ملوكية مجانية' : 'Complimentary Gifting Presentation'}</li>
-              <li>{isRtl ? 'عينتان مع كل زجاجة' : '2 Free Testing Samples'}</li>
+              <li>{isRtl ? 'معاينة الطرد عند الباب قبل السداد' : 'Visual Inspection Upon Delivery'}</li>
+              <li>{isRtl ? 'زجاجة بلورية ثقيلة بغطاء مغناطيسي' : 'Weighted Crystal Flacon with Magnetic Cap'}</li>
+              <li>{isRtl ? 'ثبات استثنائي يتجاوز 14 ساعة' : '14+ Hours Extreme Sillage'}</li>
             </ul>
           </div>
 
