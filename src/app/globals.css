@@ -14,12 +14,12 @@
   --bg-card: #FFFFFF;                  /* Crisp Studio White for Product Cards */
   --bg-card-hover: #FDFCF9;
 
-  /* 2. Brand Signature Fingerprint: Luminous Light Turquoise Green (الأخضر الفيروزي الفاتح) */
-  --brand-turquoise: #2DD4BF;          /* Radiant Luminous Turquoise (The Brand Fingerprint) */
-  --brand-turquoise-deep: #0D9488;     /* Rich Gemstone Turquoise (for readable high-contrast typography) */
-  --brand-turquoise-mint: #5EEAD4;     /* Luminous Mint Glow */
-  --brand-turquoise-glow: rgba(45, 212, 191, 0.28);
-  --brand-turquoise-subtle: rgba(45, 212, 191, 0.12);
+  /* 2. Brand Signature Fingerprint: Approved Exact Palette (#00bc7d and #54d1b2) */
+  --brand-turquoise: #54d1b2;          /* Luminous Light Turquoise Green (بصمة الفيروزي الفاتح) */
+  --brand-turquoise-deep: #00bc7d;     /* Vibrant Emerald Teal Green (الأخضر الزمردي الغني) */
+  --brand-turquoise-mint: #7ee5cd;     /* Soft Mint Highlight */
+  --brand-turquoise-glow: rgba(84, 209, 178, 0.35);
+  --brand-turquoise-subtle: rgba(84, 209, 178, 0.14);
 
   /* 3. High-Fashion Typography & Architectural Contrast: Deep Obsidian Black */
   --text-obsidian: #080A0A;            /* Deep Obsidian Black (Bodoni Moda & Jost) */
@@ -78,7 +78,7 @@ h1, h2, h3, h4, .font-editorial {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2DD4BF;
+  background: #54d1b2;
 }
 
 /* =========================================================
@@ -98,9 +98,9 @@ h1, h2, h3, h4, .font-editorial {
 .shimmer-badge {
   background: linear-gradient(
     90deg,
-    rgba(45, 212, 191, 0.1) 0%,
-    rgba(45, 212, 191, 0.35) 50%,
-    rgba(45, 212, 191, 0.1) 100%
+    rgba(84, 209, 178, 0.1) 0%,
+    rgba(84, 209, 178, 0.35) 50%,
+    rgba(84, 209, 178, 0.1) 100%
   );
   background-size: 200% 100%;
   animation: luxuryShimmer 4s infinite linear;
@@ -137,19 +137,19 @@ h1, h2, h3, h4, .font-editorial {
 
 .btn-primary:hover {
   background-color: #0E1615;
-  border-color: #2DD4BF;
-  color: #2DD4BF !important;
+  border-color: #54d1b2;
+  color: #54d1b2 !important;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(8, 10, 10, 0.25), 0 0 20px rgba(45, 212, 191, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(8, 10, 10, 0.25), 0 0 20px rgba(84, 209, 178, 0.3);
 }
 
 .btn-primary:active {
   transform: translateY(0);
 }
 
-/* Signature Light Turquoise Gemstone Button */
+/* Signature Light Turquoise Gemstone Button (Approved: #00bc7d & #54d1b2) */
 .btn-turquoise {
-  background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%);
+  background: linear-gradient(135deg, #00bc7d 0%, #54d1b2 100%);
   color: #080A0A !important;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -161,9 +161,9 @@ h1, h2, h3, h4, .font-editorial {
 }
 
 .btn-turquoise:hover {
-  background: linear-gradient(135deg, #5EEAD4 0%, #2DD4BF 100%);
+  background: linear-gradient(135deg, #54d1b2 0%, #7ee5cd 100%);
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(45, 212, 191, 0.45);
+  box-shadow: 0 10px 30px rgba(84, 209, 178, 0.45);
 }
 
 .btn-turquoise:active {
@@ -180,11 +180,11 @@ h1, h2, h3, h4, .font-editorial {
 }
 
 .btn-secondary:hover {
-  border-color: #2DD4BF;
-  color: #0D9488;
+  border-color: #54d1b2;
+  color: #00bc7d;
   background-color: #FAF9F5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(45, 212, 191, 0.15);
+  box-shadow: 0 4px 15px rgba(84, 209, 178, 0.15);
 }
 
 /* Luxury Card in Crisp Studio White on Warm Cashmere Canvas */
@@ -196,16 +196,16 @@ h1, h2, h3, h4, .font-editorial {
 }
 
 .luxury-card:hover {
-  border-color: #2DD4BF;
-  box-shadow: 0 20px 40px -10px rgba(8, 10, 10, 0.07), 0 0 25px -2px rgba(45, 212, 191, 0.22);
+  border-color: #54d1b2;
+  box-shadow: 0 20px 40px -10px rgba(8, 10, 10, 0.07), 0 0 25px -2px rgba(84, 209, 178, 0.25);
   transform: translateY(-4px);
 }
 
 /* Light Turquoise Signature Badge */
 .badge-turquoise {
-  border: 1px solid rgba(45, 212, 191, 0.5);
-  color: #0D9488;
-  background: rgba(45, 212, 191, 0.12);
+  border: 1px solid rgba(84, 209, 178, 0.5);
+  color: #00bc7d;
+  background: rgba(84, 209, 178, 0.12);
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;

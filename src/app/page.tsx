@@ -52,13 +52,13 @@ export default function HomePage() {
       {/* 1. CINEMATIC ROYAL HERO SECTION: MODEL SPRAYING A AND S PERFUME */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 border-b border-[#E6E1D5]">
         
-        {/* Background Visual Layer: Model spraying A AND S perfume image & video */}
+        {/* Background Visual Layer: Real A&S Campaign Photography & Ambient Mist Video */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Main Visual: High-fashion Model in tuxedo spraying A AND S perfume */}
+          {/* Main Visual: Male model spraying A&S Flacon with turquoise sea & golden sun */}
           <img
-            src="/images/model-spray-perfume.svg"
-            alt="Haute Couture Model spraying A AND S Luxury Perfume"
-            className="w-full h-full object-cover scale-105 filter brightness-[0.45] contrast-125 transition-transform duration-1000"
+            src="/images/campaign/as-signature-male-spray.jpg"
+            alt="A AND S Campaign — Male Model spraying A&S Flacon by the Sea"
+            className="w-full h-full object-cover scale-105 filter brightness-[0.55] contrast-110 transition-transform duration-1000"
           />
 
           {/* Video Overlay with ambient mist & lighting */}
@@ -68,8 +68,9 @@ export default function HomePage() {
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-35 filter contrast-150"
+            className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-40 filter contrast-150"
           >
+            <source src="/videos/campaign-hero.mp4" type="video/mp4" />
             <source
               src="https://assets.mixkit.co/videos/preview/mixkit-perfume-bottle-and-rose-petals-falling-41589-large.mp4"
               type="video/mp4"
@@ -77,8 +78,8 @@ export default function HomePage() {
           </video>
 
           {/* Luxury Gradient Dark & Golden Overlays for Flawless Readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080A0A] via-[#080A0A]/60 to-[#080A0A]/30" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#080A0A]/40 to-[#080A0A]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080A0A] via-[#080A0A]/55 to-[#080A0A]/25" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#080A0A]/35 to-[#080A0A]" />
         </div>
 
         {/* Video & Visual Control Badge */}
@@ -305,7 +306,55 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. FRAGRANCE FAMILIES EXPLORER (Pearl Surface on Warm Beige) */}
+      {/* 4. MEDITERRANEAN RIVIERA & CITRUS COLLECTION (Campaign Photo 1: Female Model with Turquoise Scarf) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative rounded-3xl overflow-hidden border border-[#E7E3D6] shadow-xl bg-[#080A0A]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
+            
+            {/* Visual Image */}
+            <div className="lg:col-span-7 relative min-h-[420px] lg:min-h-[500px]">
+              <img
+                src="/images/campaign/female-coastal-spray.jpg"
+                alt="A AND S Mediterranean Riviera Campaign"
+                className="absolute inset-0 w-full h-full object-cover filter brightness-[0.9] contrast-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 via-black/35 to-transparent" />
+            </div>
+
+            {/* Editorial Copy */}
+            <div className="lg:col-span-5 p-8 sm:p-12 lg:p-14 space-y-6 text-white relative z-10">
+              <span className="badge-turquoise px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-widest inline-block">
+                {isRtl ? 'حملة صيف الريفييرا المتوسطية' : 'Mediterranean Summer Campaign'}
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold leading-tight">
+                {isRtl ? 'رذاذ البحر الفيروزي.. وانتعاش الحمضيات الذهبية' : 'Turquoise Ocean Mist & Golden Citron'}
+              </h2>
+              <p className="text-sm text-[#C5CECB] leading-relaxed">
+                {isRtl
+                  ? 'مستوحاة من دفء شمس الأصيل على شواطئ البحر المتوسط، حيث تلتقي نفحات البرغموت الإيطالي النادر برحيق أزهار البرتقال ورذاذ النسيم الفيروزي العليل.'
+                  : 'Inspired by golden hour sunlight on Mediterranean shores, combining rare Italian bergamot, neroli blossoms, and pure ocean mist.'}
+              </p>
+              <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/catalog?family=Fresh+Citrus"
+                  className="btn-turquoise py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider text-center"
+                >
+                  {isRtl ? 'اكتشف عطور الريفييرا' : 'Explore Riviera Scents'}
+                </Link>
+                <Link
+                  href="/catalog"
+                  className="btn-secondary !bg-transparent !text-white !border-white/30 hover:!border-[#54d1b2] hover:!text-[#54d1b2] py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider text-center"
+                >
+                  {isRtl ? 'مشاهدة الكتالوج الكامل' : 'View Full Catalog'}
+                </Link>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 5. FRAGRANCE FAMILIES EXPLORER (Pearl Surface on Warm Beige) */}
       <section id="fragrance-families" className="bg-[#FAF8F4] py-20 border-y border-[#E6E1D5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
@@ -409,9 +458,9 @@ export default function HomePage() {
           {/* Visual Showcase Block */}
           <div className="relative aspect-square sm:aspect-[4/3] bg-[#080A0A] rounded-2xl border border-[#2DD4BF]/40 p-8 flex flex-col justify-end overflow-hidden shadow-2xl text-white">
             <img
-              src="/images/model-spray-perfume.svg"
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover filter brightness-[0.4]"
+              src="/images/campaign/couple-sunset-romance.jpg"
+              alt="A AND S Haute Parfumerie Couple Campaign"
+              className="absolute inset-0 w-full h-full object-cover filter brightness-[0.55] contrast-110"
             />
             <div className={`absolute top-6 ${isRtl ? 'left-6' : 'right-6'}`}>
               <span className="font-serif text-6xl text-[#2DD4BF]/20 font-bold">A&S</span>

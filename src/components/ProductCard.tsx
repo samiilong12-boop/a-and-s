@@ -49,7 +49,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
           {product.isNewArrival && (
-            <span className="shimmer-badge bg-[#080A0A] text-[#2DD4BF] border border-[#2DD4BF]/40 text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-sm shadow-sm">
+            <span className="shimmer-badge bg-[#080A0A] text-[#54d1b2] border border-[#54d1b2]/40 text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-sm shadow-sm">
               {isRtl ? 'وصل حديثاً' : 'New Arrival'}
             </span>
           )}
@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 p-4 backdrop-blur-[2px]">
           <button
             onClick={handleQuickAdd}
-            className="bg-[#080A0A] hover:bg-[#2DD4BF] text-white hover:text-[#080A0A] p-3 rounded-full shadow-2xl hover:scale-110 transition-all border border-[#2DD4BF]/40"
+            className="bg-[#080A0A] hover:bg-[#00bc7d] text-white hover:text-[#080A0A] p-3 rounded-full shadow-2xl hover:scale-110 transition-all border border-[#54d1b2]/40"
             title={`Quick add ${defaultVariant?.titleEn || 'Perfume'} to bag`}
             aria-label="Quick Add to Bag"
           >
@@ -84,13 +84,13 @@ export function ProductCard({ product }: ProductCardProps) {
         <div>
           {/* Concentration & Category */}
           <div className="flex items-center justify-between text-[11px] tracking-wider uppercase mb-1.5 font-bold">
-            <span className="text-[#0D9488] font-mono">{product.fragranceFamily}</span>
+            <span className="text-[#00bc7d] font-mono">{product.fragranceFamily}</span>
             <span className="text-[#576563]">{product.concentration.replace(/_/g, ' ')}</span>
           </div>
 
           {/* Fragrance Title */}
           <Link href={`/product/${product.slug}`} className="block">
-            <h3 className="font-serif text-base sm:text-lg font-bold text-[#080A0A] group-hover:text-[#0D9488] transition-colors line-clamp-1">
+            <h3 className="font-serif text-base sm:text-lg font-bold text-[#080A0A] group-hover:text-[#00bc7d] transition-colors line-clamp-1">
               {product.nameEn}
             </h3>
           </Link>
@@ -130,7 +130,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <Link
             href={`/product/${product.slug}`}
-            className="text-xs tracking-wider uppercase text-[#080A0A] group-hover:text-[#0D9488] transition-colors flex items-center gap-1 font-bold group-hover:translate-x-1 duration-200"
+            className="text-xs tracking-wider uppercase text-[#080A0A] group-hover:text-[#00bc7d] transition-colors flex items-center gap-1 font-bold group-hover:translate-x-1 duration-200"
           >
             <span>{isRtl ? 'اكتشف' : 'Explore'}</span>
             <span>{isRtl ? '←' : '→'}</span>
