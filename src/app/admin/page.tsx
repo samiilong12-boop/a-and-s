@@ -14,6 +14,7 @@ import {
   Package,
   Layers,
   Lock,
+  Film,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import { useProducts } from '@/context/ProductContext';
@@ -78,6 +79,37 @@ export default function AdminOverviewPage() {
           className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-4 py-2.5 rounded-lg text-xs tracking-wider uppercase self-start sm:self-auto flex items-center gap-2 shadow-sm transition-all"
         >
           <span>إدارة ومتابعة الطلبات ({orders.length})</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+
+      {/* Quick Hero Media & Video Management Card */}
+      <div className="bg-gradient-to-r from-teal-900 to-slate-900 text-white p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-teal-800/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-400 flex-shrink-0 shadow-inner">
+            <Film className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-teal-300 bg-teal-900/60 px-2 py-0.5 rounded border border-teal-700">
+                الهوية البصرية للمتجر
+              </span>
+              <span className="text-xs text-slate-300">ميزة حصرية للمالك</span>
+            </div>
+            <h3 className="font-serif text-lg font-bold text-white mt-0.5">
+              إدارة الفيديو الرئيسي وخلفية الواجهة (Hero Media)
+            </h3>
+            <p className="text-xs text-slate-300 mt-0.5 max-w-xl">
+              يمكنك رفع أي فيديو جديد من كمبيوترك أو هاتفك أو التبديل بين فيديوهات الحملات الإعلانية المعتمدة ليعمل كخلفية سينمائية للواجهة.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/admin/media"
+          className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all self-start sm:self-auto flex-shrink-0"
+        >
+          <span>إدارة ورفع الفيديو</span>
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

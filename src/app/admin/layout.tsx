@@ -15,6 +15,7 @@ import {
   Lock,
   Eye,
   LogOut,
+  Film,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -24,6 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navItems = [
     { label: 'Overview Analytics', href: '/admin', icon: LayoutDashboard },
+    { label: 'Hero Media & Video (فيديو الموقع)', href: '/admin/media', icon: Film },
     { label: 'Orders & COD Settlement', href: '/admin/orders', icon: ShoppingBag },
     { label: 'Products & Formulations', href: '/admin/products', icon: Package },
     { label: 'Inventory Movements', href: '/admin/inventory', icon: Layers },

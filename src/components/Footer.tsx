@@ -191,7 +191,7 @@ export function Footer() {
 
         </div>
 
-        {/* Bottom Bar with Discreet Admin Portal Link */}
+        {/* Bottom Bar: Copyright and National Service Badges (Hidden Secret Admin) */}
         <div className="mt-14 pt-8 border-t border-[#1A2624] flex flex-col sm:flex-row items-center justify-between text-xs text-[#6C7A77] gap-4">
           <p>
             &copy; {new Date().getFullYear()} A AND S Haute Parfumerie (دار عطور إيه آند إس). جميع الحقوق محفوظة.
@@ -199,15 +199,6 @@ export function Footer() {
           <div className="flex items-center gap-6">
             <span className="text-[#9EABA7]">العملة: الجنيه المصري (EGP)</span>
             <span className="text-[#9EABA7]">التوصيل: جميع محافظات مصر</span>
-            {/* Private discreet link for staff admin */}
-            <Link
-              href="/admin"
-              className="text-[#3A4543] hover:text-[#2DD4BF] transition-colors flex items-center gap-1"
-              title="Private Management Suite"
-            >
-              <Lock className="w-3 h-3" />
-              <span className="text-[10px]">Staff Portal</span>
-            </Link>
           </div>
         </div>
       </div>
