@@ -399,18 +399,47 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Image URL with live preview */}
-              <div className="space-y-1">
+              {/* Image URL & File Upload with Live Preview */}
+              <div className="space-y-1.5">
                 <label className="font-bold text-slate-700 block">
-                  رابط صورة العطر (Image URL) <span className="text-slate-400 font-normal">(اتركه فارغاً لتوليد صورة زجاجة فاخرة تلقائياً)</span>
+                  صورة العطر (Product Image) <span className="text-slate-400 font-normal">(يمكنك رفع صورة من جهازك أو وضع رابط)</span>
                 </label>
-                <input
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://example.com/perfume-photo.jpg (أو اترك فارغاً للتوليد الفاخر)"
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
-                />
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    placeholder="ضع رابط الصورة هنا أو اضغط زر الرفع من جهازك..."
+                    className="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
+                  />
+                  <label className="cursor-pointer bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors flex-shrink-0">
+                    <Upload className="w-3.5 h-3.5 text-teal-700" />
+                    <span>اختر من جهازك</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            if (event.target?.result) {
+                              setFormData({ ...formData, imageUrl: event.target.result as string });
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {formData.imageUrl && (
+                  <div className="mt-2 flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-slate-200">
+                    <img src={formData.imageUrl} alt="Product Preview" className="w-12 h-12 object-cover rounded-md border border-slate-300" />
+                    <span className="text-[11px] text-teal-800 font-bold">تم تجهيز ومعاينة صورة العطر بنجاح</span>
+                  </div>
+                )}
               </div>
 
               {/* Scent Notes Pyramid */}
