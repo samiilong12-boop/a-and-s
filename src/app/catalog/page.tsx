@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles, Filter } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { FRAGRANCE_FAMILIES, CONCENTRATIONS } from '@/lib/data/products';
@@ -89,27 +89,71 @@ function CatalogContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 bg-white text-[#0A0D0D]">
-      {/* Catalog Header */}
-      <div className="border-b border-[#E8E6DF] pb-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <span className="badge-gold px-3 py-1 rounded-sm">
-              {isRtl ? 'المجموعة الدائمة والأرشيف العطري' : 'The Permanent Collection'}
-            </span>
-            <h1 className="font-serif text-3xl sm:text-5xl font-bold text-[#0A0D0D] mt-2">
-              {isRtl ? 'جميع العطور الملكية' : 'All Fragrances'}
-            </h1>
-            <p className="text-sm text-[#52605D] mt-1">
-              {isRtl
-                ? `عرض ${filteredProducts.length} عطر فاخر من إجمالي ${products.length} تركيبة في معمل القاهرة.`
-                : `Showing ${filteredProducts.length} curated creations out of ${products.length} bespoke perfumes.`}
-            </p>
+    <div className="min-h-screen bg-[#F7F5EE] py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        
+        {/* Catalog Editorial Header (Chanel Style) */}
+        <div className="border-b border-[#E7E3D6] pb-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 badge-turquoise px-3 py-1 rounded-sm">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isRtl ? 'المجموعة الدائمة والأرشيف العطري' : 'The Permanent Collection'}</span>
+              </div>
+              <h1 className="font-serif text-3xl sm:text-5xl font-bold text-[#080A0A] mt-2.5">
+                {t('catalog.title')}
+              </h1>
+              <p className="text-sm text-[#4A5553] mt-1.5 max-w-2xl leading-relaxed">
+                {t('catalog.subtitle')}
+              </p>
+            </div>
+
+            {/* Quick Metrics Tag */}
+            <div className="flex items-center gap-2 text-xs text-[#0D9488] bg-[#2DD4BF]/10 border border-[#2DD4BF]/30 px-3.5 py-1.5 rounded-full self-start md:self-auto font-bold font-mono">
+              <span>{filteredProducts.length}</span>
+              <span className="font-sans font-normal text-[#4A5553]">{isRtl ? 'إبداع عطري متوفر' : 'creations available'}</span>
+            </div>
           </div>
 
+          {/* Smooth Horizontal Family Scroll Chips (Faces Egypt Inspired) */}
+          <div className="pt-6 flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none">
+            <button
+              onClick={() => {
+                setSelectedFamily('All');
+                setCurrentPage(1);
+              }}
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                selectedFamily === 'All'
+                  ? 'bg-[#080A0A] text-[#2DD4BF] border border-[#2DD4BF] shadow-md'
+                  : 'bg-white text-[#4A5553] hover:text-[#080A0A] border border-[#E7E3D6] hover:border-[#2DD4BF]'
+              }`}
+            >
+              {isRtl ? 'جميع العائلات العطرية' : 'All Olfactory Families'}
+            </button>
+            {FRAGRANCE_FAMILIES.map((family) => (
+              <button
+                key={family}
+                onClick={() => {
+                  setSelectedFamily(family);
+                  setCurrentPage(1);
+                }}
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                  selectedFamily === family
+                    ? 'bg-[#080A0A] text-[#2DD4BF] border border-[#2DD4BF] shadow-md'
+                    : 'bg-white text-[#4A5553] hover:text-[#080A0A] border border-[#E7E3D6] hover:border-[#2DD4BF]'
+                }`}
+              >
+                {family}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Filter & Search Bar */}
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#E7E3D6] shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+          
           {/* Search Input */}
           <div className="relative w-full md:w-80">
-            <Search className={`w-4 h-4 text-[#788784] absolute ${isRtl ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2`} />
             <input
               type="text"
               value={searchTerm}
@@ -117,188 +161,224 @@ function CatalogContent() {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder={t('nav.search_placeholder')}
-              className={`w-full bg-[#FAFAF7] border border-[#E8E6DF] rounded-lg ${isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 text-xs text-[#0A0D0D] placeholder-[#788784] focus:outline-none focus:border-[#B8934A] transition-colors`}
+              placeholder={t('catalog.search_placeholder')}
+              className="w-full bg-[#FAF9F5] border border-[#E7E3D6] focus:border-[#2DD4BF] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#080A0A] placeholder-[#788784] focus:outline-none transition-colors"
             />
+            <Search className="w-4 h-4 text-[#788784] absolute left-3 top-3" />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className={`absolute ${isRtl ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-[#788784] hover:text-[#0A0D0D]`}
+                className="absolute right-3 top-3 text-[#788784] hover:text-[#080A0A]"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
+
+          {/* Desktop Filter Pickers */}
+          <div className="hidden lg:flex items-center gap-3">
+            {/* Concentration */}
+            <select
+              value={selectedConcentration}
+              onChange={(e) => {
+                setSelectedConcentration(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="bg-[#FAF9F5] border border-[#E7E3D6] hover:border-[#2DD4BF] text-[#080A0A] text-xs font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#2DD4BF] cursor-pointer"
+            >
+              <option value="All">{isRtl ? 'جميع درجات التركيز' : 'All Concentrations'}</option>
+              {CONCENTRATIONS.map((c) => (
+                <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
+              ))}
+            </select>
+
+            {/* Price Range */}
+            <select
+              value={priceRange}
+              onChange={(e) => {
+                setPriceRange(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="bg-[#FAF9F5] border border-[#E7E3D6] hover:border-[#2DD4BF] text-[#080A0A] text-xs font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#2DD4BF] cursor-pointer"
+            >
+              <option value="All">{isRtl ? 'نطاق السعر (بالجنيه)' : 'All Price Ranges'}</option>
+              <option value="under-2000">{isRtl ? 'أقل من 2,000 ج.م' : 'Under 2,000 EGP'}</option>
+              <option value="2000-3000">{isRtl ? '2,000 – 3,000 ج.م' : '2,000 – 3,000 EGP'}</option>
+              <option value="3000-4000">{isRtl ? '3,000 – 4,000 ج.م' : '3,000 – 4,000 EGP'}</option>
+              <option value="above-4000">{isRtl ? 'أكثر من 4,000 ج.م' : 'Above 4,000 EGP'}</option>
+            </select>
+
+            {/* Sort Order */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-[#FAF9F5] border border-[#E7E3D6] hover:border-[#2DD4BF] text-[#080A0A] text-xs font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#2DD4BF] cursor-pointer"
+            >
+              <option value="featured">{t('catalog.sort_featured')}</option>
+              <option value="bestselling">{t('catalog.sort_bestselling')}</option>
+              <option value="newest">{t('catalog.sort_newest')}</option>
+              <option value="price-asc">{t('catalog.sort_price_low')}</option>
+              <option value="price-desc">{t('catalog.sort_price_high')}</option>
+            </select>
+
+            {(searchTerm || selectedFamily !== 'All' || selectedConcentration !== 'All' || priceRange !== 'All' || sortBy !== 'featured') && (
+              <button
+                onClick={resetFilters}
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 px-2 py-1 underline"
+              >
+                {t('catalog.clear_filters')}
+              </button>
+            )}
+          </div>
+
+          {/* Mobile Filter Toggle */}
+          <div className="flex lg:hidden w-full items-center justify-between gap-3 pt-2 sm:pt-0">
+            <button
+              onClick={() => setMobileFiltersOpen(true)}
+              className="flex-1 btn-secondary py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2"
+            >
+              <Filter className="w-4 h-4 text-[#2DD4BF]" />
+              <span>{isRtl ? 'تصفية وترتيب العطور' : 'Filter & Sort'}</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Filter Bar & Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#FAFAF7] p-4 rounded-xl border border-[#E8E6DF]">
-        {/* Mobile filter toggle */}
-        <div className="flex items-center justify-between lg:hidden">
-          <button
-            onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-            className="btn-secondary px-3.5 py-2 rounded-lg text-xs flex items-center gap-2"
-          >
-            <SlidersHorizontal className="w-4 h-4 text-[#B8934A]" />
-            <span>{isRtl ? `فلترة العطور (${filteredProducts.length})` : `Filter Catalog (${filteredProducts.length})`}</span>
-          </button>
+        {/* Mobile Filters Modal */}
+        {mobileFiltersOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end">
+            <div className="w-full max-w-xs bg-[#F7F5EE] h-full p-6 space-y-6 overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-[#E7E3D6] pb-4">
+                <h3 className="font-serif text-lg font-bold text-[#080A0A]">{isRtl ? 'خيارات الفلترة' : 'Filters'}</h3>
+                <button onClick={() => setMobileFiltersOpen(false)} className="text-[#4A5553] p-1">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-          <span className="text-xs text-[#788784] font-medium">
-            {isRtl ? `صفحة ${currentPage} من ${totalPages || 1}` : `Page ${currentPage} of ${totalPages || 1}`}
-          </span>
-        </div>
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="font-bold text-[#080A0A] block mb-2">{isRtl ? 'الترتيب حسب:' : 'Sort By:'}</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full bg-white border border-[#E7E3D6] rounded-xl p-3 text-xs"
+                  >
+                    <option value="featured">{t('catalog.sort_featured')}</option>
+                    <option value="bestselling">{t('catalog.sort_bestselling')}</option>
+                    <option value="newest">{t('catalog.sort_newest')}</option>
+                    <option value="price-asc">{t('catalog.sort_price_low')}</option>
+                    <option value="price-desc">{t('catalog.sort_price_high')}</option>
+                  </select>
+                </div>
 
-        {/* Desktop Filter Pills */}
-        <div className="hidden lg:flex items-center gap-3 flex-wrap">
-          <select
-            value={selectedFamily}
-            onChange={(e) => {
-              setSelectedFamily(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="bg-white border border-[#E8E6DF] rounded-lg px-3 py-2 text-xs text-[#0A0D0D] font-medium focus:outline-none focus:border-[#B8934A]"
-          >
-            <option value="All">{isRtl ? 'جميع العائلات العطرية' : 'All Fragrance Families'}</option>
-            {FRAGRANCE_FAMILIES.map((fam) => (
-              <option key={fam} value={fam}>{fam}</option>
+                <div>
+                  <label className="font-bold text-[#080A0A] block mb-2">{isRtl ? 'درجة التركيز:' : 'Concentration:'}</label>
+                  <select
+                    value={selectedConcentration}
+                    onChange={(e) => setSelectedConcentration(e.target.value)}
+                    className="w-full bg-white border border-[#E7E3D6] rounded-xl p-3 text-xs"
+                  >
+                    <option value="All">{isRtl ? 'جميع التركيزات' : 'All'}</option>
+                    {CONCENTRATIONS.map((c) => (
+                      <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold text-[#080A0A] block mb-2">{isRtl ? 'نطاق السعر:' : 'Price Range:'}</label>
+                  <select
+                    value={priceRange}
+                    onChange={(e) => setPriceRange(e.target.value)}
+                    className="w-full bg-white border border-[#E7E3D6] rounded-xl p-3 text-xs"
+                  >
+                    <option value="All">{isRtl ? 'الكل' : 'All'}</option>
+                    <option value="under-2000">{isRtl ? 'أقل من 2,000 ج.م' : 'Under 2,000 EGP'}</option>
+                    <option value="2000-3000">{isRtl ? '2,000 – 3,000 ج.م' : '2,000 – 3,000 EGP'}</option>
+                    <option value="3000-4000">{isRtl ? '3,000 – 4,000 ج.م' : '3,000 – 4,000 EGP'}</option>
+                    <option value="above-4000">{isRtl ? 'أكثر من 4,000 ج.م' : 'Above 4,000 EGP'}</option>
+                  </select>
+                </div>
+
+                <div className="pt-4 flex flex-col gap-2">
+                  <button
+                    onClick={() => setMobileFiltersOpen(false)}
+                    className="btn-turquoise w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider"
+                  >
+                    {isRtl ? 'تطبيق الفلترة' : 'Apply Filters'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      resetFilters();
+                      setMobileFiltersOpen(false);
+                    }}
+                    className="w-full py-2.5 rounded-xl text-xs text-rose-600 font-bold"
+                  >
+                    {t('catalog.clear_filters')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Product Cards Grid */}
+        {paginatedProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {paginatedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
-          </select>
-
-          <select
-            value={selectedConcentration}
-            onChange={(e) => {
-              setSelectedConcentration(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="bg-white border border-[#E8E6DF] rounded-lg px-3 py-2 text-xs text-[#0A0D0D] font-medium focus:outline-none focus:border-[#B8934A]"
-          >
-            <option value="All">{isRtl ? 'جميع التركيزات' : 'All Concentrations'}</option>
-            {CONCENTRATIONS.map((c) => (
-              <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
-            ))}
-          </select>
-
-          <select
-            value={priceRange}
-            onChange={(e) => {
-              setPriceRange(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="bg-white border border-[#E8E6DF] rounded-lg px-3 py-2 text-xs text-[#0A0D0D] font-medium focus:outline-none focus:border-[#B8934A]"
-          >
-            <option value="All">{isRtl ? 'جميع الأسعار (جنيه مصري)' : 'All Prices (EGP)'}</option>
-            <option value="under-2000">{isRtl ? 'أقل من 2,000 ج.م' : 'Under 2,000 EGP'}</option>
-            <option value="2000-3000">{isRtl ? '2,000 – 3,000 ج.م' : '2,000 – 3,000 EGP'}</option>
-            <option value="3000-4000">{isRtl ? '3,000 – 4,000 ج.م' : '3,000 – 4,000 EGP'}</option>
-            <option value="above-4000">{isRtl ? 'أكثر من 4,000 ج.م' : 'Above 4,000 EGP'}</option>
-          </select>
-
-          {(selectedFamily !== 'All' || selectedConcentration !== 'All' || priceRange !== 'All' || searchTerm) && (
+          </div>
+        ) : (
+          <div className="bg-white rounded-3xl border border-[#E7E3D6] p-16 text-center space-y-4 shadow-sm">
+            <h3 className="font-serif text-2xl font-bold text-[#080A0A]">
+              {isRtl ? 'لم نعثر على عطور تطابق هذا البحث' : 'No Fragrances Found'}
+            </h3>
+            <p className="text-xs text-[#788784] max-w-md mx-auto">
+              {isRtl
+                ? 'جرب البحث باسم مكون عطري آخر (مثل: عود، عنبر، لافندر) أو قم بإعادة تعيين خيارات التصفية.'
+                : 'Try refining your search keyword or clearing the active filters.'}
+            </p>
             <button
               onClick={resetFilters}
-              className="text-xs text-[#0B665D] hover:underline flex items-center gap-1 font-bold"
+              className="btn-turquoise px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider"
             >
-              <X className="w-3.5 h-3.5" />
-              <span>{isRtl ? 'إعادة ضبط' : 'Reset'}</span>
+              {t('catalog.clear_filters')}
             </button>
-          )}
-        </div>
-
-        {/* Sorting Dropdown */}
-        <div className="flex items-center gap-2 self-end lg:self-auto">
-          <ArrowUpDown className="w-3.5 h-3.5 text-[#788784]" />
-          <span className="text-xs text-[#788784] font-semibold">{isRtl ? 'الترتيب حسب:' : 'Sort By:'}</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-white border border-[#E8E6DF] rounded-lg px-3 py-2 text-xs text-[#0A0D0D] font-bold focus:outline-none focus:border-[#B8934A]"
-          >
-            <option value="featured">{isRtl ? 'المميزة والمختارة' : 'Featured Masterpieces'}</option>
-            <option value="bestselling">{isRtl ? 'الأكثر طلباً' : 'Bestsellers'}</option>
-            <option value="newest">{isRtl ? 'أحدث الإصدارات' : 'Newest Releases'}</option>
-            <option value="price-asc">{isRtl ? 'السعر: من الأقل للأعلى' : 'Price: Low to High'}</option>
-            <option value="price-desc">{isRtl ? 'السعر: من الأعلى للأقل' : 'Price: High to Low'}</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Product Grid */}
-      {paginatedProducts.length === 0 ? (
-        <div className="py-24 text-center space-y-4 bg-[#FAFAF7] rounded-2xl border border-[#E8E6DF]">
-          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mx-auto text-[#B8934A] border border-[#E8E6DF] shadow-sm">
-            <Sparkles className="w-8 h-8" />
           </div>
-          <h3 className="font-serif text-2xl font-bold text-[#0A0D0D]">
-            {isRtl ? 'لم يتم العثور على عطور تطابق بحثك' : 'No fragrances matched your selection'}
-          </h3>
-          <p className="text-xs text-[#52605D] max-w-md mx-auto">
-            {isRtl ? 'جرّب تعديل كلمات البحث أو تصفية العائلات لعرض جميع العطور.' : 'Try adjusting your search query, changing fragrance families, or resetting filters.'}
-          </p>
-          <button
-            onClick={resetFilters}
-            className="btn-primary text-xs py-2.5 px-6 rounded-lg font-bold uppercase tracking-wider"
-          >
-            {isRtl ? 'عرض جميع العطور' : 'Show All Fragrances'}
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {paginatedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
+        )}
 
-      {/* Pagination Controller */}
-      {totalPages > 1 && (
-        <div className="pt-8 border-t border-[#E8E6DF] flex items-center justify-between">
-          <span className="text-xs text-[#788784] font-medium">
-            {isRtl
-              ? `عرض ${(currentPage - 1) * ITEMS_PER_PAGE + 1}–${Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} من إجمالي ${filteredProducts.length} عطر`
-              : `Showing ${(currentPage - 1) * ITEMS_PER_PAGE + 1}–${Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} of ${filteredProducts.length} fragrances`}
-          </span>
-
-          <div className="flex items-center gap-1 sm:gap-2">
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="pt-8 flex items-center justify-center gap-2">
             <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1.5 rounded-lg text-xs border border-[#E8E6DF] text-[#0A0D0D] hover:border-[#B8934A] disabled:opacity-40 disabled:pointer-events-none font-bold"
+              className="px-4 py-2 rounded-xl border border-[#E7E3D6] bg-white text-xs font-bold text-[#080A0A] disabled:opacity-30 hover:border-[#2DD4BF]"
             >
               {isRtl ? 'السابق' : 'Previous'}
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${
-                  currentPage === page
-                    ? 'bg-[#0A0D0D] text-white shadow-md'
-                    : 'text-[#52605D] hover:bg-slate-50 border border-[#E8E6DF]'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+            <span className="text-xs font-mono font-bold text-[#0D9488] px-4">
+              {currentPage} / {totalPages}
+            </span>
 
             <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1.5 rounded-lg text-xs border border-[#E8E6DF] text-[#0A0D0D] hover:border-[#B8934A] disabled:opacity-40 disabled:pointer-events-none font-bold"
+              className="px-4 py-2 rounded-xl border border-[#E7E3D6] bg-white text-xs font-bold text-[#080A0A] disabled:opacity-30 hover:border-[#2DD4BF]"
             >
               {isRtl ? 'التالي' : 'Next'}
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
 export default function CatalogPage() {
   return (
-    <Suspense fallback={<div className="max-w-7xl mx-auto p-12 text-center text-[#788784]">Loading luxury catalogue...</div>}>
+    <Suspense fallback={<div className="p-16 text-center text-[#788784]">Loading Collection...</div>}>
       <CatalogContent />
     </Suspense>
   );

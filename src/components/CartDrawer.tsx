@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { X, Plus, Minus, Trash2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ArrowRight, ShieldCheck, Sparkles, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/currency';
@@ -29,50 +29,50 @@ export function CartDrawer() {
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
         onClick={() => setIsCartOpen(false)}
       />
 
       <div className={`fixed inset-y-0 ${isRtl ? 'left-0 pr-10' : 'right-0 pl-10'} max-w-full flex`}>
-        <div className={`w-screen max-w-md bg-[#0E1212] ${isRtl ? 'border-r' : 'border-l'} border-[#1A2624] text-[#F5F2EB] flex flex-col shadow-2xl`}>
+        <div className={`w-screen max-w-md bg-[#F7F5EE] ${isRtl ? 'border-r' : 'border-l'} border-[#E7E3D6] text-[#080A0A] flex flex-col shadow-2xl`}>
           
           {/* Header */}
-          <div className="p-6 border-b border-[#1A2624] flex items-center justify-between">
+          <div className="p-6 border-b border-[#E7E3D6] bg-white flex items-center justify-between">
             <div>
-              <h2 className="font-serif text-xl font-bold tracking-wide">{t('cart.bag_title')}</h2>
-              <p className="text-xs text-[#9EABA7] tracking-wider uppercase mt-0.5">
+              <h2 className="font-serif text-xl font-bold tracking-wide text-[#080A0A]">{t('cart.bag_title')}</h2>
+              <p className="text-xs text-[#788784] tracking-wider uppercase mt-0.5 font-bold">
                 {itemCount} {t('cart.items')}
               </p>
             </div>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-2 text-[#9EABA7] hover:text-[#F5F2EB] rounded-full hover:bg-[#141A19] transition-colors"
+              className="p-2 text-[#788784] hover:text-[#080A0A] rounded-full hover:bg-[#FAF9F5] transition-colors"
               aria-label="Close Bag"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Free Shipping Progress Indicator */}
-          <div className="px-6 py-3.5 bg-[#141A19] border-b border-[#1A2624]">
+          {/* Free Shipping Progress Indicator (Signature Turquoise) */}
+          <div className="px-6 py-3.5 bg-[#FAF9F5] border-b border-[#E7E3D6]">
             {freeShippingEligible ? (
-              <div className="flex items-center gap-2 text-xs text-[#66D9C5] font-medium">
-                <Sparkles className="w-4 h-4 flex-shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-[#0D9488] font-bold">
+                <Sparkles className="w-4 h-4 text-[#2DD4BF] flex-shrink-0 animate-pulse" />
                 <span>{t('cart.free_unlocked')}</span>
               </div>
             ) : (
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
-                  <span className="text-[#D5D1C7]">
+                  <span className="text-[#4A5553] font-medium">
                     {isRtl
-                      ? `أضف ${formatPrice(amountNeededForFreeShipping)} للحصول على توصيل مجاني`
-                      : `Add ${formatPrice(amountNeededForFreeShipping)} for free shipping`}
+                      ? `أضف ${formatPrice(amountNeededForFreeShipping)} للشحن المجاني الفاخر`
+                      : `Add ${formatPrice(amountNeededForFreeShipping)} for free luxury shipping`}
                   </span>
-                  <span className="text-[#66D9C5] font-semibold">{freeShippingProgressPercentage}%</span>
+                  <span className="text-[#0D9488] font-mono font-bold">{freeShippingProgressPercentage}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-[#080A0A] rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-[#E7E3D6] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-[#0B665D] to-[#66D9C5] transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-[#2DD4BF] to-[#0D9488] transition-all duration-300"
                     style={{ width: `${freeShippingProgressPercentage}%` }}
                   />
                 </div>
@@ -83,17 +83,17 @@ export function CartDrawer() {
           {/* Item List */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {items.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center py-12 text-[#9EABA7]">
-                <div className="w-16 h-16 rounded-full bg-[#141A19] flex items-center justify-center mb-4 border border-[#1A2624]">
-                  <Sparkles className="w-8 h-8 text-[#66D9C5]/50" />
+              <div className="h-full flex flex-col items-center justify-center text-center py-12 text-[#788784]">
+                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-4 border border-[#E7E3D6] shadow-xs">
+                  <ShoppingBag className="w-8 h-8 text-[#2DD4BF]" />
                 </div>
-                <p className="font-serif text-lg text-[#F5F2EB]">{t('cart.empty')}</p>
-                <p className="text-xs text-[#9EABA7] mt-1 max-w-xs">
+                <p className="font-serif text-lg font-bold text-[#080A0A]">{t('cart.empty')}</p>
+                <p className="text-xs text-[#4A5553] mt-1 max-w-xs leading-relaxed">
                   {t('cart.empty_desc')}
                 </p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="mt-6 px-6 py-2.5 text-xs font-semibold tracking-wider uppercase text-[#080A0A] bg-[#66D9C5] hover:bg-[#82E2D1] rounded transition-all"
+                  className="mt-6 btn-turquoise px-6 py-3 text-xs font-bold tracking-wider uppercase rounded-xl shadow-lg"
                 >
                   {isRtl ? 'استكشف تشكيلة العطور' : 'Discover Fragrances'}
                 </button>
@@ -102,9 +102,9 @@ export function CartDrawer() {
               items.map((item) => (
                 <div
                   key={item.variantId}
-                  className="flex gap-4 p-3 bg-[#111716] border border-[#1A2624] rounded-lg relative group"
+                  className="flex gap-4 p-3.5 bg-white border border-[#E7E3D6] rounded-2xl relative shadow-xs hover:border-[#2DD4BF] transition-colors"
                 >
-                  <div className="w-20 h-24 bg-[#080A0A] rounded overflow-hidden flex-shrink-0 relative border border-[#1A2624]">
+                  <div className="w-20 h-24 bg-[#FAF9F5] rounded-xl overflow-hidden flex-shrink-0 relative border border-[#E7E3D6]">
                     <img
                       src={item.image}
                       alt={item.productName}
@@ -115,35 +115,35 @@ export function CartDrawer() {
                   <div className="flex-1 flex flex-col justify-between py-0.5">
                     <div>
                       <div className="flex justify-between items-start">
-                        <h4 className="font-serif text-sm font-semibold text-[#F5F2EB] line-clamp-1 pr-4">
+                        <h4 className="font-serif text-sm font-bold text-[#080A0A] line-clamp-1 pr-4">
                           {item.productName}
                         </h4>
                         <button
                           onClick={() => removeItem(item.variantId)}
-                          className="text-[#6C7A77] hover:text-rose-400 p-1 transition-colors"
+                          className="text-[#788784] hover:text-rose-600 p-1 transition-colors"
                           title="Remove item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <p className="text-xs text-[#C6A66B] mt-0.5">{item.variantTitle}</p>
-                      <p className="text-[11px] text-[#6C7A77] mt-0.5 font-mono">SKU: {item.sku}</p>
+                      <p className="text-xs text-[#C6A66B] font-semibold mt-0.5">{item.variantTitle}</p>
+                      <p className="text-[11px] text-[#788784] mt-0.5 font-mono">SKU: {item.sku}</p>
                     </div>
 
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#1A2624]">
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#E7E3D6]">
                       {/* Quantity Controller */}
-                      <div className="flex items-center border border-[#1A2624] bg-[#080A0A] rounded">
+                      <div className="flex items-center border border-[#E7E3D6] bg-[#FAF9F5] rounded-lg">
                         <button
                           onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                          className="p-1 text-[#9EABA7] hover:text-[#66D9C5] transition-colors"
+                          className="p-1 text-[#4A5553] hover:text-[#080A0A] transition-colors"
                           disabled={item.quantity <= 1}
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="px-2 text-xs font-medium text-[#F5F2EB]">{item.quantity}</span>
+                        <span className="px-2 text-xs font-bold text-[#080A0A]">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                          className="p-1 text-[#9EABA7] hover:text-[#66D9C5] transition-colors"
+                          className="p-1 text-[#4A5553] hover:text-[#080A0A] transition-colors"
                           disabled={item.quantity >= item.maxStock}
                         >
                           <Plus className="w-3 h-3" />
@@ -151,7 +151,7 @@ export function CartDrawer() {
                       </div>
 
                       {/* Total for item */}
-                      <span className="text-sm font-semibold text-[#66D9C5]">
+                      <span className="text-sm font-bold text-[#0D9488]">
                         {formatPrice(item.unitPriceInPiasters * item.quantity)}
                       </span>
                     </div>
@@ -163,25 +163,25 @@ export function CartDrawer() {
 
           {/* Footer Checkout Summary */}
           {items.length > 0 && (
-            <div className="p-6 bg-[#0B0E0E] border-t border-[#1A2624] space-y-4">
+            <div className="p-6 bg-white border-t border-[#E7E3D6] space-y-4">
               <div className="space-y-1.5 text-sm">
-                <div className="flex justify-between text-[#9EABA7]">
+                <div className="flex justify-between text-[#4A5553] text-xs">
                   <span>{t('cart.subtotal')}</span>
-                  <span className="font-semibold text-[#F5F2EB]">{formatPrice(subtotalInPiasters)}</span>
+                  <span className="font-mono font-bold text-[#080A0A]">{formatPrice(subtotalInPiasters)}</span>
                 </div>
-                <div className="flex justify-between text-[#9EABA7] text-xs">
+                <div className="flex justify-between text-[#4A5553] text-xs">
                   <span>{t('cart.shipping_egypt')}</span>
-                  <span className={freeShippingEligible ? 'text-[#66D9C5] font-semibold' : 'text-[#D5D1C7]'}>
+                  <span className={freeShippingEligible ? 'text-[#0D9488] font-bold' : 'text-[#788784]'}>
                     {freeShippingEligible ? t('cart.complimentary') : (isRtl ? 'يُحسب عند إتمام الطلب' : 'Calculated at checkout')}
                   </span>
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[#1A2624] flex justify-between items-center">
-                <span className="font-serif text-base font-bold text-[#F5F2EB]">
+              <div className="pt-2 border-t border-[#E7E3D6] flex justify-between items-baseline">
+                <span className="font-serif text-base font-bold text-[#080A0A]">
                   {isRtl ? 'المجموع التقديري' : 'Estimated Total'}
                 </span>
-                <span className="font-serif text-lg font-bold text-[#66D9C5]">
+                <span className="font-serif text-xl font-bold text-[#0D9488]">
                   {formatPrice(subtotalInPiasters)}
                 </span>
               </div>
@@ -189,14 +189,14 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={() => setIsCartOpen(false)}
-                className="w-full btn-primary py-3.5 px-4 rounded text-xs tracking-widest uppercase flex items-center justify-center gap-2"
+                className="w-full btn-turquoise py-4 px-4 rounded-2xl text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 <span>{t('cart.checkout_cta')}</span>
                 <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
               </Link>
 
-              <div className="flex items-center justify-center gap-2 text-[11px] text-[#6C7A77] pt-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C6A66B]" />
+              <div className="flex items-center justify-center gap-2 text-[11px] text-[#788784] pt-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#0D9488]" />
                 <span>{isRtl ? 'ادفع نقداً بعد المعاينة عند استلام الطرد' : 'Pay in Cash Upon Inspection & Delivery'}</span>
               </div>
             </div>

@@ -4,32 +4,35 @@
 
 :root {
   /* =========================================================
-     A AND S MASTER LUXURY PALETTE (Beige, Emerald & Obsidian)
+     A AND S HAUTE PARFUMERIE MASTER PALETTE (60-Year Design Legacy)
+     Canvas: Warm Cashmere Silk | Typography: Obsidian Black | Signature: Light Turquoise
      ========================================================= */
 
-  /* 1. Warm Cashmere Beige & Pearl Ivory (Primary Canvas) */
-  --bg-beige: #F6F3EC;                 /* Royal Cashmere Warm Beige */
-  --bg-beige-light: #FAF8F4;           /* Soft Sand Ivory */
-  --bg-white: #FFFFFF;                 /* Crisp Pure White for Cards */
+  /* 1. Primary Canvas: Warm Cashmere Silk & Alabaster Ivory (Chanel & Hermès luxury paper feel) */
+  --bg-canvas: #F7F5EE;                /* Warm Cashmere Silk Canvas */
+  --bg-canvas-subtle: #FAF9F5;         /* Soft Cream Pearl */
+  --bg-card: #FFFFFF;                  /* Crisp Studio White for Product Cards */
+  --bg-card-hover: #FDFCF9;
 
-  /* 2. Luminous Light Emerald (الأخضر الزمردي الفاتح) */
-  --color-emerald-light: #2DD4BF;      /* Gemstone Luminous Emerald */
-  --color-emerald-vibrant: #14B8A6;    /* Deep Malachite Emerald */
-  --color-emerald-glow: rgba(45, 212, 191, 0.35);
+  /* 2. Brand Signature Fingerprint: Luminous Light Turquoise Green (الأخضر الفيروزي الفاتح) */
+  --brand-turquoise: #2DD4BF;          /* Radiant Luminous Turquoise (The Brand Fingerprint) */
+  --brand-turquoise-deep: #0D9488;     /* Rich Gemstone Turquoise (for readable high-contrast typography) */
+  --brand-turquoise-mint: #5EEAD4;     /* Luminous Mint Glow */
+  --brand-turquoise-glow: rgba(45, 212, 191, 0.28);
+  --brand-turquoise-subtle: rgba(45, 212, 191, 0.12);
 
-  /* 3. Luxury Obsidian Black (الأسود الفاحم الملوكي) */
-  --luxury-black: #080A0A;             /* Deep Obsidian Black */
-  --luxury-slate: #141A19;             /* Secondary Deep Charcoal */
-  --text-obsidian: #080A0A;            /* Crisp High-Contrast Editorial Text */
-  --text-muted: #576563;               /* Elegant Slate-Beige Subtitle */
+  /* 3. High-Fashion Typography & Architectural Contrast: Deep Obsidian Black */
+  --text-obsidian: #080A0A;            /* Deep Obsidian Black (Bodoni Moda & Jost) */
+  --text-secondary: #4A5553;           /* Refined Slate Cashmere */
+  --text-muted: #788784;               /* Understated Captions */
 
-  /* 4. Imperial Jewelry Accents */
-  --champagne-gold: #C6A66B;           /* Champagne Gold Trim */
-  --border-beige: #E6E1D5;             /* Warm Delicate Border */
-  --border-emerald: #2DD4BF;
+  /* 4. Restrained Royal Accents (<3% presence) */
+  --royal-gold: #C6A66B;               /* Champagne Gold Trim */
+  --border-silk: #E7E3D6;              /* Ultra-Fine Delicate Hairline Border */
+  --border-turquoise: rgba(45, 212, 191, 0.4);
 
   /* Semantic UI */
-  --bg-primary: var(--bg-beige);
+  --bg-primary: var(--bg-canvas);
   --text-primary: var(--text-obsidian);
 }
 
@@ -39,13 +42,13 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #F6F3EC;
+  background-color: #F7F5EE;
   color: #080A0A;
   font-family: var(--font-jost), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  background-color: #F6F3EC;
+  background-color: #F7F5EE;
   color: #080A0A;
   overflow-x: hidden;
   margin: 0;
@@ -59,19 +62,19 @@ h1, h2, h3, h4, .font-editorial {
   letter-spacing: -0.015em;
 }
 
-/* Custom luxury scrollbar in emerald and obsidian */
+/* Custom luxury scrollbar in signature turquoise and obsidian */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F6F3EC;
+  background: #F7F5EE;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C9C3B4;
-  border-radius: 3px;
+  background: #D5CFBF;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -96,7 +99,7 @@ h1, h2, h3, h4, .font-editorial {
   background: linear-gradient(
     90deg,
     rgba(45, 212, 191, 0.1) 0%,
-    rgba(45, 212, 191, 0.3) 50%,
+    rgba(45, 212, 191, 0.35) 50%,
     rgba(45, 212, 191, 0.1) 100%
   );
   background-size: 200% 100%;
@@ -117,7 +120,7 @@ h1, h2, h3, h4, .font-editorial {
   animation: subtleFloat 5s ease-in-out infinite;
 }
 
-/* Primary Luxury CTA Button (Obsidian Black with Light Emerald Glow) */
+/* Primary Luxury CTA Button (Obsidian Black with Light Turquoise Glow) */
 .btn-primary {
   background-color: #080A0A;
   color: #FFFFFF !important;
@@ -137,30 +140,37 @@ h1, h2, h3, h4, .font-editorial {
   border-color: #2DD4BF;
   color: #2DD4BF !important;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(8, 10, 10, 0.2), 0 0 15px rgba(45, 212, 191, 0.25);
+  box-shadow: 0 10px 25px -5px rgba(8, 10, 10, 0.25), 0 0 20px rgba(45, 212, 191, 0.3);
 }
 
 .btn-primary:active {
   transform: translateY(0);
 }
 
-/* Emerald Gemstone Button */
-.btn-emerald {
+/* Signature Light Turquoise Gemstone Button */
+.btn-turquoise {
   background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%);
   color: #080A0A !important;
   font-weight: 800;
   letter-spacing: 0.08em;
   border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-emerald:hover {
+.btn-turquoise:hover {
   background: linear-gradient(135deg, #5EEAD4 0%, #2DD4BF 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(45, 212, 191, 0.4);
+  box-shadow: 0 10px 30px rgba(45, 212, 191, 0.45);
 }
 
-/* Secondary Button (Warm Beige with Obsidian Trim) */
+.btn-turquoise:active {
+  transform: translateY(0);
+}
+
+/* Secondary Button (Warm Cashmere with Obsidian Trim) */
 .btn-secondary {
   background-color: #FFFFFF;
   color: #080A0A;
@@ -170,30 +180,31 @@ h1, h2, h3, h4, .font-editorial {
 }
 
 .btn-secondary:hover {
-  border-color: #080A0A;
-  color: #080A0A;
-  background-color: #FAF8F4;
+  border-color: #2DD4BF;
+  color: #0D9488;
+  background-color: #FAF9F5;
   transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(45, 212, 191, 0.15);
 }
 
-/* Luxury Card in Crisp White on Warm Beige Canvas */
+/* Luxury Card in Crisp Studio White on Warm Cashmere Canvas */
 .luxury-card {
   background: #FFFFFF;
-  border: 1px solid #E6E1D5;
+  border: 1px solid #E7E3D6;
   box-shadow: 0 4px 20px -2px rgba(8, 10, 10, 0.03);
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .luxury-card:hover {
   border-color: #2DD4BF;
-  box-shadow: 0 20px 40px -10px rgba(8, 10, 10, 0.08), 0 0 20px -2px rgba(45, 212, 191, 0.2);
+  box-shadow: 0 20px 40px -10px rgba(8, 10, 10, 0.07), 0 0 25px -2px rgba(45, 212, 191, 0.22);
   transform: translateY(-4px);
 }
 
-/* Light Emerald Gemstone Badge */
-.badge-emerald {
+/* Light Turquoise Signature Badge */
+.badge-turquoise {
   border: 1px solid rgba(45, 212, 191, 0.5);
-  color: #0F766E;
+  color: #0D9488;
   background: rgba(45, 212, 191, 0.12);
   font-size: 0.7rem;
   letter-spacing: 0.12em;

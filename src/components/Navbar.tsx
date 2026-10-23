@@ -12,7 +12,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F6F3EC]/90 backdrop-blur-md border-b border-[#E6E1D5] shadow-sm transition-colors duration-300">
+    <header className="sticky top-0 z-40 bg-[#F7F5EE]/95 backdrop-blur-md border-b border-[#E7E3D6] shadow-xs transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
@@ -27,20 +27,23 @@ export function Navbar() {
             </button>
           </div>
 
-          {/* Brand Logo (Regal Black & Gold) */}
+          {/* Brand Logo with Signature Turquoise Gemstone Dot */}
           <div className="flex-1 md:flex-none flex justify-center md:justify-start">
             <Link href="/" className="group flex flex-col items-center md:items-start">
-              <span className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.25em] text-[#080A0A] group-hover:text-[#0D9488] transition-colors">
-                A AND S
-              </span>
-              <span className="text-[9px] tracking-[0.35em] text-[#C6A66B] uppercase font-sans font-bold -mt-1">
+              <div className="flex items-center">
+                <span className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.25em] text-[#080A0A] group-hover:text-[#0D9488] transition-colors">
+                  A AND S
+                </span>
+                <span className="w-2 h-2 rounded-full bg-[#2DD4BF] shadow-[0_0_8px_#2DD4BF] mx-1 mb-1 animate-pulse" />
+              </div>
+              <span className="text-[9px] tracking-[0.35em] text-[#C6A66B] uppercase font-sans font-bold -mt-0.5">
                 Haute Parfumerie
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 text-xs lg:text-sm font-bold tracking-wider uppercase text-[#576563]">
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 text-xs lg:text-sm font-bold tracking-wider uppercase text-[#4A5553]">
             <Link
               href="/catalog"
               className="hover:text-[#080A0A] hover:border-b-2 hover:border-[#2DD4BF] transition-all py-2"
@@ -79,7 +82,7 @@ export function Navbar() {
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#D8D2C2] hover:border-[#2DD4BF] text-xs font-bold text-[#080A0A] hover:text-[#0D9488] transition-all bg-white/80 shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#D5CFBF] hover:border-[#2DD4BF] text-xs font-bold text-[#080A0A] hover:text-[#0D9488] transition-all bg-white/90 shadow-2xs"
               title="Change Language"
             >
               <Globe className="w-3.5 h-3.5 text-[#2DD4BF]" />
@@ -89,7 +92,7 @@ export function Navbar() {
             {/* Catalog Search */}
             <Link
               href="/catalog"
-              className="p-2 text-[#576563] hover:text-[#080A0A] transition-colors"
+              className="p-2 text-[#4A5553] hover:text-[#080A0A] transition-colors"
               title={t('nav.search_placeholder')}
             >
               <Search className="w-5 h-5" />
@@ -114,7 +117,7 @@ export function Navbar() {
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#F6F3EC] border-b border-[#E6E1D5] px-4 pt-3 pb-6 space-y-3 shadow-xl">
+        <div className="md:hidden bg-[#F7F5EE] border-b border-[#E7E3D6] px-4 pt-3 pb-6 space-y-3 shadow-xl">
           <Link
             href="/catalog"
             onClick={() => setMobileMenuOpen(false)}
@@ -125,25 +128,25 @@ export function Navbar() {
           <Link
             href="/catalog?family=Oriental+Woody"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#576563] hover:text-[#080A0A] py-2 text-sm font-semibold"
+            className="block text-[#4A5553] hover:text-[#080A0A] py-2 text-sm font-semibold"
           >
             {t('nav.oud_woods')}
           </Link>
           <Link
             href="/catalog?family=Floral+Amber"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#576563] hover:text-[#080A0A] py-2 text-sm font-semibold"
+            className="block text-[#4A5553] hover:text-[#080A0A] py-2 text-sm font-semibold"
           >
             {t('nav.floral_amber')}
           </Link>
           <Link
             href="/#brand-story"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-[#576563] hover:text-[#080A0A] py-2 text-sm font-semibold"
+            className="block text-[#4A5553] hover:text-[#080A0A] py-2 text-sm font-semibold"
           >
             {t('nav.brand_story')}
           </Link>
-          <div className="pt-3 border-t border-[#E6E1D5] flex items-center justify-between">
+          <div className="pt-3 border-t border-[#E7E3D6] flex items-center justify-between">
             <Link
               href="/track-order"
               onClick={() => setMobileMenuOpen(false)}

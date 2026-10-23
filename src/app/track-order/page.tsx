@@ -24,7 +24,7 @@ function TrackOrderContent() {
     setHasSearched(true);
 
     if (!orderNumberInput.trim()) {
-      setErrorMessage('Please enter your order reference number');
+      setErrorMessage('يرجى إدخال رقم مرجع الطلب (مثال: AS-202610-1234)');
       return;
     }
 
@@ -37,11 +37,10 @@ function TrackOrderContent() {
       );
 
       if (found) {
-        // If phone is entered, verify match
         if (phoneInput.trim()) {
           const normPhone = validateEgyptianPhone(phoneInput).normalizedPhone;
           if (found.customerPhone !== normPhone && !found.customerPhone.includes(phoneInput.trim())) {
-            setErrorMessage('The mobile phone number does not match this order reference.');
+            setErrorMessage('رقم الهاتف المحمول غير متطابق مع مرجع هذا الطلب.');
             setSearchedOrder(null);
             return;
           }
@@ -49,11 +48,11 @@ function TrackOrderContent() {
         setSearchedOrder(found);
       } else {
         setSearchedOrder(null);
-        setErrorMessage('No order found with this reference number. Please check the code received upon checkout.');
+        setErrorMessage('لم يتم العثور على طلب بهذا الرقم المرجعي. يرجى مراجعة الكود المستلم.');
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage('Failed to search order records.');
+      setErrorMessage('حدث خطأ أثناء فحص سجلات الشحن.');
     }
   };
 
@@ -64,187 +63,129 @@ function TrackOrderContent() {
   }, [initialOrderNumber]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
-      
-      {/* Header */}
-      <div className="text-center space-y-2 max-w-xl mx-auto">
-        <span className="badge-gold px-3 py-1 rounded-sm font-semibold uppercase tracking-widest text-[11px]">
-          Client Concierge
-        </span>
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#F5F2EB]">
-          Track Your Fragrance Shipment
-        </h1>
-        <p className="text-xs text-[#9EABA7]">
-          Enter your unique order number (e.g. AS-202610-1234) and mobile phone to view live fulfillment and courier updates.
-        </p>
-      </div>
-
-      {/* Search Box */}
-      <form onSubmit={handleSearch} className="bg-[#0E1212] p-6 rounded-xl border border-[#1A2624] space-y-4 shadow-xl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#D5D1C7] block">
-              Order Reference Number
-            </label>
-            <input
-              type="text"
-              value={orderNumberInput}
-              onChange={(e) => setOrderNumberInput(e.target.value)}
-              placeholder="e.g. AS-202610-4589"
-              className="w-full bg-[#111716] border border-[#1A2624] rounded-lg px-3.5 py-2.5 text-xs text-[#F5F2EB] uppercase placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5]"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#D5D1C7] block">
-              Egyptian Mobile Phone <span className="text-[#6C7A77]">(Optional verification)</span>
-            </label>
-            <input
-              type="tel"
-              value={phoneInput}
-              onChange={(e) => setPhoneInput(e.target.value)}
-              placeholder="010XXXXXXXX"
-              className="w-full bg-[#111716] border border-[#1A2624] rounded-lg px-3.5 py-2.5 text-xs text-[#F5F2EB] placeholder-[#6C7A77] focus:outline-none focus:border-[#66D9C5]"
-            />
-          </div>
+    <div className="min-h-screen bg-[#F7F5EE] py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        
+        {/* Header */}
+        <div className="text-center space-y-3 max-w-xl mx-auto">
+          <span className="badge-turquoise px-3.5 py-1 rounded-sm font-bold uppercase tracking-widest text-[11px]">
+            خدمة كونسيرج تتبع الشحنات
+          </span>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#080A0A]">
+            تتبع مسار شحنتك العطرية
+          </h1>
+          <p className="text-xs text-[#4A5553]">
+            أدخل رقم مرجع الطلب (مثل: AS-202610-1234) ورقم هاتفك المحمول لمتابعة حالة التجهيز والمندوب لحظة بلحظة.
+          </p>
         </div>
 
-        {errorMessage && (
-          <p className="text-xs text-rose-400 flex items-center gap-1.5">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{errorMessage}</span>
-          </p>
-        )}
-
-        <button
-          type="submit"
-          className="w-full sm:w-auto btn-primary py-3 px-8 rounded-lg text-xs tracking-widest uppercase font-bold flex items-center justify-center gap-2"
-        >
-          <Search className="w-4 h-4 text-[#080A0A]" />
-          <span>Lookup Order Status</span>
-        </button>
-      </form>
-
-      {/* Search Result Display */}
-      {searchedOrder && (
-        <div className="bg-[#0E1212] rounded-xl border border-[#1A2624] overflow-hidden shadow-2xl space-y-6 p-6 sm:p-8">
-          
-          {/* Top Status Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#1A2624] gap-4">
-            <div>
-              <span className="text-xs text-[#9EABA7]">Order Reference</span>
-              <h2 className="font-mono text-xl sm:text-2xl font-bold text-[#F5F2EB]">
-                {searchedOrder.orderNumber}
-              </h2>
-              <p className="text-[11px] text-[#6C7A77] mt-0.5">
-                Placed on {new Date(searchedOrder.createdAt).toLocaleDateString('en-EG', { dateStyle: 'long' })}
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:items-end gap-1.5">
-              <span className="text-[11px] text-[#9EABA7]">Fulfillment Status</span>
-              {(() => {
-                const statusMeta = getOrderStatusLabel(searchedOrder.status);
-                return (
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusMeta.colorClass}`}>
-                    {statusMeta.labelEn} ({statusMeta.labelAr})
-                  </span>
-                );
-              })()}
-            </div>
-          </div>
-
-          {/* Payment & COD Status */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-[#111716] rounded-lg border border-[#1A2624] text-xs">
-            <div>
-              <span className="text-[#9EABA7] block">Payment Method</span>
-              <span className="font-bold text-[#F5F2EB] mt-0.5 block">Cash on Delivery (COD)</span>
-            </div>
-
-            <div>
-              <span className="text-[#9EABA7] block">Cash Collection Status</span>
-              {(() => {
-                const payMeta = getPaymentStatusLabel(searchedOrder.paymentStatus);
-                return (
-                  <span className={`font-semibold mt-0.5 inline-block ${payMeta.colorClass}`}>
-                    {payMeta.labelEn}
-                  </span>
-                );
-              })()}
-            </div>
-
-            <div>
-              <span className="text-[#9EABA7] block">Assigned Courier</span>
-              <span className="font-semibold text-[#66D9C5] mt-0.5 block">
-                {searchedOrder.courierName ? `${searchedOrder.courierName} (${searchedOrder.trackingNumber || 'Tracking Pending'})` : 'Awaiting Dispatch'}
-              </span>
-            </div>
-          </div>
-
-          {/* Ordered Items */}
-          <div className="space-y-3">
-            <h3 className="font-serif font-bold text-sm text-[#F5F2EB]">
-              Purchased Fragrances
-            </h3>
-            <div className="space-y-2">
-              {searchedOrder.items.map((item: any) => (
-                <div key={item.id} className="flex justify-between items-center p-3 bg-[#111716] rounded border border-[#1A2624] text-xs">
-                  <div>
-                    <p className="font-serif font-semibold text-[#F5F2EB]">{item.productNameSnapshot}</p>
-                    <p className="text-[#C6A66B] mt-0.5">{item.variantTitleSnapshot} • SKU: {item.skuSnapshot}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-[#66D9C5]">{formatPrice(item.subtotalInPiasters)}</p>
-                    <p className="text-[#9EABA7] text-[11px]">Qty: {item.quantity}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Delivery Details & Financial Total */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-[#1A2624] text-xs">
-            <div>
-              <h4 className="font-semibold text-[#D5D1C7] mb-1">Destination Address:</h4>
-              <p className="text-[#9EABA7] leading-relaxed">
-                {searchedOrder.customerName} ({searchedOrder.customerPhone})<br />
-                {searchedOrder.streetAddress}, {searchedOrder.buildingDetails && `${searchedOrder.buildingDetails}, `}{searchedOrder.city}<br />
-                Governorate: <strong className="text-[#F5F2EB]">{searchedOrder.governorate}</strong>, Egypt
-              </p>
-            </div>
-
-            <div className="sm:text-right space-y-1">
-              <div className="flex sm:justify-end gap-4 text-[#9EABA7]">
-                <span>Items Subtotal:</span>
-                <span className="text-[#F5F2EB] font-semibold">{formatPrice(searchedOrder.subtotalInPiasters)}</span>
+        {/* Search Card */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E7E3D6] shadow-sm max-w-2xl mx-auto">
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#080A0A] block">
+                  رقم مرجع الطلب <span className="text-rose-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={orderNumberInput}
+                  onChange={(e) => setOrderNumberInput(e.target.value)}
+                  placeholder="AS-202610-XXXX"
+                  className="w-full bg-[#FAF9F5] border border-[#E7E3D6] rounded-xl px-3.5 py-2.5 text-xs text-[#080A0A] uppercase placeholder-[#788784] focus:outline-none focus:border-[#2DD4BF]"
+                />
               </div>
-              <div className="flex sm:justify-end gap-4 text-[#9EABA7]">
-                <span>Courier Shipping:</span>
-                <span className="text-[#66D9C5] font-semibold">
-                  {searchedOrder.shippingInPiasters === 0 ? 'COMPLIMENTARY' : formatPrice(searchedOrder.shippingInPiasters)}
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#080A0A] block">
+                  رقم الهاتف المسجل <span className="text-[#788784] font-normal">(اختياري)</span>
+                </label>
+                <input
+                  type="tel"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                  placeholder="010XXXXXXXX"
+                  className="w-full bg-[#FAF9F5] border border-[#E7E3D6] rounded-xl px-3.5 py-2.5 text-xs text-[#080A0A] placeholder-[#788784] focus:outline-none focus:border-[#2DD4BF]"
+                />
+              </div>
+            </div>
+
+            {errorMessage && (
+              <p className="text-xs text-rose-600 flex items-center gap-1.5 pt-1">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{errorMessage}</span>
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full btn-turquoise py-3.5 px-6 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg"
+            >
+              <Search className="w-4 h-4" />
+              <span>بحث عن الشحنة</span>
+            </button>
+          </form>
+        </div>
+
+        {/* Results Card */}
+        {searchedOrder && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E7E3D6] shadow-sm space-y-6 max-w-2xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E7E3D6] gap-2">
+              <div>
+                <span className="text-[11px] font-mono text-[#0D9488] font-bold block">
+                  {searchedOrder.orderNumber}
+                </span>
+                <h3 className="font-serif font-bold text-lg text-[#080A0A] mt-0.5">
+                  العميل: {searchedOrder.customerName}
+                </h3>
+              </div>
+              <div className="text-left">
+                <span className="badge-turquoise px-3 py-1 rounded-sm font-bold text-xs inline-block">
+                  {getOrderStatusLabel(searchedOrder.status)?.labelAr || searchedOrder.status}
                 </span>
               </div>
-              <div className="flex sm:justify-end gap-4 pt-2 border-t border-[#1A2624] font-serif text-base font-bold">
-                <span className="text-[#F5F2EB]">Total Cash Due:</span>
-                <span className="text-[#66D9C5] text-lg">{formatPrice(searchedOrder.totalInPiasters)}</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E7E3D6]">
+                <span className="text-[#788784] block">المحافظة والعنوان</span>
+                <span className="font-bold text-[#080A0A] mt-0.5 block">
+                  {searchedOrder.shippingAddress?.governorate} — {searchedOrder.shippingAddress?.city}
+                </span>
+              </div>
+
+              <div className="p-3 bg-[#FAF9F5] rounded-xl border border-[#E7E3D6]">
+                <span className="text-[#788784] block">إجمالي الدفع عند الاستلام</span>
+                <span className="font-bold text-[#0D9488] font-mono text-sm mt-0.5 block">
+                  {formatPrice(searchedOrder.totalInPiasters)}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <h4 className="font-bold text-xs text-[#080A0A]">القطع العطرية في الشحنة:</h4>
+              <div className="divide-y divide-[#E7E3D6] border border-[#E7E3D6] rounded-2xl p-4 bg-[#FAF9F5]">
+                {searchedOrder.items?.map((item: any, idx: number) => (
+                  <div key={idx} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="font-serif font-bold text-[#080A0A] block">{item.productNameEn}</span>
+                      <span className="text-[11px] text-[#788784]">{item.volumeMl} ML • الكمية: {item.quantity}</span>
+                    </div>
+                    <span className="font-mono font-bold text-[#0D9488]">{formatPrice(item.subtotalInPiasters)}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {hasSearched && !searchedOrder && !errorMessage && (
-        <div className="p-12 text-center text-[#9EABA7] bg-[#0E1212] rounded-xl border border-[#1A2624]">
-          <p>No orders matched your lookup details.</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
 export default function TrackOrderPage() {
   return (
-    <Suspense fallback={<div className="max-w-4xl mx-auto p-12 text-center text-[#9EABA7]">Loading order tracker...</div>}>
+    <Suspense fallback={<div className="p-16 text-center text-[#788784]">Loading Concierge...</div>}>
       <TrackOrderContent />
     </Suspense>
   );
