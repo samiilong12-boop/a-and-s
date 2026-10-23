@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 160" width="100%" height="100%">
+  <defs>
+    <!-- Royal Gold Gradient -->
+    <linearGradient id="hGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E7C4"/>
+      <stop offset="25%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#AA7C11"/>
+      <stop offset="75%" stop-color="#E5C365"/>
+      <stop offset="100%" stop-color="#8C6207"/>
+    </linearGradient>
+
+    <!-- Signature Turquoise Gemstone Gradient -->
+    <linearGradient id="hTurquoiseGem" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7EF2D6"/>
+      <stop offset="40%" stop-color="#54d1b2"/>
+      <stop offset="80%" stop-color="#00bc7d"/>
+      <stop offset="100%" stop-color="#007F54"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Left Crest Icon (160x160 area) -->
+  <g transform="translate(10, 0)">
+    <!-- Outer Filigree Ring -->
+    <circle cx="80" cy="80" r="62" fill="none" stroke="url(#hGoldGrad)" stroke-width="1.2" stroke-dasharray="3 5" opacity="0.6"/>
+    <circle cx="80" cy="80" r="56" fill="none" stroke="url(#hGoldGrad)" stroke-width="1.8"/>
+
+    <!-- Cardinal Dots -->
+    <polygon points="80,18 83,21 80,24 77,21" fill="url(#hTurquoiseGem)"/>
+    <polygon points="80,136 83,139 80,142 77,139" fill="url(#hTurquoiseGem)"/>
+    <polygon points="18,80 21,83 24,80 21,77" fill="url(#hTurquoiseGem)"/>
+    <polygon points="136,80 139,83 142,80 139,77" fill="url(#hTurquoiseGem)"/>
+
+    <!-- Interlocked Monogram A & S -->
+    <!-- 'A' Left Stroke -->
+    <path d="M 60,110 L 77,48 L 83,48 L 68,110 Z" fill="url(#hGoldGrad)"/>
+    <!-- 'A' Right Stroke -->
+    <path d="M 80,48 L 86,48 L 103,110 L 96,110 L 83,59 Z" fill="url(#hGoldGrad)"/>
+    <!-- 'A' Bar -->
+    <rect x="66" y="90" width="31" height="3.5" rx="1" fill="url(#hGoldGrad)"/>
+
+    <!-- 'S' Fluid Ribbon -->
+    <path d="M 94,60 C 86,52 70,56 70,68 C 70,81 94,82 94,95 C 94,108 76,111 67,102 L 71,98 C 77,105 88,102 88,95 C 88,85 64,82 64,68 C 64,54 83,48 97,57 Z" 
+          fill="url(#hGoldGrad)" opacity="0.95"/>
+
+    <!-- Apex Turquoise Gem -->
+    <g transform="translate(80, 46)">
+      <polygon points="0,-7 6,0 0,7 -6,0" fill="url(#hTurquoiseGem)" stroke="#E5C365" stroke-width="0.8"/>
+      <circle cx="0" cy="0" r="1.2" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- Right Typography Lockup -->
+  <!-- Brand Name -->
+  <text x="180" y="78" 
+        font-family="'Playfair Display', 'Cinzel', 'Didot', serif" 
+        font-size="38" 
+        font-weight="700" 
+        letter-spacing="9" 
+        fill="#080A0A">
+    A AND S
+  </text>
+  <!-- Turquoise gemstone accent dot beside brand name -->
+  <circle cx="438" cy="62" r="4.5" fill="url(#hTurquoiseGem)" filter="drop-shadow(0 0 4px #54d1b2)"/>
+
+  <!-- Subtitle: Haute Parfumerie -->
+  <text x="182" y="105" 
+        font-family="'Montserrat', 'Inter', sans-serif" 
+        font-size="11.5" 
+        font-weight="700" 
+        letter-spacing="5" 
+        fill="url(#hGoldGrad)">
+    HAUTE PARFUMERIE
+  </text>
+
+  <!-- Origin: Cairo Atelier -->
+  <text x="183" y="125" 
+        font-family="'Montserrat', 'Inter', sans-serif" 
+        font-size="8.5" 
+        font-weight="600" 
+        letter-spacing="3" 
+        fill="#54d1b2">
+    CAIRO • ATELIER 35% EXTRAIT
+  </text>
+</svg>

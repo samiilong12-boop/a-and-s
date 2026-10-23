@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <!-- Royal Gold Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E7C4"/>
+      <stop offset="25%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#AA7C11"/>
+      <stop offset="75%" stop-color="#E5C365"/>
+      <stop offset="100%" stop-color="#8C6207"/>
+    </linearGradient>
+
+    <!-- Signature Turquoise Gemstone Gradient -->
+    <linearGradient id="turquoiseGem" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7EF2D6"/>
+      <stop offset="40%" stop-color="#54d1b2"/>
+      <stop offset="80%" stop-color="#00bc7d"/>
+      <stop offset="100%" stop-color="#007F54"/>
+    </linearGradient>
+
+    <!-- Deep Obsidian Aura Shadow -->
+    <radialGradient id="auraShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#54d1b2" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#00bc7d" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#080A0A" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Filter for subtle luxury drop shadow -->
+    <filter id="royalShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base: Deep Obsidian Black Canvas -->
+  <rect width="800" height="800" fill="#080A0A"/>
+  
+  <!-- Ambient Turquoise Gem Glow -->
+  <circle cx="400" cy="360" r="280" fill="url(#auraShadow)"/>
+
+  <!-- Outer Architectural Ring (Fine Cartier-Style Filigree) -->
+  <circle cx="400" cy="360" r="230" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-dasharray="4 8" opacity="0.4"/>
+  <circle cx="400" cy="360" r="218" fill="none" stroke="url(#goldGrad)" stroke-width="2" opacity="0.85"/>
+  <circle cx="400" cy="360" r="210" fill="none" stroke="#54d1b2" stroke-width="0.75" opacity="0.6"/>
+
+  <!-- Four Directional Diamonds (North, South, East, West) -->
+  <polygon points="400,136 405,142 400,148 395,142" fill="url(#turquoiseGem)"/>
+  <polygon points="400,572 405,578 400,584 395,578" fill="url(#turquoiseGem)"/>
+  <polygon points="176,360 182,365 188,360 182,355" fill="url(#turquoiseGem)"/>
+  <polygon points="612,360 618,365 624,360 618,355" fill="url(#turquoiseGem)"/>
+
+  <!-- Interlocking Monogram: A and S -->
+  <g filter="url(#royalShadow)" transform="translate(0, -10)">
+    
+    <!-- Letter 'A' (Architectural French Serif) -->
+    <!-- Left Ascender -->
+    <path d="M 330,470 L 388,255 L 406,255 L 352,470 Z" fill="url(#goldGrad)"/>
+    <!-- Right Ascender -->
+    <path d="M 400,255 L 418,255 L 476,470 L 452,470 L 410,290 Z" fill="url(#goldGrad)"/>
+    <!-- Crossbar -->
+    <rect x="350" y="405" width="105" height="10" rx="2" fill="url(#goldGrad)"/>
+    
+    <!-- Letter 'S' Intertwined (Fluid Liquid Ribbon Silhouette) -->
+    <path d="M 445,300 C 420,270 365,285 365,325 C 365,370 445,375 445,420 C 445,465 385,475 355,445 L 368,430 C 390,455 425,445 425,420 C 425,385 345,375 345,325 C 345,275 410,255 455,285 Z" 
+          fill="url(#goldGrad)" opacity="0.95"/>
+
+    <!-- Central Diamond Apex Jewel (The Turquoise Gemstone Signature) -->
+    <g transform="translate(400, 248)">
+      <polygon points="0,-18 14,0 0,18 -14,0" fill="url(#turquoiseGem)" stroke="#E5C365" stroke-width="1.5"/>
+      <polygon points="0,-10 8,0 0,10 -8,0" fill="#7EF2D6" opacity="0.8"/>
+      <!-- Inner brilliant spark -->
+      <circle cx="0" cy="0" r="2.5" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- Laurel & Olive Branches (Symbolizing Prestige & Fragrance Extraction) -->
+  <g stroke="url(#goldGrad)" stroke-width="1.5" fill="none" opacity="0.75">
+    <path d="M 270,440 C 255,400 255,340 280,300" stroke-linecap="round"/>
+    <path d="M 530,440 C 545,400 545,340 520,300" stroke-linecap="round"/>
+  </g>
+  <!-- Laurel Leaves Left -->
+  <path d="M 265,410 Q 250,405 260,395 Q 270,405 265,410 Z" fill="url(#goldGrad)"/>
+  <path d="M 258,370 Q 242,365 252,355 Q 263,365 258,370 Z" fill="url(#goldGrad)"/>
+  <path d="M 268,330 Q 255,320 268,315 Q 276,325 268,330 Z" fill="url(#goldGrad)"/>
+  <!-- Laurel Leaves Right -->
+  <path d="M 535,410 Q 550,405 540,395 Q 530,405 535,410 Z" fill="url(#goldGrad)"/>
+  <path d="M 542,370 Q 558,365 548,355 Q 537,365 542,370 Z" fill="url(#goldGrad)"/>
+  <path d="M 532,330 Q 545,320 532,315 Q 524,325 532,330 Z" fill="url(#goldGrad)"/>
+
+  <!-- Master Brand Typography -->
+  <!-- Brand Wordmark -->
+  <text x="400" y="660" 
+        font-family="'Playfair Display', 'Cinzel', 'Didot', 'Times New Roman', serif" 
+        font-size="44" 
+        font-weight="700" 
+        letter-spacing="12" 
+        fill="#FAF9F5" 
+        text-anchor="middle"
+        filter="url(#royalShadow)">
+    A AND S
+  </text>
+
+  <!-- Subtitle Tagline with Turquoise Gem Accent -->
+  <text x="400" y="695" 
+        font-family="'Montserrat', 'Inter', 'Helvetica Neue', sans-serif" 
+        font-size="12" 
+        font-weight="600" 
+        letter-spacing="8" 
+        fill="url(#goldGrad)" 
+        text-anchor="middle">
+    HAUTE PARFUMERIE
+  </text>
+
+  <!-- Origin Mark -->
+  <text x="400" y="725" 
+        font-family="'Montserrat', 'Inter', sans-serif" 
+        font-size="10" 
+        font-weight="500" 
+        letter-spacing="5" 
+        fill="#54d1b2" 
+        text-anchor="middle">
+    CAIRO • ATELIER DE CRÉATION
+  </text>
+
+</svg>

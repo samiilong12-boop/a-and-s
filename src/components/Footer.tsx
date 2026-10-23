@@ -85,16 +85,21 @@ export function Footer() {
           
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="inline-block">
-              <div className="flex items-center">
-                <span className="font-serif text-2xl font-bold tracking-[0.25em] text-[#FFFFFF]">
-                  A AND S
-                </span>
-                <span className="w-2 h-2 rounded-full bg-[#2DD4BF] shadow-[0_0_8px_#2DD4BF] mx-1 mb-1" />
+            <Link href="/" className="inline-flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full border border-[#D4AF37]/40 bg-[#080A0A] flex items-center justify-center p-1.5 shadow-lg flex-shrink-0">
+                <img src="/images/brand-crest.svg" alt="A AND S Royal Crest" className="w-full h-full object-contain" />
               </div>
-              <p className="text-[10px] tracking-[0.35em] text-[#C6A66B] uppercase font-sans font-bold">
-                Haute Parfumerie
-              </p>
+              <div>
+                <div className="flex items-center">
+                  <span className="font-serif text-2xl font-bold tracking-[0.25em] text-[#FFFFFF]">
+                    A AND S
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-[#54d1b2] shadow-[0_0_8px_#54d1b2] mx-1 mb-1" />
+                </div>
+                <p className="text-[10px] tracking-[0.35em] text-[#C6A66B] uppercase font-sans font-bold">
+                  Haute Parfumerie
+                </p>
+              </div>
             </Link>
             <p className="text-sm text-[#9EABA7] max-w-sm leading-relaxed">
               &ldquo;{isRtl ? 'فن ترك الانطباع الذي لا يُنسى' : 'The art of leaving an impression'}.&rdquo; {isRtl ? 'دار عطور فاخرة تأسست في القاهرة لابتكار توليفات نادرة تضاهي أفخم الدور العالمية، مع خدمة الدفع عند الاستلام والمعاينة الكاملة.' : 'Bespoke perfume atelier crafted in Cairo to compete with world-class French houses.'}
