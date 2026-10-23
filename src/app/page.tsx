@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -13,6 +13,11 @@ import {
   Play,
   Pause,
   Crown,
+  Volume2,
+  VolumeX,
+  Upload,
+  RotateCcw,
+  Film,
 } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -24,7 +29,10 @@ export default function HomePage() {
   const { t, isRtl } = useLanguage();
   const [selectedFamily, setSelectedFamily] = useState('All');
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const toggleVideoPlayback = () => {
     if (videoRef.current) {
@@ -34,6 +42,35 @@ export default function HomePage() {
         videoRef.current.play();
       }
       setIsVideoPlaying(!isVideoPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setCustomVideoUrl(url);
+      setIsVideoPlaying(true);
+      if (videoRef.current) {
+        videoRef.current.src = url;
+        videoRef.current.play().catch(console.error);
+      }
+    }
+  };
+
+  const resetToDefaultVideo = () => {
+    setCustomVideoUrl(null);
+    if (videoRef.current) {
+      videoRef.current.src = '/videos/campaign-hero.mp4';
+      videoRef.current.load();
+      videoRef.current.play().catch(console.error);
     }
   };
 
@@ -54,11 +91,13 @@ export default function HomePage() {
         
         {/* Background Visual Layer: Real A&S Campaign Photography & Ambient Mist Video */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Main Visual: Male model spraying A&S Flacon with turquoise sea & golden sun */}
+          {/* Main Visual Image (fallback & underlying aura) */}
           <img
             src="/images/campaign/as-signature-male-spray.jpg"
             alt="A AND S Campaign — Male Model spraying A&S Flacon by the Sea"
-            className="w-full h-full object-cover scale-105 filter brightness-[0.55] contrast-110 transition-transform duration-1000"
+            className={`w-full h-full object-cover scale-105 transition-opacity duration-1000 ${
+              customVideoUrl ? 'opacity-0' : 'opacity-100 filter brightness-[0.55] contrast-110'
+            }`}
           />
 
           {/* Video Overlay with ambient mist & lighting */}
@@ -66,15 +105,25 @@ export default function HomePage() {
             ref={videoRef}
             autoPlay
             loop
-            muted
+            muted={isMuted}
             playsInline
-            className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-40 filter contrast-150"
+            src={customVideoUrl || undefined}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
+              customVideoUrl
+                ? 'opacity-85 filter contrast-110 brightness-90'
+                : 'mix-blend-screen opacity-40 filter contrast-150'
+            }`}
           >
-            <source src="/videos/campaign-hero.mp4" type="video/mp4" />
-            <source
-              src="https://assets.mixkit.co/videos/preview/mixkit-perfume-bottle-and-rose-petals-falling-41589-large.mp4"
-              type="video/mp4"
-            />
+            {!customVideoUrl && (
+              <>
+                <source src="/videos/campaign-hero.mp4" type="video/mp4" />
+                <source src="/videos/hero.mp4" type="video/mp4" />
+                <source
+                  src="https://assets.mixkit.co/videos/preview/mixkit-perfume-bottle-and-rose-petals-falling-41589-large.mp4"
+                  type="video/mp4"
+                />
+              </>
+            )}
           </video>
 
           {/* Luxury Gradient Dark & Golden Overlays for Flawless Readability */}
@@ -82,18 +131,61 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#080A0A]/35 to-[#080A0A]" />
         </div>
 
-        {/* Video & Visual Control Badge */}
-        <div className={`absolute bottom-6 ${isRtl ? 'right-6' : 'left-6'} z-20 flex items-center gap-2.5 bg-[#080A0A]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#2DD4BF]/40 text-[11px] text-[#F5F2EB] shadow-2xl`}>
+        {/* Video & Media Control Bar (Play/Pause, Sound Mute/Unmute, Upload Video From Device) */}
+        <div className={`absolute bottom-6 ${isRtl ? 'right-6' : 'left-6'} z-20 flex flex-wrap items-center gap-2.5 bg-[#080A0A]/90 backdrop-blur-md px-4 py-2 rounded-2xl border border-[#54d1b2]/40 text-xs text-[#FAF9F5] shadow-2xl`}>
+          {/* Play / Pause Button */}
           <button
             onClick={toggleVideoPlayback}
-            className="text-[#2DD4BF] hover:text-[#5EEAD4] flex items-center gap-1.5 font-bold transition-colors"
-            aria-label="Toggle Hero Background Video"
+            className="text-[#54d1b2] hover:text-white flex items-center gap-1.5 font-bold transition-colors"
+            title={isVideoPlaying ? (isRtl ? 'إيقاف مؤقت' : 'Pause') : (isRtl ? 'تشغيل' : 'Play')}
           >
-            {isVideoPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            <span>{isVideoPlaying ? (isRtl ? 'إيقاف رذاذ العطر' : 'Pause Mist') : (isRtl ? 'تشغيل رذاذ العطر' : 'Play Mist')}</span>
+            {isVideoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            <span>{isVideoPlaying ? (isRtl ? 'إيقاف الفيديو' : 'Pause') : (isRtl ? 'تشغيل' : 'Play')}</span>
           </button>
-          <span className="text-[#576563]">•</span>
-          <span className="text-[10px] text-[#2DD4BF] font-mono tracking-wider">A AND S Campaign Visual</span>
+
+          <span className="text-[#4A5553]">•</span>
+
+          {/* Mute / Unmute Button */}
+          <button
+            onClick={toggleMute}
+            className="text-[#54d1b2] hover:text-white flex items-center gap-1.5 font-bold transition-colors"
+            title={isMuted ? (isRtl ? 'تشغيل الصوت' : 'Unmute') : (isRtl ? 'كتم الصوت' : 'Mute')}
+          >
+            {isMuted ? <VolumeX className="w-4 h-4 text-[#788784]" /> : <Volume2 className="w-4 h-4 text-[#54d1b2]" />}
+            <span>{isMuted ? (isRtl ? 'صامت' : 'Muted') : (isRtl ? 'صوت' : 'Sound')}</span>
+          </button>
+
+          <span className="text-[#4A5553]">•</span>
+
+          {/* Select Video from Device Button */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-[#00bc7d]/20 hover:bg-[#00bc7d]/35 text-[#54d1b2] hover:text-white border border-[#54d1b2]/40 px-3 py-1 rounded-xl flex items-center gap-1.5 font-bold transition-all hover:scale-105"
+            title={isRtl ? 'اختر ملف فيديو MP4 من جهازك ليعمل في الخلفية فوراً' : 'Select MP4 video from device'}
+          >
+            <Upload className="w-3.5 h-3.5 text-[#54d1b2]" />
+            <span>{isRtl ? 'اختر فيديو من جهازك' : 'Upload Video'}</span>
+          </button>
+
+          {/* Hidden File Input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleVideoFileChange}
+            accept="video/mp4,video/webm,video/quicktime,video/m4v"
+            className="hidden"
+          />
+
+          {/* Reset button if custom video loaded */}
+          {customVideoUrl && (
+            <button
+              onClick={resetToDefaultVideo}
+              className="text-[#788784] hover:text-rose-400 p-1 transition-colors"
+              title={isRtl ? 'استعادة الفيديو الأصلي' : 'Reset to default'}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         {/* Grand Royal Hero Content */}
