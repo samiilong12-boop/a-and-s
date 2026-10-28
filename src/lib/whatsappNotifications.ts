@@ -11,8 +11,9 @@ const SITE_URL = 'https://a-and-s.vercel.app';
 /**
  * Format Egyptian phone number to international wa.me format (e.g. 201XXXXXXXXX)
  */
-export function formatPhoneForWhatsApp(phone: string): string {
-  const digits = phone.replace(/[^0-9]/g, '');
+export function formatPhoneForWhatsApp(phone?: string | null): string {
+  if (!phone) return OFFICIAL_WHATSAPP_LINE_1;
+  const digits = String(phone).replace(/[^0-9]/g, '');
   if (digits.startsWith('01') && digits.length === 11) {
     return `20${digits.substring(1)}`;
   }
@@ -25,35 +26,50 @@ export function formatPhoneForWhatsApp(phone: string): string {
 /**
  * 1. Order Confirmation Receipt (Sent to Customer)
  */
-export function generateOrderConfirmationWhatsapp(order: {
-  orderNumber: string;
-  customerName: string;
-  customerPhone: string;
-  totalInPiasters: number;
-  items: Array<{ productNameAr?: string; productNameEn?: string; quantity: number; volumeMl?: number }>;
-  shippingAddress: { city: string; streetAddress: string };
+export function generateOrderConfirmationWhatsapp(order?: {
+  orderNumber?: string;
+  customerName?: string;
+  customerPhone?: string;
+  totalInPiasters?: number;
+  items?: Array<{ productNameAr?: string; productNameEn?: string; productNameSnapshot?: string; quantity?: number; volumeMl?: number }>;
+  shippingAddress?: { city?: string; streetAddress?: string };
+  city?: string;
+  streetAddress?: string;
 }): string {
-  const totalEgp = Math.round(order.totalInPiasters / 100).toLocaleString('ar-EG');
-  const itemsText = order.items
-    .map((item) => `  • ${item.productNameAr || item.productNameEn || 'عطر فاخر'} (${item.volumeMl || 100} مل) × ${item.quantity}`)
-    .join('\n');
+  if (!order) return `https://wa.me/${OFFICIAL_WHATSAPP_LINE_1}`;
 
-  const trackingUrl = `${SITE_URL}/track-order?orderNumber=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customerPhone.slice(-8))}`;
+  const phone = order.customerPhone || '';
+  const orderNumber = order.orderNumber || 'RAHEEQ-ORDER';
+  const customerName = order.customerName || 'عميلنا العزيز';
+  const totalInPiasters = typeof order.totalInPiasters === 'number' ? order.totalInPiasters : 0;
+  const totalEgp = Math.round(totalInPiasters / 100).toLocaleString('ar-EG');
+
+  const items = Array.isArray(order.items) ? order.items : [];
+  const itemsText = items.length > 0
+    ? items
+        .map((item) => `  • ${item?.productNameAr || item?.productNameEn || item?.productNameSnapshot || 'عطر فاخر'} (${item?.volumeMl || 100} مل) × ${item?.quantity || 1}`)
+        .join('\n')
+    : '  • عطور دار رحيق الملكية الفاخرة';
+
+  const city = order.shippingAddress?.city || order.city || 'القاهرة';
+  const streetAddress = order.shippingAddress?.streetAddress || order.streetAddress || '';
+  const lastDigits = phone.length >= 8 ? phone.slice(-8) : phone;
+  const trackingUrl = `${SITE_URL}/track-order?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(lastDigits)}`;
 
   const message =
     `💎 *دار رَحِـيـقْ للعطور الملكية الفاخرة | RAHEEQ Haute Parfumerie*\n\n` +
-    `مرحباً بك *${order.customerName}*،\n` +
+    `مرحباً بك *${customerName}*،\n` +
     `تم تسجيل طلبك الملكي بنجاح وهو الآن قيد التجهيز والتغليف الفاخر ⚜️\n\n` +
     `📋 *تفاصيل الطلب:*\n` +
-    `• *رقم المرجع:* \`${order.orderNumber}\`\n` +
+    `• *رقم المرجع:* \`${orderNumber}\`\n` +
     `• *المنتجات:*\n${itemsText}\n` +
     `• *إجمالي المبلغ:* ${totalEgp} ج.م (الدفع عند الاستلام بعد المعاينة)\n` +
-    `• *عنوان الشحن:* ${order.shippingAddress.city}، ${order.shippingAddress.streetAddress}\n\n` +
+    `• *عنوان الشحن:* ${city}${streetAddress ? `، ${streetAddress}` : ''}\n\n` +
     `🔍 *تتبع شحنتك مباشرة:* \n${trackingUrl}\n\n` +
     `✨ *ملاحظة:* لك كامل الحق في فتح كرتونة الشحن ومعاينة الزجاجة والتغليف قبل سداد المبلغ للمندوب.\n` +
     `شكراً لثقتكم بذوق دار رحيق الرفيع.`;
 
-  const targetPhone = formatPhoneForWhatsApp(order.customerPhone);
+  const targetPhone = formatPhoneForWhatsApp(phone);
   return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
 }
 
@@ -61,41 +77,52 @@ export function generateOrderConfirmationWhatsapp(order: {
  * 2. Dispatch / Out For Delivery Alert (With Courier Details)
  */
 export function generateDispatchAlertWhatsapp(
-  order: {
-    orderNumber: string;
-    customerName: string;
-    customerPhone: string;
+  order?: {
+    orderNumber?: string;
+    customerName?: string;
+    customerPhone?: string;
   },
   courierName?: string,
   trackingNumber?: string
 ): string {
-  const trackingUrl = `${SITE_URL}/track-order?orderNumber=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customerPhone.slice(-8))}`;
+  if (!order) return `https://wa.me/${OFFICIAL_WHATSAPP_LINE_1}`;
+
+  const phone = order.customerPhone || '';
+  const orderNumber = order.orderNumber || 'RAHEEQ-ORDER';
+  const customerName = order.customerName || 'عميلنا العزيز';
+  const lastDigits = phone.length >= 8 ? phone.slice(-8) : phone;
+  const trackingUrl = `${SITE_URL}/track-order?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(lastDigits)}`;
 
   const message =
     `🚚 *تحديث الشحنة — دار رَحِـيـقْ (RAHEEQ)* 💎\n\n` +
-    `مرحباً بك *${order.customerName}*،\n` +
-    `يسرنا إبلاغك بأن طلبك رقم \`${order.orderNumber}\` خرج الآن مع المندوب وهو في الطريق إلى عنوانك ⚜️\n\n` +
+    `مرحباً بك *${customerName}*،\n` +
+    `يسرنا إبلاغك بأن طلبك رقم \`${orderNumber}\` خرج الآن مع المندوب وهو في الطريق إلى عنوانك ⚜️\n\n` +
     (courierName ? `• *شركة الشحن / المندوب:* ${courierName}\n` : '') +
     (trackingNumber ? `• *بوليصة التتبع:* \`${trackingNumber}\`\n` : '') +
     `• *رابط المتابعة المباشر:* \n${trackingUrl}\n\n` +
     `📦 يرجى العلم بأن الشحنة مشمولة بسياسة **المعاينة عند الاستلام** للتأكد من سلامة الزجاجة والتغليف الملكي قبل السداد.\n\n` +
     `خدمة عملاء رحيق: ${OFFICIAL_WHATSAPP_LINE_1}`;
 
-  const targetPhone = formatPhoneForWhatsApp(order.customerPhone);
+  const targetPhone = formatPhoneForWhatsApp(phone);
   return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
 }
 
 /**
  * 3. Fulfilled / Delivery Complete Gratitude & Care Tips
  */
-export function generateFulfilledReceiptWhatsapp(order: {
-  orderNumber: string;
-  customerName: string;
-  customerPhone: string;
+export function generateFulfilledReceiptWhatsapp(order?: {
+  orderNumber?: string;
+  customerName?: string;
+  customerPhone?: string;
 }): string {
+  if (!order) return `https://wa.me/${OFFICIAL_WHATSAPP_LINE_1}`;
+
+  const phone = order.customerPhone || '';
+  const customerName = order.customerName || 'عميلنا العزيز';
+
   const message =
     `👑 *تهانينا لاقتنائكم عطر رَحِـيـقْ | RAHEEQ Haute Parfumerie*\n\n` +
-    `عزيزنا *${order.customerName}*،\n` +
+    `عزيزنا *${customerName}*،\n` +
     `نأمل أن تكون تجربة استلام العطر قد نالت كامل إعجابكم ورضاكم 💎\n\n` +
     `🌟 *نصائح الخبراء للحصول على أقصى ثبات وفوحان (تركيز 25% معتق):*\n` +
     `1. يُفضل رش العطر على أماكن النبض (معصمي اليدين، جانبي الرقبة، وخلف الأذنين).\n` +
@@ -103,7 +130,7 @@ export function generateFulfilledReceiptWhatsapp(order: {
     `يسعدنا دائماً استقبال آرائكم وترشيحاتكم لخلطاتكم القادمة عبر هذا الرقم.\n` +
     `طاب يومكم بكل عبقٍ فاخر.`;
 
-  const targetPhone = formatPhoneForWhatsApp(order.customerPhone);
+  const targetPhone = formatPhoneForWhatsApp(phone);
   return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
 }
 
@@ -111,16 +138,25 @@ export function generateFulfilledReceiptWhatsapp(order: {
  * 4. Bespoke Perfume Status Update Notification
  */
 export function generateBespokeStatusWhatsapp(
-  req: {
-    id: string;
-    customerName: string;
-    customerPhone: string;
-    perfumeName: string;
-    volumeMl: string;
+  req?: {
+    id?: string;
+    customerName?: string;
+    customerPhone?: string;
+    perfumeName?: string;
+    volumeMl?: string;
   },
-  newStatus: 'NEW' | 'CONTACTED' | 'FULFILLED' | 'CANCELLED' | string
+  newStatus: 'NEW' | 'CONTACTED' | 'FULFILLED' | 'CANCELLED' | string = 'NEW'
 ): string {
-  const trackingUrl = `${SITE_URL}/track-order?orderNumber=${encodeURIComponent(req.id)}&phone=${encodeURIComponent(req.customerPhone.slice(-8))}`;
+  if (!req) return `https://wa.me/${OFFICIAL_WHATSAPP_LINE_1}`;
+
+  const phone = req.customerPhone || '';
+  const reqId = req.id || 'REQ-BESPOKE';
+  const customerName = req.customerName || 'عميلنا العزيز';
+  const perfumeName = req.perfumeName || 'خلطة عطرية خاصة';
+  const volumeMl = req.volumeMl || '100ml';
+  const lastDigits = phone.length >= 8 ? phone.slice(-8) : phone;
+
+  const trackingUrl = `${SITE_URL}/track-order?orderNumber=${encodeURIComponent(reqId)}&phone=${encodeURIComponent(lastDigits)}`;
 
   let statusText = 'تم استلام طلب الخلطة بنجاح وبدء المراجعة';
   if (newStatus === 'CONTACTED') {
@@ -133,14 +169,14 @@ export function generateBespokeStatusWhatsapp(
 
   const message =
     `🧪 *تحديث طلب العطر الخاص — دار رَحِـيـقْ (RAHEEQ Bespoke Atelier)* 💎\n\n` +
-    `مرحباً بك *${req.customerName}*،\n` +
+    `مرحباً بك *${customerName}*،\n` +
     `نود إحاطتكم بآخر تحديث لطلب تركيبتكم العطرية الخاصة:\n\n` +
-    `• *رقم الطلب:* \`${req.id}\`\n` +
-    `• *العطر المطلوب:* ${req.perfumeName} (${req.volumeMl})\n` +
+    `• *رقم الطلب:* \`${reqId}\`\n` +
+    `• *العطر المطلوب:* ${perfumeName} (${volumeMl})\n` +
     `• *الحالة الحالية:* ${statusText}\n\n` +
-    `🔍 *متابعة تفاصيل التجهيز مباشرة:* \n${trackingUrl}\n\n` +
-    `لأي استفسار أو تعديل على مكونات الخلطة، نحن دائماً في خدمتكم.`;
+    `🔍 *تتبع حالة طلبك خطوة بخطوة:* \n${trackingUrl}\n\n` +
+    `يسعدنا دائماً خدمتكم عبر هذا الرقم المباشر.`;
 
-  const targetPhone = formatPhoneForWhatsApp(req.customerPhone);
+  const targetPhone = formatPhoneForWhatsApp(phone);
   return `https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`;
 }

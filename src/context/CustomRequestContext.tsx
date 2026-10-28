@@ -95,21 +95,27 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
         headers: getAdminAuthHeaders(),
       });
       if (res.ok) {
-        const remote: BespokePerfumeRequest[] = await res.json();
+        const remote = await res.json();
 
-        // Merge both by ID: remote items + local items
-        const map = new Map<string, BespokePerfumeRequest>();
-        remote.forEach((r) => map.set(r.id, r));
-        local.forEach((r) => map.set(r.id, r)); // local submissions take priority/preserved
+        if (Array.isArray(remote)) {
+          // Merge both by ID: remote items + local items
+          const map = new Map<string, BespokePerfumeRequest>();
+          remote.filter(Boolean).forEach((r) => {
+            if (r?.id) map.set(r.id, r);
+          });
+          local.filter(Boolean).forEach((r) => {
+            if (r?.id) map.set(r.id, r);
+          });
 
-        const merged = Array.from(map.values()).sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+          const merged = Array.from(map.values()).sort(
+            (a, b) => new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime()
+          );
 
-        setRequests(merged);
-        localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(merged));
-        localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(merged));
-        return;
+          setRequests(merged);
+          localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(merged));
+          localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(merged));
+          return;
+        }
       }
     } catch (e) {
       console.warn('Remote sync error, using local requests', e);

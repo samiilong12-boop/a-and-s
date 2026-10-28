@@ -74,14 +74,17 @@ export default function AdminProductsPage() {
     descriptionAr: '',
   });
 
-  const filtered = products.filter((product) => {
+  const safeProducts = Array.isArray(products) ? products.filter(Boolean) : [];
+
+  const filtered = safeProducts.filter((product) => {
+    if (!product) return false;
     if (selectedFamily !== 'All' && product.fragranceFamily !== selectedFamily) return false;
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
-      const matchName = product.nameEn.toLowerCase().includes(term);
+      const matchName = product.nameEn?.toLowerCase().includes(term);
       const matchNameAr = product.nameAr?.toLowerCase().includes(term);
       const matchBrand = product.brand?.toLowerCase().includes(term);
-      const matchSku = product.variants.some((v) => v.sku.toLowerCase().includes(term));
+      const matchSku = Array.isArray(product.variants) && product.variants.some((v) => v?.sku?.toLowerCase().includes(term));
       if (!matchName && !matchNameAr && !matchBrand && !matchSku) return false;
     }
     return true;
@@ -305,14 +308,16 @@ export default function AdminProductsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((product) => {
-                const defaultVariant = product.variants[0];
-                const totalStock = product.variants.reduce((sum, v) => sum + v.stockQuantity, 0);
+                if (!product) return null;
+                const safeVariants = Array.isArray(product.variants) ? product.variants.filter(Boolean) : [];
+                const defaultVariant = safeVariants[0];
+                const totalStock = safeVariants.reduce((sum, v) => sum + (v?.stockQuantity || 0), 0);
                 const isLow = totalStock <= 10;
                 return (
                   <tr key={product.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="p-3.5 flex items-center gap-3">
                       <img
-                        src={product.images?.[0]?.url || product.imageUrl || getDemoBottleSvg(product.nameEn)}
+                        src={product.images?.[0]?.url || product.imageUrl || getDemoBottleSvg(product.nameEn || 'perfume')}
                         alt=""
                         className="w-12 h-14 object-cover bg-slate-900 rounded-lg border border-slate-200 shadow-xs flex-shrink-0"
                       />
@@ -338,11 +343,11 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-3.5">
                       <p className="text-teal-800 font-semibold">{product.fragranceFamily}</p>
-                      <p className="text-[10px] text-slate-500">{product.concentration.replace(/_/g, ' ')}</p>
+                      <p className="text-[10px] text-slate-500">{(product.concentration || 'EXTRAIT').replace(/_/g, ' ')}</p>
                     </td>
                     <td className="p-3.5 text-xs text-slate-700 font-mono">
-                      {product.variants.map((v) => (
-                        <p key={v.id} className="text-[11px]">
+                      {safeVariants.map((v) => (
+                        <p key={v.id || v.sku} className="text-[11px]">
                           {v.volumeMl}ml: <span className="text-teal-700 font-bold">{v.sku}</span>
                         </p>
                       ))}

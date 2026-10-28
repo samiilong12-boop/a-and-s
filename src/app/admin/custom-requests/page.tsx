@@ -41,12 +41,15 @@ export default function AdminCustomRequestsPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Safe guarded requests list
+  const safeRequests = Array.isArray(requests) ? requests.filter(Boolean) : [];
+
   // Counters for badges at the top
-  const activeCount = requests.filter((r) => r.status === 'NEW' || r.status === 'CONTACTED').length;
-  const newCount = requests.filter((r) => r.status === 'NEW').length;
-  const contactedCount = requests.filter((r) => r.status === 'CONTACTED').length;
-  const fulfilledCount = requests.filter((r) => r.status === 'FULFILLED').length;
-  const cancelledCount = requests.filter((r) => r.status === 'CANCELLED').length;
+  const activeCount = safeRequests.filter((r) => r?.status === 'NEW' || r?.status === 'CONTACTED').length;
+  const newCount = safeRequests.filter((r) => r?.status === 'NEW').length;
+  const contactedCount = safeRequests.filter((r) => r?.status === 'CONTACTED').length;
+  const fulfilledCount = safeRequests.filter((r) => r?.status === 'FULFILLED').length;
+  const cancelledCount = safeRequests.filter((r) => r?.status === 'CANCELLED').length;
 
   useEffect(() => {
     refreshRequests();
@@ -70,7 +73,8 @@ export default function AdminCustomRequestsPage() {
   };
 
   // Filter logic: In 'ACTIVE', show only pending/in-progress. Fulfilled orders move to 'ARCHIVE' immediately.
-  const filteredRequests = requests.filter((req) => {
+  const filteredRequests = safeRequests.filter((req) => {
+    if (!req) return false;
     if (statusFilter === 'ACTIVE') {
       if (req.status !== 'NEW' && req.status !== 'CONTACTED') return false;
     } else if (statusFilter === 'ARCHIVE') {
@@ -430,14 +434,14 @@ export default function AdminCustomRequestsPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredRequests.map((req) => {
-            const cleanPhone = req.customerPhone?.replace(/[^0-9]/g, '');
+            const cleanPhone = (req.customerPhone || '').replace(/[^0-9]/g, '');
             const waNumber = cleanPhone.startsWith('0')
               ? `2${cleanPhone}`
               : cleanPhone.startsWith('20')
               ? cleanPhone
-              : `20${cleanPhone}`;
+              : cleanPhone ? `20${cleanPhone}` : '201131068790';
 
-            const waText = `مرحباً أستاذ ${req.customerName}، معك إدارة دار رَحِيقْ (RAHEEQ Haute Parfumerie) 💎.%0Aبخصوص طلبك الخاص لعطر: *${req.perfumeName}* (حجم: ${req.volumeMl} - تركيز: ${req.concentration.replace(/_/g, ' ')})%0Aيسعدنا تأكيد إمكانية توفير التركيبة بأعلى درجات الثبات والفوحان والتوصيل لباب بيتك.`;
+            const waText = `مرحباً أستاذ ${req.customerName || 'عميل المتجر'}، معك إدارة دار رَحِيقْ (RAHEEQ Haute Parfumerie) 💎.%0Aبخصوص طلبك الخاص لعطر: *${req.perfumeName || ''}* (حجم: ${req.volumeMl || '100ml'} - تركيز: ${(req.concentration || 'EXTRAIT').replace(/_/g, ' ')})%0Aيسعدنا تأكيد إمكانية توفير التركيبة بأعلى درجات الثبات والفوحان والتوصيل لباب بيتك.`;
 
             const isArchived = req.status === 'FULFILLED';
 

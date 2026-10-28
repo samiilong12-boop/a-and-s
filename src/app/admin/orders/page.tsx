@@ -286,9 +286,12 @@ function AdminOrdersContent() {
     document.body.removeChild(link);
   };
 
-  const currentDisplayList = activeTab === 'active' ? orders : archivedOrders;
+  const safeOrders = Array.isArray(orders) ? orders.filter(Boolean) : [];
+  const safeArchived = Array.isArray(archivedOrders) ? archivedOrders.filter(Boolean) : [];
+  const currentDisplayList = activeTab === 'active' ? safeOrders : safeArchived;
 
   const filteredOrders = currentDisplayList.filter((o) => {
+    if (!o) return false;
     if (filterStatus !== 'All' && o.status !== filterStatus) return false;
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
@@ -594,8 +597,8 @@ function AdminOrdersContent() {
                     </a>
 
                     <a
-                      href={`https://wa.me/${selectedOrder.customerPhone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                        `مرحباً أستاذ ${selectedOrder.customerName}، معك دار رَحِيقْ للعطور الفاخرة 💎 بخصوص طلبكم رقم ${selectedOrder.orderNumber}.`
+                      href={`https://wa.me/${(selectedOrder.customerPhone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                        `مرحباً أستاذ ${selectedOrder.customerName || 'عميل المتجر'}، معك دار رَحِيقْ للعطور الفاخرة 💎 بخصوص طلبكم رقم ${selectedOrder.orderNumber || ''}.`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

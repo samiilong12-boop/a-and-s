@@ -28,29 +28,37 @@ export default function AdminOverviewPage() {
     try {
       const stored = localStorage.getItem('a_and_s_demo_orders');
       if (stored) {
-        setOrders(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setOrders(parsed.filter(Boolean));
+        }
       }
     } catch (e) {
       console.error(e);
     }
   }, []);
 
+  // Safe guarded arrays
+  const safeOrders = Array.isArray(orders) ? orders.filter(Boolean) : [];
+  const safeProducts = Array.isArray(products) ? products.filter(Boolean) : [];
+
   // Financial KPIs Calculations (E1)
-  const totalOrders = orders.length;
-  const grossSalesInPiasters = orders.reduce((sum, o) => sum + (o.subtotalInPiasters || 0), 0);
-  const totalCogsInPiasters = orders.reduce((sum, o) => sum + (o.totalCostInPiasters || 0), 0);
+  const totalOrders = safeOrders.length;
+  const grossSalesInPiasters = safeOrders.reduce((sum, o) => sum + (o?.subtotalInPiasters || 0), 0);
+  const totalCogsInPiasters = safeOrders.reduce((sum, o) => sum + (o?.totalCostInPiasters || 0), 0);
   const estimatedGrossProfitInPiasters = grossSalesInPiasters - totalCogsInPiasters;
   const averageOrderValueInPiasters = totalOrders > 0 ? Math.round(grossSalesInPiasters / totalOrders) : 0;
 
   // Order status counts
-  const pendingCount = orders.filter((o) => o.status === 'PENDING_CONFIRMATION').length;
-  const confirmedCount = orders.filter((o) => o.status === 'CONFIRMED' || o.status === 'PROCESSING').length;
-  const outForDeliveryCount = orders.filter((o) => o.status === 'OUT_FOR_DELIVERY').length;
-  const deliveredCount = orders.filter((o) => o.status === 'DELIVERED').length;
+  const pendingCount = safeOrders.filter((o) => o?.status === 'PENDING_CONFIRMATION').length;
+  const confirmedCount = safeOrders.filter((o) => o?.status === 'CONFIRMED' || o?.status === 'PROCESSING').length;
+  const outForDeliveryCount = safeOrders.filter((o) => o?.status === 'OUT_FOR_DELIVERY').length;
+  const deliveredCount = safeOrders.filter((o) => o?.status === 'DELIVERED').length;
 
-  // Inventory analysis
-  const lowStockCount = products.filter((p) =>
-    p.variants.some((v) => v.stockQuantity <= v.lowStockThreshold)
+  // Inventory analysis with defensive optional chaining
+  const lowStockCount = safeProducts.filter((p) =>
+    Array.isArray(p?.variants) &&
+    p.variants.some((v) => v && (v.stockQuantity ?? 0) <= (v.lowStockThreshold ?? 5))
   ).length;
 
   return (
@@ -234,35 +242,38 @@ export default function AdminOverviewPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {orders.slice(0, 5).map((order) => {
-                const statusMeta = getOrderStatusLabel(order.status);
-                const payMeta = getPaymentStatusLabel(order.paymentStatus);
+              {safeOrders.slice(0, 5).map((order) => {
+                if (!order) return null;
+                const statusMeta = getOrderStatusLabel(order.status || 'PENDING_CONFIRMATION');
+                const payMeta = getPaymentStatusLabel(order.paymentStatus || 'PENDING_COLLECTION');
                 return (
-                  <tr key={order.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={order.id || order.orderNumber} className="hover:bg-slate-50 transition-colors">
                     <td className="p-3 font-mono text-teal-700 font-bold text-sm">
-                      {order.orderNumber}
+                      {order.orderNumber || 'N/A'}
                     </td>
                     <td className="p-3">
-                      <p className="font-bold text-slate-900">{order.customerName}</p>
-                      <p className="text-[11px] text-slate-500 font-mono">{order.customerPhone}</p>
+                      <p className="font-bold text-slate-900">{order.customerName || 'عميل المتجر'}</p>
+                      <p className="text-[11px] text-slate-500 font-mono">{order.customerPhone || ''}</p>
                     </td>
-                    <td className="p-3 text-slate-700 font-medium">{order.governorate}</td>
+                    <td className="p-3 text-slate-700 font-medium">
+                      {order.shippingAddress?.governorate || order.governorate || 'القاهرة'}
+                    </td>
                     <td className="p-3">
-                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${statusMeta.colorClass}`}>
-                        {statusMeta.labelEn}
+                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${statusMeta?.colorClass || ''}`}>
+                        {statusMeta?.labelEn || order.status}
                       </span>
                     </td>
                     <td className="p-3">
-                      <span className={`text-[11px] font-semibold ${payMeta.colorClass}`}>
-                        {payMeta.labelEn}
+                      <span className={`text-[11px] font-semibold ${payMeta?.colorClass || ''}`}>
+                        {payMeta?.labelEn || order.paymentStatus}
                       </span>
                     </td>
                     <td className="p-3 font-bold text-slate-900">
-                      {formatPrice(order.totalInPiasters)}
+                      {formatPrice(order.totalInPiasters || 0)}
                     </td>
                     <td className="p-3 text-right">
                       <Link
-                        href={`/admin/orders?highlight=${order.orderNumber}`}
+                        href={`/admin/orders?highlight=${order.orderNumber || ''}`}
                         className="px-3 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded font-semibold text-xs border border-teal-200 transition-colors"
                       >
                         Manage Order
