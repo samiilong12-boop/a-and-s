@@ -20,6 +20,7 @@ interface CustomRequestContextType {
   updateRequestStatus: (id: string, status: BespokePerfumeRequest['status']) => Promise<void>;
   deleteRequest: (id: string) => Promise<void>;
   clearFulfilledRequests: () => Promise<void>;
+  markAllActiveAsFulfilled: () => Promise<void>;
   refreshRequests: () => Promise<void>;
 }
 
@@ -232,6 +233,34 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     }
   };
 
+  const markAllActiveAsFulfilled = async () => {
+    const current = getLocalStoredRequests();
+    const activeItems = current.filter((r) => r.status === 'NEW' || r.status === 'CONTACTED');
+    if (activeItems.length === 0) return;
+
+    const updated = current.map((r) =>
+      r.status === 'NEW' || r.status === 'CONTACTED' ? { ...r, status: 'FULFILLED' as const } : r
+    );
+
+    setRequests(updated);
+    try {
+      localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
+    } catch {}
+
+    // In background, patch them to API
+    for (const req of activeItems) {
+      try {
+        await fetch('/api/custom-requests', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: req.id, status: 'FULFILLED' }),
+        });
+      } catch {}
+    }
+  };
+
   return (
     <CustomRequestContext.Provider
       value={{
@@ -244,6 +273,7 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
         updateRequestStatus,
         deleteRequest,
         clearFulfilledRequests,
+        markAllActiveAsFulfilled,
         refreshRequests,
       }}
     >
