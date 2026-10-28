@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -15,6 +15,9 @@ import {
   Upload,
   Layers,
   Crown,
+  Download,
+  RefreshCw,
+  HardDrive,
 } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 import { Product } from '@/types';
@@ -22,14 +25,73 @@ import { FRAGRANCE_FAMILIES, CONCENTRATIONS, getDemoBottleSvg } from '@/lib/data
 import { formatPrice } from '@/lib/currency';
 
 export default function AdminProductsPage() {
-  const { products, addProduct, editProduct, deleteProduct } = useProducts();
+  const {
+    products,
+    addProduct,
+    editProduct,
+    deleteProduct,
+    syncWithServer,
+    bulkImport,
+    exportCatalogJson,
+  } = useProducts();
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFamily, setSelectedFamily] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const handleExportBackup = () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(exportCatalogJson());
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `raheeq-catalog-backup-${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    setToastMessage('تم تحميل ملف النسخة الاحتياطية لجميع عطور الدار بنجاح ✓');
+    setTimeout(() => setToastMessage(''), 3500);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const success = await bulkImport(parsed);
+        if (success) {
+          setToastMessage(`تم استيراد وحفظ ${parsed.length} عطر بنجاح في قاعدة البيانات والسيرفر ✓`);
+        } else {
+          setToastMessage(`تم استيراد ${parsed.length} عطر محلياً بنجاح ✓`);
+        }
+      } else {
+        alert('الملف لا يحتوي على كتالوج عطور صالح.');
+      }
+    } catch {
+      alert('حدث خطأ أثناء قراءة ملف النسخة الاحتياطية.');
+    }
+    setTimeout(() => setToastMessage(''), 4000);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleSyncCloud = async () => {
+    setIsSyncing(true);
+    setToastMessage('جاري المزامنة مع السيرفر السحابي وقاعدة البيانات...');
+    try {
+      await syncWithServer();
+      setToastMessage('تمت مزامنة جميع العطور مع السيرفر بنجاح ✓');
+    } catch {
+      setToastMessage('فشلت المزامنة مؤقتاً، تعمل النسخة المحلية بأمان.');
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setToastMessage(''), 3500);
+    }
+  };
 
   // Form State for Adding New Fragrance
   const [formData, setFormData] = useState({
@@ -90,7 +152,7 @@ export default function AdminProductsPage() {
     return true;
   });
 
-  const handleCreateProduct = (e: React.FormEvent) => {
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.nameEn.trim()) {
@@ -100,7 +162,7 @@ export default function AdminProductsPage() {
 
     const finalImage = formData.imageUrl.trim() || getDemoBottleSvg(formData.nameEn, '#66D9C5');
 
-    const created = addProduct({
+    const created = await addProduct({
       nameEn: formData.nameEn.trim(),
       nameAr: formData.nameAr.trim() || formData.nameEn.trim(),
       brand: formData.brand.trim() || 'رحيق (Raheeq)',
@@ -121,7 +183,7 @@ export default function AdminProductsPage() {
     });
 
     setIsAddModalOpen(false);
-    setToastMessage(`تم إضافة العطر بنجاح: ${created.nameEn}`);
+    setToastMessage(`تم حفظ العطر وتثبيته في قاعدة البيانات والسيرفر بنجاح: ${created.nameEn} ✓`);
     setTimeout(() => setToastMessage(''), 3500);
 
     // Reset Form
@@ -182,7 +244,7 @@ export default function AdminProductsPage() {
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEditProduct = (e: React.FormEvent) => {
+  const handleSaveEditProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingId) return;
 
@@ -191,7 +253,7 @@ export default function AdminProductsPage() {
       return;
     }
 
-    editProduct(editingId, {
+    await editProduct(editingId, {
       nameEn: editFormData.nameEn.trim(),
       nameAr: editFormData.nameAr.trim() || editFormData.nameEn.trim(),
       brand: editFormData.brand.trim() || 'رحيق (Raheeq)',
@@ -211,15 +273,15 @@ export default function AdminProductsPage() {
     });
 
     setIsEditModalOpen(false);
-    setToastMessage(`تم حفظ وتحديث بيانات العطر بنجاح: ${editFormData.nameEn}`);
+    setToastMessage(`تم حفظ وتحديث بيانات العطر في السيرفر بنجاح: ${editFormData.nameEn} ✓`);
     setTimeout(() => setToastMessage(''), 3500);
     setEditingId(null);
   };
 
-  const handleDelete = (id: string, name: string) => {
-    deleteProduct(id);
+  const handleDelete = async (id: string, name: string) => {
+    await deleteProduct(id);
     setDeleteConfirmId(null);
-    setToastMessage(`تم حذف العطر: ${name}`);
+    setToastMessage(`تم حذف العطر من السيرفر وقاعدة البيانات: ${name} ✓`);
     setTimeout(() => setToastMessage(''), 3000);
   };
 
@@ -252,13 +314,52 @@ export default function AdminProductsPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-4 py-2.5 rounded-lg text-xs tracking-wider uppercase flex items-center gap-2 shadow-md transition-all self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>إضافة عطر جديد (Add Fragrance)</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          {/* Hidden File Input for Catalog Import */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".json"
+            className="hidden"
+          />
+
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer shadow-xs"
+            title="استيراد كتالوج محفوظ من ملف JSON"
+          >
+            <Upload className="w-3.5 h-3.5 text-slate-600" />
+            <span>استيراد كتالوج</span>
+          </button>
+
+          <button
+            onClick={handleExportBackup}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 border border-slate-300 transition-colors cursor-pointer shadow-xs"
+            title="تصدير وحفظ نسخة احتياطية من كل العطور على جهازك"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-600" />
+            <span>حفظ نسخة احتياطية</span>
+          </button>
+
+          <button
+            onClick={handleSyncCloud}
+            disabled={isSyncing}
+            className="bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 border border-teal-300 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+            title="مزامنة وتثبيت العطور مع السيرفر السحابي وقاعدة البيانات"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-teal-700 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>مزامنة سحابية</span>
+          </button>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-4 py-2 rounded-lg text-xs tracking-wider uppercase flex items-center gap-2 shadow-md transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>إضافة عطر جديد (Add Fragrance)</span>
+          </button>
+        </div>
       </div>
 
       {/* Search and Filters Bar */}

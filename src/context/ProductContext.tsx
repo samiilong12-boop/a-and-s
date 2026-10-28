@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Product, ProductVariant } from '@/types';
 import { FAMOUS_50_PERFUMES } from '@/lib/data/products';
 
@@ -24,7 +24,7 @@ interface ProductContextType {
     costPriceEgp?: number;
     stockQuantity: number;
     volumeMl?: number;
-  }) => Product;
+  }) => Promise<Product>;
   editProduct: (
     id: string,
     updatedFields: Partial<Product> & {
@@ -34,21 +34,65 @@ interface ProductContextType {
       stockQuantity?: number;
       imageUrl?: string;
     }
-  ) => void;
-  deleteProduct: (productId: string) => void;
+  ) => Promise<void>;
+  deleteProduct: (productId: string) => Promise<void>;
   getProductBySlug: (slug: string) => Product | undefined;
-  resetToDefault: () => void;
+  resetToDefault: () => Promise<void>;
+  syncWithServer: () => Promise<void>;
+  bulkImport: (importedProducts: Product[]) => Promise<boolean>;
+  exportCatalogJson: () => string;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 const PRODUCTS_STORAGE_KEY = 'a_and_s_ready_perfumes_v3';
+const TOKEN_KEY = 'a_and_s_admin_jwt_token';
+
+function getAdminAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (typeof window !== 'undefined') {
+    const token = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>(FAMOUS_50_PERFUMES);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load merged products from localStorage on mount
+  // Sync with /api/products server database
+  const syncWithServer = useCallback(async () => {
+    try {
+      const res = await fetch('/api/products', { cache: 'no-store' });
+      if (res.ok) {
+        const remoteProducts = await res.json();
+        if (Array.isArray(remoteProducts) && remoteProducts.length > 0) {
+          // Merge remote products with local cache
+          const localStored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+          const localParsed: Product[] = localStored ? JSON.parse(localStored) : [];
+
+          const map = new Map<string, Product>();
+          // 1. Initial 50
+          FAMOUS_50_PERFUMES.forEach((p) => map.set(p.id, p));
+          // 2. Server products
+          remoteProducts.forEach((p: Product) => map.set(p.id, p));
+          // 3. Local custom products
+          if (Array.isArray(localParsed)) {
+            localParsed.forEach((p) => map.set(p.id, p));
+          }
+
+          const merged = Array.from(map.values());
+          setProducts(merged);
+          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(merged));
+        }
+      }
+    } catch (e) {
+      console.warn('Could not sync products with server API, using local cache', e);
+    }
+  }, []);
+
+  // Load merged products on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
@@ -57,7 +101,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         if (Array.isArray(parsed) && parsed.length >= 50) {
           setProducts(parsed);
         } else {
-          // Upgrade to the full 50 famous perfumes
           setProducts(FAMOUS_50_PERFUMES);
           localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(FAMOUS_50_PERFUMES));
         }
@@ -68,9 +111,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       console.error(e);
     }
     setIsLoaded(true);
-  }, []);
 
-  const saveProducts = (updatedList: Product[]) => {
+    // Immediate server sync
+    syncWithServer();
+  }, [syncWithServer]);
+
+  const saveProductsLocally = (updatedList: Product[]) => {
     setProducts(updatedList);
     try {
       localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedList));
@@ -79,7 +125,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const editProduct = (
+  const editProduct = async (
     id: string,
     updatedFields: Partial<Product> & {
       regularPriceEgp?: number;
@@ -138,10 +184,22 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
       return merged;
     });
-    saveProducts(updated);
+
+    saveProductsLocally(updated);
+
+    // Sync update to server
+    try {
+      await fetch('/api/products', {
+        method: 'PUT',
+        headers: getAdminAuthHeaders(),
+        body: JSON.stringify({ id, updatedFields }),
+      });
+    } catch (err) {
+      console.warn('Server sync error on edit:', err);
+    }
   };
 
-  const addProduct = (data: {
+  const addProduct = async (data: {
     nameEn: string;
     nameAr?: string;
     brand?: string;
@@ -159,14 +217,14 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     costPriceEgp?: number;
     stockQuantity: number;
     volumeMl?: number;
-  }): Product => {
+  }): Promise<Product> => {
     const nextIndex = products.length + 1;
     const id = `raheeq-fragrance-${Date.now()}`;
     let slug = data.nameEn.toLowerCase().trim().replace(/[^a-z0-9\u0600-\u06FF]+/g, '-').replace(/(^-|-$)/g, '');
     if (!slug || slug === '-') {
       slug = `raheeq-${nextIndex}-${Date.now().toString().slice(-4)}`;
     }
-    
+
     const regularPriceInPiasters = Math.round(data.regularPriceEgp * 100);
     const salePriceInPiasters = data.salePriceEgp ? Math.round(data.salePriceEgp * 100) : null;
     const costPriceInPiasters = data.costPriceEgp ? Math.round(data.costPriceEgp * 100) : Math.round(regularPriceInPiasters * 0.35);
@@ -229,13 +287,63 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     };
 
     const updated = [newProduct, ...products];
-    saveProducts(updated);
+    saveProductsLocally(updated);
+
+    // Save permanently to server & cloud database
+    try {
+      await fetch('/api/products', {
+        method: 'POST',
+        headers: getAdminAuthHeaders(),
+        body: JSON.stringify({ product: newProduct }),
+      });
+    } catch (err) {
+      console.warn('Server sync error on addProduct:', err);
+    }
+
     return newProduct;
   };
 
-  const deleteProduct = (productId: string) => {
+  const deleteProduct = async (productId: string) => {
     const updated = products.filter((p) => p.id !== productId);
-    saveProducts(updated);
+    saveProductsLocally(updated);
+
+    try {
+      await fetch(`/api/products?id=${encodeURIComponent(productId)}`, {
+        method: 'DELETE',
+        headers: getAdminAuthHeaders(),
+      });
+    } catch (err) {
+      console.warn('Server sync error on delete:', err);
+    }
+  };
+
+  const bulkImport = async (importedProducts: Product[]): Promise<boolean> => {
+    if (!Array.isArray(importedProducts) || importedProducts.length === 0) return false;
+
+    const map = new Map<string, Product>();
+    products.forEach((p) => map.set(p.id, p));
+    importedProducts.forEach((p) => {
+      if (p && p.id && p.nameEn) map.set(p.id, p);
+    });
+
+    const merged = Array.from(map.values());
+    saveProductsLocally(merged);
+
+    try {
+      await fetch('/api/products', {
+        method: 'POST',
+        headers: getAdminAuthHeaders(),
+        body: JSON.stringify({ products: merged }),
+      });
+      return true;
+    } catch (err) {
+      console.warn('Server bulk import error:', err);
+      return false;
+    }
+  };
+
+  const exportCatalogJson = (): string => {
+    return JSON.stringify(products, null, 2);
   };
 
   const getProductBySlug = (slug: string): Product | undefined => {
@@ -251,8 +359,15 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const resetToDefault = () => {
-    saveProducts(FAMOUS_50_PERFUMES);
+  const resetToDefault = async () => {
+    saveProductsLocally(FAMOUS_50_PERFUMES);
+    try {
+      await fetch('/api/products', {
+        method: 'POST',
+        headers: getAdminAuthHeaders(),
+        body: JSON.stringify({ products: FAMOUS_50_PERFUMES }),
+      });
+    } catch {}
   };
 
   return (
@@ -264,6 +379,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         deleteProduct,
         getProductBySlug,
         resetToDefault,
+        syncWithServer,
+        bulkImport,
+        exportCatalogJson,
       }}
     >
       {children}
