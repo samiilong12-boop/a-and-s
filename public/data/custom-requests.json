@@ -1,0 +1,35 @@
+[
+  {
+    "id": "req-1793211746490-681",
+    "customerName": "عميل رَحِيق الملكي",
+    "customerPhone": "6666666",
+    "perfumeName": "خلطة عطرية ملكية خاصة (Bespoke Formula)",
+    "volumeMl": "100ml",
+    "concentration": "EXTRAIT_DE_PARFUM",
+    "notes": "تركيز نقي 25% مع توصيل سريع لباب البيت",
+    "status": "PROCESSING",
+    "createdAt": "2026-10-28T18:22:26.000Z"
+  },
+  {
+    "id": "req-init-1",
+    "customerName": "طارق عبد المنعم",
+    "customerPhone": "+201012345678",
+    "perfumeName": "Tom Ford Tobacco Vanille + Oud Wood (خلطة مخصصة)",
+    "volumeMl": "100ml",
+    "concentration": "EXTRAIT_DE_PARFUM",
+    "notes": "أريد تركيز عالي وثبات ممتاز يدوم لأكثر من 24 ساعة للمناسبات الرسمية",
+    "status": "CONTACTED",
+    "createdAt": "2026-10-26T18:44:20.247Z"
+  },
+  {
+    "id": "req-init-2",
+    "customerName": "مريم الجندي",
+    "customerPhone": "+201123456789",
+    "perfumeName": "Delina Exclusif de Marly (تركيز خاص)",
+    "volumeMl": "50ml",
+    "concentration": "EAU_DE_PARFUM",
+    "notes": "يفضل إضافة لمسة إضافية خفيفة من المسك الأبيض",
+    "status": "NEW",
+    "createdAt": "2026-10-27T18:44:20.248Z"
+  }
+]

@@ -70,7 +70,7 @@ export interface BespokePerfumeRequest {
   volumeMl: string;
   concentration: string;
   notes?: string;
-  status: 'NEW' | 'CONTACTED' | 'FULFILLED' | 'CANCELLED';
+  status: 'NEW' | 'CONTACTED' | 'PROCESSING' | 'FULFILLED' | 'CANCELLED';
   createdAt: string;
 }
 

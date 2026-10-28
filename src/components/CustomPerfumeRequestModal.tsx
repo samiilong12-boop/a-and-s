@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   X,
   Sparkles,
@@ -12,6 +13,9 @@ import {
   FlaskConical,
   Phone,
   User,
+  Copy,
+  Check,
+  Search,
 } from 'lucide-react';
 import { useCustomRequest } from '@/context/CustomRequestContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -29,6 +33,7 @@ export function CustomPerfumeRequestModal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedRequestId, setSubmittedRequestId] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (defaultPerfume) {
@@ -148,24 +153,60 @@ export function CustomPerfumeRequestModal() {
                   : ' Our fragrance concierge will contact you via WhatsApp to finalize delivery.'}
               </p>
 
-              <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="bg-[#121818] p-4 rounded-xl border border-[#54d1b2]/30 max-w-md mx-auto space-y-2">
+                <p className="text-xs text-[#A2ADA9]">
+                  {isRtl ? 'كود المرجع الخاص بطلبك للمتابعة والتتبع:' : 'Your Tracking & Reference Code:'}
+                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="font-mono text-base text-[#54d1b2] font-bold tracking-wider select-all">
+                    {submittedRequestId}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(submittedRequestId);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-[#FAF9F5] transition-colors inline-flex items-center gap-1 text-[11px]"
+                    title="نسخ الكود"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? (isRtl ? 'تم النسخ!' : 'Copied!') : (isRtl ? 'نسخ' : 'Copy')}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+                {/* 1. Track Order Button */}
+                <Link
+                  href={`/track-order?orderNumber=${encodeURIComponent(submittedRequestId)}&phone=${encodeURIComponent(customerPhone)}`}
+                  onClick={handleResetAndClose}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:opacity-95 text-[#080A0A] font-extrabold text-xs tracking-wider transition-transform hover:scale-105 shadow-[0_0_20px_rgba(84,209,178,0.3)]"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>{isRtl ? 'تتبع حالة طلبك ومسار التصنيع الآن' : 'Track Your Request Now'}</span>
+                </Link>
+
+                {/* 2. WhatsApp Button */}
                 <a
                   href={`https://wa.me/201131068790?text=${encodeURIComponent(
-                    `مرحباً دار رَحِيقْ (RAHEEQ)، بخصوص طلبي الخاص رقم #${submittedRequestId} للعطر (${perfumeName}) بحجم (${volumeMl}) - تركيز (${concentration})`
+                    `مرحباً دار رَحِيقْ (RAHEEQ)، بخصوص طلبي الخاص رقم ${submittedRequestId} للعطر (${perfumeName}) بحجم (${volumeMl}) - تركيز (${concentration})`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs tracking-wider transition-transform hover:scale-105 shadow-lg"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>{isRtl ? 'تأكيد الطلب والتفاصيل فوراً عبر واتساب' : 'Chat & Confirm on WhatsApp Now'}</span>
+                  <span>{isRtl ? 'تأكيد عبر واتساب' : 'Confirm on WhatsApp'}</span>
                 </a>
 
+                {/* 3. Close */}
                 <button
                   onClick={handleResetAndClose}
-                  className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs tracking-wider transition-colors"
+                  className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs tracking-wider transition-colors"
                 >
-                  {isRtl ? 'إغلاق والعودة للمتجر' : 'Close and Continue Shopping'}
+                  {isRtl ? 'إغلاق والعودة' : 'Close'}
                 </button>
               </div>
             </div>
