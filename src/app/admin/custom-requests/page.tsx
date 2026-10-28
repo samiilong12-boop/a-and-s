@@ -19,10 +19,12 @@ import { useCustomRequest } from '@/context/CustomRequestContext';
 import { BespokePerfumeRequest } from '@/types';
 
 export default function AdminCustomRequestsPage() {
-  const { requests, updateRequestStatus, deleteRequest, refreshRequests, openModal } = useCustomRequest();
+  const { requests, updateRequestStatus, deleteRequest, clearFulfilledRequests, refreshRequests, openModal } = useCustomRequest();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'NEW' | 'CONTACTED' | 'FULFILLED' | 'CANCELLED'>('ALL');
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fulfilledCount = requests.filter((r) => r.status === 'FULFILLED').length;
 
   useEffect(() => {
     refreshRequests();
@@ -102,7 +104,22 @@ export default function AdminCustomRequestsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {fulfilledCount > 0 && (
+            <button
+              onClick={() => {
+                if (confirm(`هل تريد بالتأكيد مسح وحذف كافة الطلبات التي تم تنفيذها (${fulfilledCount} طلب) نهائياً من السجل؟`)) {
+                  clearFulfilledRequests();
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-lg border border-rose-200 transition-colors shadow-xs"
+              title="مسح كافة الطلبات المنفذة"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+              <span>مسح الطلبات المنفذة ({fulfilledCount})</span>
+            </button>
+          )}
+
           <button
             onClick={() => openModal()}
             className="inline-flex items-center gap-2 px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
@@ -150,12 +167,33 @@ export default function AdminCustomRequestsPage() {
               {st === 'ALL' && 'الكل'}
               {st === 'NEW' && 'الجديدة'}
               {st === 'CONTACTED' && 'تم التواصل'}
-              {st === 'FULFILLED' && 'تم التنفيذ'}
+              {st === 'FULFILLED' && `تم التنفيذ (${fulfilledCount})`}
               {st === 'CANCELLED' && 'الملغية'}
             </button>
           ))}
         </div>
       </div>
+
+      {/* Banner for Fulfilled Requests */}
+      {statusFilter === 'FULFILLED' && fulfilledCount > 0 && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
+          <div className="flex items-center gap-2 text-emerald-900 text-xs font-bold">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <span>لديك {fulfilledCount} طلب تم تنفيذه بالكامل. يمكنك حذفها نهائياً لتفريغ القائمة بعد التسليم.</span>
+          </div>
+          <button
+            onClick={() => {
+              if (confirm(`هل تريد بالتأكيد حذف ومسح جميع الطلبات التي تم تنفيذها (${fulfilledCount} طلب) نهائياً من السجل؟`)) {
+                clearFulfilledRequests();
+              }
+            }}
+            className="w-full sm:w-auto px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>مسح جميع الطلبات المنفذة الآن</span>
+          </button>
+        </div>
+      )}
 
       {/* Requests Grid / List */}
       {filteredRequests.length === 0 ? (
@@ -276,38 +314,65 @@ export default function AdminCustomRequestsPage() {
                     <span>محادثة العميل عبر واتساب</span>
                   </a>
 
-                  {/* Status Toggle Buttons */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => updateRequestStatus(req.id, 'NEW')}
-                      className={`px-2.5 py-1 text-[11px] font-bold rounded ${
-                        req.status === 'NEW'
-                          ? 'bg-amber-100 text-amber-800 font-black'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      جديد
-                    </button>
-                    <button
-                      onClick={() => updateRequestStatus(req.id, 'CONTACTED')}
-                      className={`px-2.5 py-1 text-[11px] font-bold rounded ${
-                        req.status === 'CONTACTED'
-                          ? 'bg-blue-100 text-blue-800 font-black'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      تم التواصل
-                    </button>
-                    <button
-                      onClick={() => updateRequestStatus(req.id, 'FULFILLED')}
-                      className={`px-2.5 py-1 text-[11px] font-bold rounded ${
-                        req.status === 'FULFILLED'
-                          ? 'bg-emerald-100 text-emerald-800 font-black'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      تم التنفيذ
-                    </button>
+                  {/* Status Toggle Buttons & Delete Actions */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {req.status === 'FULFILLED' && (
+                      <button
+                        onClick={() => {
+                          if (confirm(`هل تريد بالتأكيد حذف هذا الطلب المنفذ (${req.perfumeName}) نهائياً؟`)) {
+                            deleteRequest(req.id);
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors ml-1"
+                        title="حذف هذا الطلب المنفذ"
+                      >
+                        <Trash2 className="w-3 h-3 text-rose-600" />
+                        <span>حذف الطلب المنفذ</span>
+                      </button>
+                    )}
+
+                    <div className="flex items-center gap-1 bg-slate-50 p-0.5 rounded-lg border border-slate-200">
+                      <button
+                        onClick={() => updateRequestStatus(req.id, 'NEW')}
+                        className={`px-2.5 py-1 text-[11px] font-bold rounded ${
+                          req.status === 'NEW'
+                            ? 'bg-amber-100 text-amber-800 font-black shadow-xs'
+                            : 'text-slate-600 hover:bg-slate-200/70'
+                        }`}
+                      >
+                        جديد
+                      </button>
+                      <button
+                        onClick={() => updateRequestStatus(req.id, 'CONTACTED')}
+                        className={`px-2.5 py-1 text-[11px] font-bold rounded ${
+                          req.status === 'CONTACTED'
+                            ? 'bg-blue-100 text-blue-800 font-black shadow-xs'
+                            : 'text-slate-600 hover:bg-slate-200/70'
+                        }`}
+                      >
+                        تم التواصل
+                      </button>
+                      <button
+                        onClick={() => updateRequestStatus(req.id, 'FULFILLED')}
+                        className={`px-2.5 py-1 text-[11px] font-bold rounded ${
+                          req.status === 'FULFILLED'
+                            ? 'bg-emerald-100 text-emerald-800 font-black shadow-xs'
+                            : 'text-slate-600 hover:bg-slate-200/70'
+                        }`}
+                      >
+                        تم التنفيذ
+                      </button>
+                      <button
+                        onClick={() => updateRequestStatus(req.id, 'CANCELLED')}
+                        className={`px-2.5 py-1 text-[11px] font-bold rounded ${
+                          req.status === 'CANCELLED'
+                            ? 'bg-rose-100 text-rose-800 font-black shadow-xs'
+                            : 'text-slate-600 hover:bg-slate-200/70'
+                        }`}
+                      >
+                        ملغي
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

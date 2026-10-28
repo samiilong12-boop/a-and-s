@@ -19,6 +19,7 @@ interface CustomRequestContextType {
   }) => Promise<{ success: boolean; request?: BespokePerfumeRequest }>;
   updateRequestStatus: (id: string, status: BespokePerfumeRequest['status']) => Promise<void>;
   deleteRequest: (id: string) => Promise<void>;
+  clearFulfilledRequests: () => Promise<void>;
   refreshRequests: () => Promise<void>;
 }
 
@@ -211,6 +212,26 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     }
   };
 
+  const clearFulfilledRequests = async () => {
+    const current = getLocalStoredRequests();
+    const updated = current.filter((r) => r.status !== 'FULFILLED');
+
+    setRequests(updated);
+    try {
+      localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
+    } catch {}
+
+    try {
+      await fetch('/api/custom-requests?clearFulfilled=true', {
+        method: 'DELETE',
+      });
+    } catch (e) {
+      console.error('Failed to clear fulfilled requests', e);
+    }
+  };
+
   return (
     <CustomRequestContext.Provider
       value={{
@@ -222,6 +243,7 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
         submitRequest,
         updateRequestStatus,
         deleteRequest,
+        clearFulfilledRequests,
         refreshRequests,
       }}
     >

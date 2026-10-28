@@ -147,10 +147,10 @@ export function Footer() {
                 <Phone className="w-4 h-4 text-[#2DD4BF] flex-shrink-0 mt-0.5" />
                 <div className="flex flex-col gap-1">
                   <a href="https://wa.me/201131068790" target="_blank" rel="noopener noreferrer" className="hover:text-[#2DD4BF] transition-colors font-mono">
-                    01131068790 (واتساب ومكالمات 1)
+                    01131068790 {isRtl ? '(واتساب ومكالمات 1)' : '(WhatsApp & Line 1)'}
                   </a>
                   <a href="https://wa.me/201011800245" target="_blank" rel="noopener noreferrer" className="hover:text-[#2DD4BF] transition-colors font-mono">
-                    01011800245 (واتساب ومكالمات 2)
+                    01011800245 {isRtl ? '(واتساب ومكالمات 2)' : '(WhatsApp & Line 2)'}
                   </a>
                 </div>
               </div>
@@ -255,11 +255,11 @@ export function Footer() {
         {/* Bottom Bar: Copyright and National Service Badges */}
         <div className="mt-14 pt-8 border-t border-[#1A2624] flex flex-col sm:flex-row items-center justify-between text-xs text-[#6C7A77] gap-4">
           <p>
-            &copy; {new Date().getFullYear()} رَحِـيـقْ | RAHEEQ Haute Parfumerie (دار رحيق للعطور الفاخرة). جميع الحقوق محفوظة.
+            &copy; {new Date().getFullYear()} {isRtl ? 'رَحِـيـقْ | RAHEEQ Haute Parfumerie (دار رحيق للعطور الفاخرة). جميع الحقوق محفوظة.' : 'RAHEEQ Haute Parfumerie Cairo. All rights reserved.'}
           </p>
           <div className="flex items-center gap-6">
-            <span className="text-[#9EABA7]">العملة: الجنيه المصري (EGP)</span>
-            <span className="text-[#9EABA7]">التوصيل: جميع محافظات مصر</span>
+            <span className="text-[#9EABA7]">{isRtl ? 'العملة: الجنيه المصري (EGP)' : 'Currency: Egyptian Pound (EGP)'}</span>
+            <span className="text-[#9EABA7]">{isRtl ? 'التوصيل: جميع محافظات مصر' : 'Delivery: Across All Egypt Governorates'}</span>
           </div>
         </div>
       </div>

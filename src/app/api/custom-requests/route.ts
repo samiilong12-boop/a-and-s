@@ -163,11 +163,19 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
-    if (!id) {
-      return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    const clearFulfilled = searchParams.get('clearFulfilled');
+    const existing = loadPersistedRequests();
+
+    if (clearFulfilled === 'true') {
+      const updated = existing.filter((r) => r.status !== 'FULFILLED');
+      persistRequests(updated);
+      return NextResponse.json({ success: true, requests: updated, deletedCount: existing.length - updated.length });
     }
 
-    const existing = loadPersistedRequests();
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id or clearFulfilled' }, { status: 400 });
+    }
+
     const updated = existing.filter((r) => r.id !== id);
     persistRequests(updated);
 

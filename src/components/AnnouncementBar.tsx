@@ -27,11 +27,11 @@ export function AnnouncementBar() {
           </span>
           <span className="hidden md:inline text-[#4A5553]">•</span>
           <a
-            href="tel:+201012345678"
-            className="hidden md:flex items-center gap-1 text-[#FFFFFF] hover:text-[#2DD4BF] font-bold transition-colors"
+            href="tel:+201131068790"
+            className="hidden md:flex items-center gap-1 text-[#FFFFFF] hover:text-[#2DD4BF] font-bold transition-colors font-mono"
           >
             <Phone className="w-3 h-3 text-[#2DD4BF]" />
-            <span>010 1234 5678</span>
+            <span>01131068790</span>
           </a>
         </div>
       </div>

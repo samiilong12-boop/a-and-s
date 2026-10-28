@@ -210,17 +210,17 @@ export default function HomePage() {
           {/* Royal Atelier Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#2DD4BF]/50 bg-[#080A0A]/85 backdrop-blur-md text-[#2DD4BF] text-[11px] tracking-[0.25em] uppercase shadow-2xl font-bold">
             <Crown className="w-3.5 h-3.5 text-[#2DD4BF]" />
-            <span>{heroConfig.heroBadge || t('hero.tag')}</span>
+            <span>{isRtl ? (heroConfig.heroBadge || t('hero.tag')) : t('hero.tag')}</span>
           </div>
 
           {/* Regal Headline */}
           <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[#FFFFFF] leading-[1.18] max-w-4xl mx-auto drop-shadow-2xl">
-            {heroConfig.heroHeadline || t('hero.title')}
+            {isRtl ? (heroConfig.heroHeadline || t('hero.title')) : t('hero.title')}
           </h1>
 
           {/* Royal Subtitle */}
           <p className="font-sans text-sm sm:text-base md:text-lg text-[#E6E1D5] max-w-2xl mx-auto font-light leading-relaxed drop-shadow-md">
-            {heroConfig.heroSubtitle || t('hero.subtitle')}
+            {isRtl ? (heroConfig.heroSubtitle || t('hero.subtitle')) : t('hero.subtitle')}
           </p>
 
           {/* Hero Action Buttons */}
@@ -257,15 +257,15 @@ export default function HomePage() {
                 {siteContent.stat1Value || `${products.length}+`}
               </p>
               <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
-                {siteContent.stat1Label || t('stats.compositions')}
+                {isRtl ? (siteContent.stat1Label || t('stats.compositions')) : t('stats.compositions')}
               </p>
             </div>
             <div>
               <p className="font-serif text-2xl sm:text-3xl font-bold text-[#2DD4BF]">
-                {siteContent.stat2Value || '35%'}
+                {siteContent.stat2Value || '25%'}
               </p>
               <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
-                {siteContent.stat2Label || t('stats.oil_ratio')}
+                {isRtl ? (siteContent.stat2Label || t('stats.oil_ratio')) : t('stats.oil_ratio')}
               </p>
             </div>
             <div>
@@ -273,7 +273,7 @@ export default function HomePage() {
                 {siteContent.stat3Value || '100%'}
               </p>
               <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
-                {siteContent.stat3Label || t('stats.cod')}
+                {isRtl ? (siteContent.stat3Label || t('stats.cod')) : t('stats.cod')}
               </p>
             </div>
             <div>
@@ -281,7 +281,7 @@ export default function HomePage() {
                 {siteContent.stat4Value || '24–48h'}
               </p>
               <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
-                {siteContent.stat4Label || t('stats.delivery_time')}
+                {isRtl ? (siteContent.stat4Label || t('stats.delivery_time')) : t('stats.delivery_time')}
               </p>
             </div>
           </div>
@@ -328,29 +328,27 @@ export default function HomePage() {
           <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#54d1b2]/40 bg-[#141F1D] text-[#54d1b2] text-xs font-bold tracking-widest uppercase shadow-md">
               <FlaskConical className="w-4 h-4 text-[#54d1b2] animate-pulse" />
-              <span>{siteContent.bespokeBadge || (isRtl ? 'خدمة التفصيل العطري الملكي المخصص' : 'Bespoke Haute Concierge')}</span>
+              <span>{isRtl ? (siteContent.bespokeBadge || 'خدمة التفصيل العطري الملكي المخصص') : 'Bespoke Haute Concierge'}</span>
             </div>
 
             <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
-              {siteContent.bespokeHeadline || (
-                isRtl ? (
+              {isRtl ? (
+                siteContent.bespokeHeadline || (
                   <>
                     لو عاوز عطر معين أو <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#54d1b2] to-[#00bc7d]">خلطة خاصة</span>... اكتب لينا اسمه وحجمه وبنوفرو ليك
                   </>
-                ) : (
-                  <>
-                    Looking for a Specific Scent or a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#54d1b2] to-[#00bc7d]">Custom Blend</span>? We Craft It for You.
-                  </>
                 )
+              ) : (
+                <>
+                  Looking for a Specific Scent or a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#54d1b2] to-[#00bc7d]">Custom Blend</span>? We Craft It for You.
+                </>
               )}
             </h2>
 
             <p className="text-sm sm:text-base text-[#D5D1C7] max-w-2xl mx-auto font-light leading-relaxed">
-              {siteContent.bespokeSubtitle || (
-                isRtl
-                  ? 'مهما كان العطر نادراً أو عالمياً، أو حتى تركيبة سرية تجمع بين نفحاتك المفضلة (عود، مسك، أمبرغريس، أو زهور نادرة)، خبراؤنا يركبونه لك بتركيز 35% Extrait de Parfum مع ضمان ثبات وفوحان يتجاوز 24 ساعة.'
-                  : 'From rare vintage flacons to personal signature accords, tell us your desired perfume name and bottle volume. Our master perfumers will craft and deliver it across Egypt.'
-              )}
+              {isRtl
+                ? (siteContent.bespokeSubtitle || 'مهما كان العطر نادراً أو عالمياً، خبراؤنا يركبونه لك بتركيز 25% Extrait de Parfum مع ضمان ثبات وفوحان يتجاوز 24 ساعة.')
+                : 'From rare vintage flacons to personal signature accords, tell us your desired perfume name and bottle volume. Our master perfumers craft and deliver it across Egypt.'}
             </p>
 
             {/* Quick Interactive Request Bar */}
@@ -362,10 +360,9 @@ export default function HomePage() {
                     value={quickSearchPerfume}
                     onChange={(e) => setQuickSearchPerfume(e.target.value)}
                     placeholder={
-                      siteContent.bespokePlaceholder ||
-                      (isRtl
-                        ? 'اكتب اسم العطر أو الخلطة المطلوبة هنا (مثلاً: Creed Aventus أو خلطة توم فورد)...'
-                        : 'Type the perfume name or custom notes (e.g. Creed Aventus)...')
+                      isRtl
+                        ? (siteContent.bespokePlaceholder || 'اكتب اسم العطر أو الخلطة المطلوبة هنا (مثلاً: Creed Aventus أو خلطة توم فورد)...')
+                        : 'Type the perfume name or custom notes (e.g. Creed Aventus)...'
                     }
                     className="w-full bg-transparent border-0 px-4 py-3 text-sm text-white placeholder-[#788784] focus:outline-none"
                     onKeyDown={(e) => {
@@ -382,7 +379,7 @@ export default function HomePage() {
                   className="bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:brightness-110 text-[#080A0A] font-extrabold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 shadow-md shrink-0"
                 >
                   <Send className="w-4 h-4" />
-                  <span>{siteContent.bespokeButtonText || (isRtl ? 'اطلب الآن وحدد الحجم' : 'Request & Choose Volume')}</span>
+                  <span>{isRtl ? (siteContent.bespokeButtonText || 'اطلب الآن وحدد الحجم') : 'Request & Choose Volume'}</span>
                 </button>
               </div>
             </div>
@@ -391,15 +388,15 @@ export default function HomePage() {
             <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-[#A2ADA9]">
               <span className="flex items-center gap-1.5">
                 <span className="text-[#54d1b2]">✓</span>
-                <span>{siteContent.bespokeFeature1 || (isRtl ? 'أحجام 50ml و 100ml و 200ml' : 'Volumes 50ml, 100ml, 200ml')}</span>
+                <span>{isRtl ? (siteContent.bespokeFeature1 || 'أحجام 50ml و 100ml و 200ml') : 'Volumes 50ml, 100ml, 200ml'}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="text-[#54d1b2]">✓</span>
-                <span>{siteContent.bespokeFeature2 || (isRtl ? 'تركيز نيش Extrait de Parfum 35%' : '35% Pure Extrait Sillage')}</span>
+                <span>{isRtl ? (siteContent.bespokeFeature2 || 'تركيز نيش Extrait de Parfum 25%') : '25% Pure Extrait Sillage'}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="text-[#54d1b2]">✓</span>
-                <span>{siteContent.bespokeFeature3 || (isRtl ? 'الدفع عند الاستلام بعد المعاينة' : 'Inspect before Cash on Delivery')}</span>
+                <span>{isRtl ? (siteContent.bespokeFeature3 || 'الدفع عند الاستلام بعد المعاينة') : 'Inspect before Cash on Delivery'}</span>
               </span>
             </div>
           </div>
@@ -436,35 +433,35 @@ export default function HomePage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="p-4 rounded-xl bg-[#141A19] border border-[#2DD4BF]/30">
                   <div className="flex items-center justify-between text-xs font-bold text-[#2DD4BF] mb-1">
-                    <span>{siteContent.showcaseMeter1Title || (isRtl ? 'الفوحان (Sillage)' : 'Sillage')}</span>
+                    <span>{isRtl ? (siteContent.showcaseMeter1Title || 'الفوحان (Sillage)') : 'Sillage'}</span>
                     <span>{siteContent.showcaseMeter1Val || '9.8 / 10'}</span>
                   </div>
                   <div className="w-full bg-[#080A0A] rounded-full h-2 overflow-hidden border border-[#1A2624]">
                     <div className="bg-gradient-to-r from-[#2DD4BF] to-[#14B8A6] h-full w-[98%]" />
                   </div>
-                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{siteContent.showcaseMeter1Sub || (isRtl ? 'هالة قوية تملأ الأرجاء' : 'Dominant room-filling aura')}</p>
+                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{isRtl ? (siteContent.showcaseMeter1Sub || 'هالة قوية تملأ الأرجاء') : 'Dominant room-filling aura'}</p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#141A19] border border-[#2DD4BF]/30">
                   <div className="flex items-center justify-between text-xs font-bold text-[#2DD4BF] mb-1">
-                    <span>{siteContent.showcaseMeter2Title || (isRtl ? 'الثبات (Longevity)' : 'Longevity')}</span>
-                    <span>{siteContent.showcaseMeter2Val || '+14 ساعة'}</span>
+                    <span>{isRtl ? (siteContent.showcaseMeter2Title || 'الثبات (Longevity)') : 'Longevity'}</span>
+                    <span>{siteContent.showcaseMeter2Val || '+14h'}</span>
                   </div>
                   <div className="w-full bg-[#080A0A] rounded-full h-2 overflow-hidden border border-[#1A2624]">
                     <div className="bg-gradient-to-r from-[#2DD4BF] to-[#14B8A6] h-full w-[95%]" />
                   </div>
-                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{siteContent.showcaseMeter2Sub || (isRtl ? 'يدوم على الأقمشة لأيام' : 'Lasts on fabrics for days')}</p>
+                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{isRtl ? (siteContent.showcaseMeter2Sub || 'يدوم على الأقمشة لأيام') : 'Lasts on fabrics for days'}</p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#141A19] border border-[#C6A66B]/30">
                   <div className="flex items-center justify-between text-xs font-bold text-[#C6A66B] mb-1">
-                    <span>{siteContent.showcaseMeter3Title || (isRtl ? 'نسبة الزيوت' : 'Concentration')}</span>
-                    <span>{siteContent.showcaseMeter3Val || '25% خالص'}</span>
+                    <span>{isRtl ? (siteContent.showcaseMeter3Title || 'نسبة الزيوت') : 'Concentration'}</span>
+                    <span>{siteContent.showcaseMeter3Val || '25%'}</span>
                   </div>
                   <div className="w-full bg-[#080A0A] rounded-full h-2 overflow-hidden border border-[#1A2624]">
                     <div className="bg-gradient-to-r from-[#C6A66B] to-[#D4AF37] h-full w-[100%]" />
                   </div>
-                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{siteContent.showcaseMeter3Sub || (isRtl ? 'Extrait de Parfum مغلظ' : 'Pure Extrait de Parfum')}</p>
+                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{isRtl ? (siteContent.showcaseMeter3Sub || 'Extrait de Parfum مغلظ') : 'Pure Extrait de Parfum'}</p>
                 </div>
               </div>
 
@@ -474,19 +471,19 @@ export default function HomePage() {
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#54d1b2]">
                     ✓
                   </div>
-                  <span className="text-[#D5D1C7]">{siteContent.showcasePill1 || (isRtl ? 'زيوت فرنسية نقية 25% Extrait' : 'Pure 25% Extrait French oils')}</span>
+                  <span className="text-[#D5D1C7]">{isRtl ? (siteContent.showcasePill1 || 'زيوت فرنسية نقية 25% Extrait') : 'Pure 25% Extrait French oils'}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#54d1b2]">
                     ✓
                   </div>
-                  <span className="text-[#D5D1C7]">{siteContent.showcasePill2 || (isRtl ? 'التوصيل إلى الباب ومعاينة قبل الدفع كاش' : 'Door delivery & inspect before cash')}</span>
+                  <span className="text-[#D5D1C7]">{isRtl ? (siteContent.showcasePill2 || 'التوصيل إلى الباب ومعاينة قبل الدفع كاش') : 'Door delivery & inspect before cash'}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#C6A66B]">
                     ★
                   </div>
-                  <span className="text-[#D5D1C7]">{siteContent.showcasePill3 || (isRtl ? 'زجاج بلوري ثقيل بغطاء مغناطيسي' : 'Weighted glass flacon with magnetic cap')}</span>
+                  <span className="text-[#D5D1C7]">{isRtl ? (siteContent.showcasePill3 || 'زجاج بلوري ثقيل بغطاء مغناطيسي') : 'Weighted glass flacon with magnetic cap'}</span>
                 </div>
               </div>
             </div>
@@ -544,30 +541,28 @@ export default function HomePage() {
             {/* Editorial Copy */}
             <div className="lg:col-span-5 p-8 sm:p-12 lg:p-14 space-y-6 text-white relative z-10">
               <span className="badge-turquoise px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-widest inline-block">
-                {siteContent.rivieraBadge || (isRtl ? 'حملة صيف الريفييرا المتوسطية' : 'Mediterranean Summer Campaign')}
+                {isRtl ? (siteContent.rivieraBadge || 'حملة صيف الريفييرا المتوسطية') : 'Mediterranean Summer Campaign'}
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold leading-tight">
-                {siteContent.rivieraHeadline || (isRtl ? 'رذاذ البحر الفيروزي.. وانتعاش الحمضيات الذهبية' : 'Turquoise Ocean Mist & Golden Citron')}
+                {isRtl ? (siteContent.rivieraHeadline || 'رذاذ البحر الفيروزي.. وانتعاش الحمضيات الذهبية') : 'Turquoise Ocean Mist & Golden Citron'}
               </h2>
               <p className="text-sm text-[#C5CECB] leading-relaxed">
-                {siteContent.rivieraDescription || (
-                  isRtl
-                    ? 'مستوحاة من دفء شمس الأصيل على شواطئ البحر المتوسط، حيث تلتقي نفحات البرغموت الإيطالي النادر برحيق أزهار البرتقال ورذاذ النسيم الفيروزي العليل.'
-                    : 'Inspired by golden hour sunlight on Mediterranean shores, combining rare Italian bergamot, neroli blossoms, and pure ocean mist.'
-                )}
+                {isRtl
+                  ? (siteContent.rivieraDescription || 'مستوحاة من دفء شمس الأصيل على شواطئ البحر المتوسط، حيث تلتقي نفحات البرغموت الإيطالي النادر برحيق أزهار البرتقال ورذاذ النسيم الفيروزي العليل.')
+                  : 'Inspired by golden hour sunlight on Mediterranean shores, combining rare Italian bergamot, neroli blossoms, and pure ocean mist.'}
               </p>
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/catalog?family=Fresh+Citrus"
                   className="btn-turquoise py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider text-center"
                 >
-                  {siteContent.rivieraBtn1Text || (isRtl ? 'اكتشف عطور الريفييرا' : 'Explore Riviera Scents')}
+                  {isRtl ? (siteContent.rivieraBtn1Text || 'اكتشف عطور الريفييرا') : 'Explore Riviera Scents'}
                 </Link>
                 <Link
                   href="/catalog"
                   className="btn-secondary !bg-transparent !text-white !border-white/30 hover:!border-[#54d1b2] hover:!text-[#54d1b2] py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider text-center"
                 >
-                  {siteContent.rivieraBtn2Text || (isRtl ? 'مشاهدة الكتالوج الكامل' : 'View Full Catalog')}
+                  {isRtl ? (siteContent.rivieraBtn2Text || 'مشاهدة الكتالوج الكامل') : 'View Full Catalog'}
                 </Link>
               </div>
             </div>
@@ -642,36 +637,36 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="space-y-6">
             <span className="badge-emerald px-3 py-1 rounded-sm">
-              {siteContent.storyBadge || t('section.story_tag')}
+              {isRtl ? (siteContent.storyBadge || t('section.story_tag')) : t('section.story_tag')}
             </span>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-[#080A0A] leading-tight">
-              {siteContent.storyTitle || t('section.story_title')}
+              {isRtl ? (siteContent.storyTitle || t('section.story_title')) : t('section.story_title')}
             </h2>
             <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
-              {siteContent.storyParagraph1 || t('section.story_p1')}
+              {isRtl ? (siteContent.storyParagraph1 || t('section.story_p1')) : t('section.story_p1')}
             </p>
             <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
-              {siteContent.storyParagraph2 || t('section.story_p2')}
+              {isRtl ? (siteContent.storyParagraph2 || t('section.story_p2')) : t('section.story_p2')}
             </p>
 
             <div className="grid grid-cols-2 gap-6 pt-4">
               <div className="p-4 bg-white border border-[#E6E1D5] rounded-2xl shadow-sm hover:border-[#2DD4BF] transition-colors">
                 <Droplets className="w-5 h-5 text-[#0D9488] mb-2" />
                 <h4 className="font-serif font-bold text-sm text-[#080A0A]">
-                  {siteContent.storyBenefit1Title || (isRtl ? 'تركيز إكستري خالص 35%' : 'Pure Extrait Concentration')}
+                  {isRtl ? (siteContent.storyBenefit1Title || 'تركيز إكستري خالص 25%') : 'Pure 25% Extrait Concentration'}
                 </h4>
                 <p className="text-xs text-[#576563] mt-1">
-                  {siteContent.storyBenefit1Desc || (isRtl ? 'تركيز زيوت عطرية يصل إلى 35% لثبات يتجاوز 14 ساعة.' : 'Up to 35% concentration offering over 14 hours of persistent trail.')}
+                  {isRtl ? (siteContent.storyBenefit1Desc || 'تركيز زيوت عطرية يصل إلى 25% لثبات يتجاوز 14 ساعة.') : 'Up to 25% concentration offering over 14 hours of persistent trail.'}
                 </p>
               </div>
 
               <div className="p-4 bg-white border border-[#E6E1D5] rounded-2xl shadow-sm hover:border-[#2DD4BF] transition-colors">
                 <ShieldCheck className="w-5 h-5 text-[#C6A66B] mb-2" />
                 <h4 className="font-serif font-bold text-sm text-[#080A0A]">
-                  {siteContent.storyBenefit2Title || (isRtl ? 'معاينة ودفع عند الاستلام' : 'Inspection Before Payment')}
+                  {isRtl ? (siteContent.storyBenefit2Title || 'معاينة ودفع عند الاستلام') : 'Inspection Before Payment'}
                 </h4>
                 <p className="text-xs text-[#576563] mt-1">
-                  {siteContent.storyBenefit2Desc || (isRtl ? 'عاين طردك الفاخر عند وصول المندوب قبل دفع أي مليم.' : 'Door-to-door insured delivery with visual inspection before cash payment.')}
+                  {isRtl ? (siteContent.storyBenefit2Desc || 'عاين طردك الفاخر عند وصول المندوب قبل دفع أي مليم.') : 'Door-to-door insured delivery with visual inspection before cash payment.'}
                 </p>
               </div>
             </div>
@@ -692,14 +687,12 @@ export default function HomePage() {
                 {isRtl ? 'فلسفة العطر الفاخر' : 'Signature Philosophy'}
               </span>
               <h3 className="font-serif text-2xl font-bold text-white">
-                {siteContent.storyImageQuote || (
-                  isRtl
-                    ? '«العطر ليس مجرد لمسة تجميلية، بل هو هالتك غير المرئية التي تبقى في ذاكرة المكان.»'
-                    : '“A fragrance is not an accessory. It is your invisible aura.”'
-                )}
+                {isRtl
+                  ? (siteContent.storyImageQuote || '«العطر ليس مجرد لمسة تجميلية، بل هو هالتك غير المرئية التي تبقى في ذاكرة المكان.»')
+                  : '“A fragrance is not an accessory. It is your invisible aura.”'}
               </h3>
               <p className="text-xs text-[#D5D1C7]">
-                {siteContent.storyImageTag || (isRtl ? 'دار رحيق (RAHEEQ) للعطور الفاخرة — القاهرة' : 'Raheeq Haute Parfumerie — Cairo')}
+                {isRtl ? (siteContent.storyImageTag || 'دار رحيق (RAHEEQ) للعطور الفاخرة — القاهرة') : 'Raheeq Haute Parfumerie — Cairo'}
               </p>
             </div>
           </div>
