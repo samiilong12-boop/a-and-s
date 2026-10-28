@@ -6,15 +6,7 @@ import { ProductProvider } from '@/context/ProductContext';
 import { CartProvider } from '@/context/CartContext';
 import { CustomRequestProvider } from '@/context/CustomRequestContext';
 import { FragranceFinderProvider } from '@/context/FragranceFinderContext';
-import { AnnouncementBar } from '@/components/AnnouncementBar';
-import { Navbar } from '@/components/Navbar';
-import { CartDrawer } from '@/components/CartDrawer';
-import { Footer } from '@/components/Footer';
-import { FloatingContact } from '@/components/FloatingContact';
-import { CustomPerfumeRequestModal } from '@/components/CustomPerfumeRequestModal';
-import { ClientAnalyticsTracker } from '@/components/ClientAnalyticsTracker';
-
-import { CookieConsent } from '@/components/CookieConsent';
+import { StorefrontShell } from '@/components/StorefrontShell';
 
 const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
@@ -65,17 +57,9 @@ export default function RootLayout({
             <CartProvider>
               <CustomRequestProvider>
                 <FragranceFinderProvider>
-                  <AnnouncementBar />
-                  <Navbar />
-                  <main className="flex-1">
+                  <StorefrontShell>
                     {children}
-                  </main>
-                  <CartDrawer />
-                  <Footer />
-                  <FloatingContact />
-                  <CustomPerfumeRequestModal />
-                  <CookieConsent />
-                  <ClientAnalyticsTracker />
+                  </StorefrontShell>
                 </FragranceFinderProvider>
               </CustomRequestProvider>
             </CartProvider>
