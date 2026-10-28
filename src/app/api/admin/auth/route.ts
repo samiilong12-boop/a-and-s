@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { createAdminToken, verifyAdminSession, ADMIN_COOKIE_NAME } from '@/lib/serverAuth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '0913982509M';
+
+function timingSafePasswordCheck(input: string, target: string): boolean {
+  try {
+    const a = Buffer.from(input.trim(), 'utf-8');
+    const b = Buffer.from(target.trim(), 'utf-8');
+    if (a.length !== b.length) {
+      crypto.timingSafeEqual(a, a); // constant time dummy
+      return false;
+    }
+    return crypto.timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(req: NextRequest) {
   const isAuthenticated = await verifyAdminSession(req);
@@ -33,7 +48,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'كلمة المرور مطلوبة' }, { status: 400 });
     }
 
-    if (password.trim() !== ADMIN_PASSWORD.trim()) {
+    if (!timingSafePasswordCheck(password, ADMIN_PASSWORD)) {
       return NextResponse.json(
         { success: false, error: 'رمز المرور غير صحيح، يرجى المحاولة مرة أخرى.' },
         { status: 401 }

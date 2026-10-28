@@ -5,6 +5,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { ProductProvider } from '@/context/ProductContext';
 import { CartProvider } from '@/context/CartContext';
 import { CustomRequestProvider } from '@/context/CustomRequestContext';
+import { FragranceFinderProvider } from '@/context/FragranceFinderContext';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
 import { Navbar } from '@/components/Navbar';
 import { CartDrawer } from '@/components/CartDrawer';
@@ -63,17 +64,19 @@ export default function RootLayout({
           <ProductProvider>
             <CartProvider>
               <CustomRequestProvider>
-                <AnnouncementBar />
-                <Navbar />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <CartDrawer />
-                <Footer />
-                <FloatingContact />
-                <CustomPerfumeRequestModal />
-                <CookieConsent />
-                <ClientAnalyticsTracker />
+                <FragranceFinderProvider>
+                  <AnnouncementBar />
+                  <Navbar />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <CartDrawer />
+                  <Footer />
+                  <FloatingContact />
+                  <CustomPerfumeRequestModal />
+                  <CookieConsent />
+                  <ClientAnalyticsTracker />
+                </FragranceFinderProvider>
               </CustomRequestProvider>
             </CartProvider>
           </ProductProvider>

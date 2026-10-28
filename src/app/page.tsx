@@ -21,6 +21,7 @@ import {
 import { useProducts } from '@/context/ProductContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCustomRequest } from '@/context/CustomRequestContext';
+import { useFragranceFinder } from '@/context/FragranceFinderContext';
 import { FRAGRANCE_FAMILIES } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
 import {
@@ -34,6 +35,7 @@ export default function HomePage() {
   const { products } = useProducts();
   const { t, isRtl } = useLanguage();
   const { openModal } = useCustomRequest();
+  const { openFinder } = useFragranceFinder();
   const [selectedFamily, setSelectedFamily] = useState('All');
   const [selectedGender, setSelectedGender] = useState<'ALL' | 'MEN' | 'WOMEN' | 'UNISEX'>('ALL');
   const [quickSearchPerfume, setQuickSearchPerfume] = useState('');
@@ -315,6 +317,36 @@ export default function HomePage() {
           {bestsellers.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
+        </div>
+      </section>
+
+      {/* 2.2 AI FRAGRANCE FINDER BANNER: DISCOVER YOUR SIGNATURE SCENT */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#080A0A] via-[#0E1514] to-[#080A0A] border-2 border-[#54d1b2]/40 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_35px_rgba(84,209,178,0.12)]">
+          <div className="flex items-center gap-4 text-right">
+            <div className="w-14 h-14 rounded-2xl bg-[#080A0A] border border-[#54d1b2]/50 flex items-center justify-center shrink-0 shadow-lg text-[#54d1b2]">
+              <Sparkles className="w-7 h-7 animate-pulse text-[#54d1b2]" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#D4AF37] uppercase tracking-wider mb-1">
+                <Crown className="w-3.5 h-3.5" />
+                <span>{isRtl ? 'مستشارك العطري الذكي الخاص' : 'AI Private Fragrance Concierge'}</span>
+              </div>
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                {isRtl ? 'محتار تختار أي عطر؟ اكتشف توقيعك العطري الملكي في 30 ثانية' : 'Unsure which scent fits you? Discover your signature flacon in 30 seconds'}
+              </h3>
+              <p className="text-xs text-[#A2ADA9] mt-1 max-w-xl">
+                {isRtl ? 'أجب عن 4 أسئلة سريعة لنحلل الأهرام العطرية ونكشف لك العطرين الأكثر تطابقاً مع شخصيتك ومناسبتك.' : 'Answer 4 quick questions and let our AI algorithm match your exact notes pyramid.'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => openFinder()}
+            className="shrink-0 bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:from-[#54d1b2] hover:to-[#00bc7d] text-[#080A0A] font-extrabold text-xs uppercase tracking-widest py-3.5 px-7 rounded-2xl flex items-center gap-2 shadow-[0_0_25px_rgba(84,209,178,0.3)] transition-all hover:scale-[1.03] active:scale-[0.98]"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>{isRtl ? 'ابدأ اختبار العطر الآن ✨' : 'Start Fragrance Quiz ✨'}</span>
+          </button>
         </div>
       </section>
 

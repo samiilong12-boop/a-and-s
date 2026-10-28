@@ -29,6 +29,11 @@ import {
   getOrderStatusLabel,
   getPaymentStatusLabel,
 } from '@/lib/state-machines';
+import {
+  generateOrderConfirmationWhatsapp,
+  generateDispatchAlertWhatsapp,
+  generateFulfilledReceiptWhatsapp,
+} from '@/lib/whatsappNotifications';
 
 const ACTIVE_ORDERS_KEY = 'a_and_s_demo_orders';
 const ARCHIVE_ORDERS_KEY = 'a_and_s_archived_orders';
@@ -578,26 +583,67 @@ function AdminOrdersContent() {
                   </div>
                 </div>
 
-                <div className="pt-2 flex gap-2">
-                  <a
-                    href={`tel:${selectedOrder.customerPhone}`}
-                    className="flex-1 bg-white hover:bg-slate-100 text-slate-800 font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-300 transition-colors"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-slate-600" />
-                    <span>اتصال بالعميل</span>
-                  </a>
+                <div className="pt-2 flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <a
+                      href={`tel:${selectedOrder.customerPhone}`}
+                      className="flex-1 bg-white hover:bg-slate-100 text-slate-800 font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-300 transition-colors"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-slate-600" />
+                      <span>اتصال هاتفي</span>
+                    </a>
 
-                  <a
-                    href={`https://wa.me/${selectedOrder.customerPhone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                      `مرحباً أستاذ ${selectedOrder.customerName}، معك دار رَحِيقْ للعطور الفاخرة 💎 بخصوص طلبكم رقم ${selectedOrder.orderNumber}. نود تأكيد موعد وصول الشحنة إلى باب بيتكم.`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>مراسلة واتساب</span>
-                  </a>
+                    <a
+                      href={`https://wa.me/${selectedOrder.customerPhone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                        `مرحباً أستاذ ${selectedOrder.customerName}، معك دار رَحِيقْ للعطور الفاخرة 💎 بخصوص طلبكم رقم ${selectedOrder.orderNumber}.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>محادثة واتساب مباشرة</span>
+                    </a>
+                  </div>
+
+                  {/* Smart Automated Notification Buttons */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 block">
+                      إشعارات واتساب الرسمية التلقائية (WhatsApp Automation)
+                    </span>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                      <a
+                        href={generateOrderConfirmationWhatsapp(selectedOrder)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white hover:bg-teal-50 text-teal-800 rounded-lg text-[11px] font-bold border border-teal-200 text-center transition-colors shadow-2xs flex items-center justify-center gap-1"
+                        title="إرسال فاتورة وتأكيد الطلب للعميل عبر واتساب"
+                      >
+                        <span>📋 إرسال الفاتورة والتأكيد</span>
+                      </a>
+
+                      <a
+                        href={generateDispatchAlertWhatsapp(selectedOrder, editCourierName, editTrackingNumber)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white hover:bg-blue-50 text-blue-800 rounded-lg text-[11px] font-bold border border-blue-200 text-center transition-colors shadow-2xs flex items-center justify-center gap-1"
+                        title="إرسال إشعار خروج الشحنة مع المندوب للمعاينة"
+                      >
+                        <span>🚚 إشعار خروج للمعاينة</span>
+                      </a>
+
+                      <a
+                        href={generateFulfilledReceiptWhatsapp(selectedOrder)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white hover:bg-amber-50 text-amber-800 rounded-lg text-[11px] font-bold border border-amber-200 text-center transition-colors shadow-2xs flex items-center justify-center gap-1"
+                        title="إرسال رسالة شكر وإرشادات الثبات الملكي"
+                      >
+                        <span>👑 شكر وإرشادات الثبات</span>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
 

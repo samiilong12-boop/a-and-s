@@ -6,12 +6,14 @@ import { ShoppingBag, Search, Menu, X, Globe, Phone, Sparkles, FlaskConical } fr
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCustomRequest } from '@/context/CustomRequestContext';
+import { useFragranceFinder } from '@/context/FragranceFinderContext';
 import { DEFAULT_SITE_CONTENT, SITE_CONTENT_STORAGE_KEY, SiteContentConfig } from '@/lib/siteContent';
 
 export function Navbar() {
   const { itemCount, setIsCartOpen } = useCart();
   const { language, toggleLanguage, t, isRtl } = useLanguage();
   const { openModal } = useCustomRequest();
+  const { openFinder } = useFragranceFinder();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [siteContent, setSiteContent] = useState<SiteContentConfig>(DEFAULT_SITE_CONTENT);
 
@@ -133,6 +135,16 @@ export function Navbar() {
           {/* Action Icons */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             
+            {/* AI Fragrance Finder Button */}
+            <button
+              onClick={() => openFinder()}
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#00bc7d]/10 via-[#54d1b2]/15 to-[#D4AF37]/15 text-[#006e49] hover:text-[#080A0A] border border-[#00bc7d]/30 text-xs font-bold transition-all shadow-xs hover:border-[#54d1b2] hover:shadow-[0_0_12px_rgba(84,209,178,0.25)]"
+              title={language === 'ar' ? 'اختبار العطر الذكي التفاعلي' : 'AI Fragrance Finder'}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#00bc7d] animate-pulse" />
+              <span>{isRtl ? 'كاشف العطر الذكي' : 'Fragrance Matcher'}</span>
+            </button>
+
             {/* Custom Fragrance / Bespoke Blend Request Button */}
             <button
               onClick={() => openModal()}
@@ -192,6 +204,18 @@ export function Navbar() {
           >
             <FlaskConical className="w-4 h-4 text-[#54d1b2]" />
             <span>{language === 'ar' ? 'اطلب عطر معين أو خلطة خاصة' : 'Request Bespoke Perfume / Blend'}</span>
+          </button>
+
+          {/* Mobile AI Fragrance Finder Button */}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              openFinder();
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#00bc7d]/20 to-[#54d1b2]/20 text-[#006e49] font-bold text-xs uppercase tracking-wider border border-[#00bc7d]/40 shadow-sm"
+          >
+            <Sparkles className="w-4 h-4 text-[#00bc7d]" />
+            <span>{language === 'ar' ? '✨ اختبار العطر الذكي (كاشف الذوق)' : '✨ AI Fragrance Finder Quiz'}</span>
           </button>
 
           <Link

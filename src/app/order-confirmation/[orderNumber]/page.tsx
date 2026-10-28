@@ -113,11 +113,11 @@ export default function OrderConfirmationPage({
           </a>
 
           <Link
-            href="/track-order"
+            href={`/track-order?orderNumber=${encodeURIComponent(orderNumber)}`}
             className="w-full sm:w-auto btn-secondary py-4 px-8 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm"
           >
             <Package className="w-4 h-4 text-[#0D9488]" />
-            <span>تتبع مسار شحنتك</span>
+            <span>تتبع مسار شحنتك مباشرة</span>
           </Link>
         </div>
       </div>

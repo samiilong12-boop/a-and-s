@@ -211,6 +211,27 @@ export async function POST(req: NextRequest) {
     const updated = [newRequest, ...existing.filter((r) => r.id !== newRequest.id)];
     persistRequests(updated);
 
+    // Sync with Cloud Database (Prisma PostgreSQL) when available
+    try {
+      const { prisma } = await import('@/lib/prisma');
+      await prisma.bespokeRequest.upsert({
+        where: { id: newRequest.id },
+        create: {
+          id: newRequest.id,
+          customerName: newRequest.customerName,
+          customerPhone: newRequest.customerPhone,
+          perfumeName: newRequest.perfumeName,
+          volumeMl: newRequest.volumeMl,
+          concentration: newRequest.concentration,
+          notes: newRequest.notes,
+          status: newRequest.status,
+        },
+        update: {},
+      });
+    } catch (dbErr) {
+      // Gracefully continue with serverless file/memory persistence
+    }
+
     return NextResponse.json({ success: true, request: newRequest });
   } catch (error) {
     console.error('Failed to create custom request:', error);

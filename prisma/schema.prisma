@@ -366,3 +366,24 @@ model StoreSetting {
   description String?
   updatedAt   DateTime @updatedAt
 }
+
+// -------------------------------------------------------------
+// 6. BESPOKE & CUSTOM PERFUME REQUESTS (خلطات العطور الملكية الخاصة)
+// -------------------------------------------------------------
+
+model BespokeRequest {
+  id            String   @id // e.g. REQ-123456-789
+  customerName  String
+  customerPhone String
+  perfumeName   String
+  volumeMl      String   @default("100ml")
+  concentration String   @default("EXTRAIT_DE_PARFUM")
+  notes         String?
+  status        String   @default("NEW") // NEW, CONTACTED, FULFILLED, CANCELLED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([customerPhone])
+  @@index([status])
+  @@index([createdAt])
+}

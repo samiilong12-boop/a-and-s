@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useCustomRequest } from '@/context/CustomRequestContext';
 import { BespokePerfumeRequest } from '@/types';
+import { generateBespokeStatusWhatsapp } from '@/lib/whatsappNotifications';
 
 type TabFilter = 'ACTIVE' | 'NEW' | 'CONTACTED' | 'ARCHIVE' | 'CANCELLED' | 'ALL';
 
@@ -525,21 +526,34 @@ export default function AdminCustomRequestsPage() {
 
                 {/* Actions: Direct WhatsApp Chat + Status Changer (طوالي تمشي السجل) */}
                 <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                  {/* WhatsApp Direct Chat Button */}
-                  <a
-                    href={`https://wa.me/${waNumber}?text=${waText}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => {
-                      if (req.status === 'NEW') {
-                        handleSetStatus(req.id, 'CONTACTED');
-                      }
-                    }}
-                    className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs hover:scale-105"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>محادثة العميل عبر واتساب</span>
-                  </a>
+                  {/* WhatsApp Direct Chat & Status Alert Buttons */}
+                  <div className="flex items-center gap-1.5">
+                    <a
+                      href={`https://wa.me/${waNumber}?text=${waText}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        if (req.status === 'NEW') {
+                          handleSetStatus(req.id, 'CONTACTED');
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 bg-[#25D366] hover:bg-[#20ba59] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs hover:scale-102"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>محادثة</span>
+                    </a>
+
+                    <a
+                      href={generateBespokeStatusWhatsapp(req, req.status)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs"
+                      title="إرسال إشعار رسمي بحالة الخلطة للعميل مع رابط التتبع"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-teal-700" />
+                      <span>إشعار التتبع</span>
+                    </a>
+                  </div>
 
                   {/* Status Toggle & Move to Log Buttons */}
                   <div className="flex flex-wrap items-center gap-1.5">
