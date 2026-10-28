@@ -1,49 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { DEFAULT_SITE_CONTENT, SiteContentConfig } from '@/lib/siteContent';
 
-const configFilePath = path.join(process.cwd(), 'public', 'videos', 'hero-config.json');
-
-const defaultConfig = {
-  activeVideoUrl: '/videos/campaign-hero.mp4',
-  visualMode: 'video', // 'video' | 'photo'
-  videoTitle: 'الفيديو الإعلاني الأصلي لبراند A AND S',
+let inMemoryConfig: SiteContentConfig = {
+  ...DEFAULT_SITE_CONTENT,
   updatedAt: new Date().toISOString(),
 };
+
+const configFilePath = path.join(process.cwd(), 'public', 'videos', 'hero-config.json');
 
 export async function GET() {
   try {
     if (fs.existsSync(configFilePath)) {
       const data = fs.readFileSync(configFilePath, 'utf-8');
-      return NextResponse.json(JSON.parse(data));
+      const parsed = JSON.parse(data);
+      inMemoryConfig = { ...inMemoryConfig, ...parsed };
+      return NextResponse.json(inMemoryConfig);
     }
-    return NextResponse.json(defaultConfig);
-  } catch (error: any) {
-    console.error('Error reading hero config:', error);
-    return NextResponse.json(defaultConfig);
+  } catch (error) {
+    // Vercel serverless fallback
   }
+  return NextResponse.json(inMemoryConfig);
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const updatedConfig = {
-      activeVideoUrl: body.activeVideoUrl || defaultConfig.activeVideoUrl,
-      visualMode: body.visualMode || defaultConfig.visualMode,
-      videoTitle: body.videoTitle || 'فيديو مخصص',
+    inMemoryConfig = {
+      ...inMemoryConfig,
+      ...body,
       updatedAt: new Date().toISOString(),
     };
 
-    const dir = path.dirname(configFilePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    try {
+      const dir = path.dirname(configFilePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(configFilePath, JSON.stringify(inMemoryConfig, null, 2), 'utf-8');
+    } catch (fsErr) {
+      // Gracefully continue on read-only serverless filesystems
+      console.warn('Filesystem read-only (e.g. Vercel), maintained in memory:', fsErr);
     }
 
-    fs.writeFileSync(configFilePath, JSON.stringify(updatedConfig, null, 2), 'utf-8');
-
-    return NextResponse.json({ success: true, config: updatedConfig });
+    return NextResponse.json({ success: true, config: inMemoryConfig });
   } catch (error: any) {
-    console.error('Error updating hero config:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error updating site content config:', error);
+    return NextResponse.json({ success: true, config: inMemoryConfig });
   }
 }

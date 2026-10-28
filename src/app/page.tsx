@@ -15,48 +15,85 @@ import {
   Crown,
   Volume2,
   VolumeX,
+  FlaskConical,
+  Send,
 } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useCustomRequest } from '@/context/CustomRequestContext';
 import { FRAGRANCE_FAMILIES } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
+import {
+  DEFAULT_SITE_CONTENT,
+  SITE_CONTENT_STORAGE_KEY,
+  LEGACY_HERO_KEY,
+  SiteContentConfig,
+} from '@/lib/siteContent';
 
 export default function HomePage() {
   const { products } = useProducts();
   const { t, isRtl } = useLanguage();
+  const { openModal } = useCustomRequest();
   const [selectedFamily, setSelectedFamily] = useState('All');
+  const [selectedGender, setSelectedGender] = useState<'ALL' | 'MEN' | 'WOMEN' | 'UNISEX'>('ALL');
+  const [quickSearchPerfume, setQuickSearchPerfume] = useState('');
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
-  const [visualMode, setVisualMode] = useState<'video' | 'photo'>('video');
-  const [activeVideoUrl, setActiveVideoUrl] = useState<string>('/videos/campaign-hero.mp4');
+
+  // Full Storefront Dynamic CMS Content & Media
+  const [siteContent, setSiteContent] = useState<SiteContentConfig>(DEFAULT_SITE_CONTENT);
+  const heroConfig = siteContent; // alias for backwards compatibility
   const [videoLoaded, setVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Fetch admin configured hero video and visual mode
+  // Fetch admin configured storefront content (texts, images, video, clarity, stats)
   useEffect(() => {
+    // 1. Instant load from localStorage
+    try {
+      const cached =
+        localStorage.getItem(SITE_CONTENT_STORAGE_KEY) || localStorage.getItem(LEGACY_HERO_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setSiteContent((prev) => ({ ...prev, ...parsed }));
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // 2. Fetch server config to keep synced
     fetch('/api/admin/hero-config')
       .then((res) => res.json())
       .then((data) => {
-        if (data?.activeVideoUrl) {
-          setActiveVideoUrl(data.activeVideoUrl);
-        }
-        if (data?.visualMode) {
-          setVisualMode(data.visualMode);
+        if (data) {
+          setSiteContent((prev) => ({ ...prev, ...data }));
         }
       })
       .catch((err) => {
-        console.error('Failed to load hero video config', err);
+        console.error('Failed to load site content config', err);
       });
+
+    // 3. Listen to storage changes across tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === SITE_CONTENT_STORAGE_KEY || e.key === LEGACY_HERO_KEY) {
+        try {
+          if (e.newValue) {
+            setSiteContent((prev) => ({ ...prev, ...JSON.parse(e.newValue!) }));
+          }
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Ensure autoplay on mount or mode change
   useEffect(() => {
-    if (videoRef.current && visualMode === 'video') {
+    if (videoRef.current && heroConfig.visualMode === 'video') {
       videoRef.current.play().catch(() => {
         // Autoplay requires mute, handled by default
       });
     }
-  }, [visualMode, activeVideoUrl]);
+  }, [heroConfig.visualMode, heroConfig.activeVideoUrl]);
 
   const toggleVideoPlayback = () => {
     if (videoRef.current) {
@@ -91,47 +128,57 @@ export default function HomePage() {
       {/* 1. CINEMATIC ROYAL HERO SECTION: MODEL SPRAYING A AND S PERFUME */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 border-b border-[#E6E1D5]">
         
-        {/* Background Visual Layer: Real A&S Campaign Visuals & Ultra-Luxury Cinematic Video */}
+        {/* Background Visual Layer: Real Raheeq Campaign Visuals & Ultra-Luxury HD Video */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* Main Editorial Image (Fallback + Poster + Photo Mode) */}
           <img
-            src="/images/campaign/as-signature-male-spray.jpg"
-            alt="A AND S Campaign — Male Model spraying A&S Flacon by the Sea"
+            src={heroConfig.activePhotoUrl || '/images/campaign/as-signature-male-spray.jpg'}
+            alt="Raheeq Haute Parfumerie Campaign"
+            style={{
+              filter: `brightness(${heroConfig.heroBrightness || 0.95}) contrast(105%)`,
+            }}
             className={`w-full h-full object-cover scale-105 transition-opacity duration-1000 ${
-              visualMode === 'photo'
-                ? 'opacity-100 filter brightness-[0.6] contrast-110'
-                : 'opacity-40 filter brightness-[0.5] contrast-110'
+              heroConfig.visualMode === 'photo'
+                ? 'opacity-100'
+                : 'opacity-40'
             }`}
           />
 
           {/* Cinematic Background Video */}
           <video
             ref={videoRef}
-            key={activeVideoUrl}
+            key={heroConfig.activeVideoUrl}
             autoPlay
             loop
             muted={isMuted}
             playsInline
-            poster="/images/campaign/as-signature-male-spray.jpg"
-            src={activeVideoUrl}
+            poster={heroConfig.activePhotoUrl || '/images/campaign/as-signature-male-spray.jpg'}
+            src={heroConfig.activeVideoUrl}
             onLoadedData={() => setVideoLoaded(true)}
+            style={{
+              filter: `brightness(${heroConfig.heroBrightness || 1.0}) contrast(105%)`,
+            }}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-              visualMode === 'video'
-                ? 'opacity-85 filter contrast-105 brightness-95'
+              heroConfig.visualMode === 'video'
+                ? 'opacity-100'
                 : 'opacity-0 pointer-events-none'
             }`}
           >
-            <source src={activeVideoUrl} type="video/mp4" />
+            <source src={heroConfig.activeVideoUrl} type="video/mp4" />
             <source src="/videos/campaign-hero.mp4" type="video/mp4" />
           </video>
 
-          {/* Luxury Gradient Dark & Golden Overlays for Flawless Readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080A0A] via-[#080A0A]/60 to-[#080A0A]/30 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#080A0A]/40 to-[#080A0A] pointer-events-none" />
+          {/* Elegant Readable Overlay with Controlled Transparency */}
+          <div
+            className="absolute inset-0 pointer-events-none transition-all duration-500"
+            style={{
+              background: `linear-gradient(to top, rgba(8,10,10,${Math.min(0.85, ((heroConfig.heroOverlayDarkness ?? 25) + 30) / 100)}) 0%, rgba(8,10,10,${(heroConfig.heroOverlayDarkness ?? 25) / 100}) 50%, rgba(8,10,10,${((heroConfig.heroOverlayDarkness ?? 25) * 0.7) / 100}) 100%)`,
+            }}
+          />
         </div>
 
         {/* Subtle Client Ambience Controls (Chanel / Dior Haute Parfumerie Standard) */}
-        {visualMode === 'video' && (
+        {heroConfig.visualMode === 'video' && (
           <div className={`absolute bottom-6 ${isRtl ? 'right-6' : 'left-6'} z-20 flex items-center gap-1.5 bg-[#080A0A]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-xs text-[#FAF9F5] shadow-2xl transition-opacity hover:opacity-100 opacity-75`}>
             {/* Play / Pause Toggle */}
             <button
@@ -158,22 +205,22 @@ export default function HomePage() {
         )}
 
         {/* Grand Royal Hero Content */}
-        <div className="relative max-w-5xl mx-auto text-center space-y-8 py-24 z-10">
+        <div className="relative max-w-5xl mx-auto text-center space-y-8 py-20 sm:py-24 z-10 px-2 sm:px-4">
           
           {/* Royal Atelier Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#2DD4BF]/50 bg-[#080A0A]/85 backdrop-blur-md text-[#2DD4BF] text-[11px] tracking-[0.25em] uppercase shadow-2xl font-bold">
             <Crown className="w-3.5 h-3.5 text-[#2DD4BF]" />
-            <span>{t('hero.tag')}</span>
+            <span>{heroConfig.heroBadge || t('hero.tag')}</span>
           </div>
 
           {/* Regal Headline */}
-          <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-[#FFFFFF] leading-[1.12] max-w-4xl mx-auto drop-shadow-2xl">
-            {t('hero.title')}
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[#FFFFFF] leading-[1.18] max-w-4xl mx-auto drop-shadow-2xl">
+            {heroConfig.heroHeadline || t('hero.title')}
           </h1>
 
           {/* Royal Subtitle */}
-          <p className="font-sans text-base sm:text-lg md:text-xl text-[#E6E1D5] max-w-2xl mx-auto font-light leading-relaxed drop-shadow-md">
-            {t('hero.subtitle')}
+          <p className="font-sans text-sm sm:text-base md:text-lg text-[#E6E1D5] max-w-2xl mx-auto font-light leading-relaxed drop-shadow-md">
+            {heroConfig.heroSubtitle || t('hero.subtitle')}
           </p>
 
           {/* Hero Action Buttons */}
@@ -186,6 +233,14 @@ export default function HomePage() {
               <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
             </Link>
 
+            <button
+              onClick={() => openModal()}
+              className="w-full sm:w-auto bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:brightness-110 text-[#080A0A] font-extrabold py-4 px-8 rounded-lg text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(84,209,178,0.4)] transition-all duration-300 hover:scale-105 active:scale-95"
+            >
+              <FlaskConical className="w-4 h-4 text-[#080A0A]" />
+              <span>{isRtl ? 'عايز عطر معين أو خلطة خاصة؟' : 'Bespoke Scent Request'}</span>
+            </button>
+
             <Link
               href="/#fragrance-families"
               className="w-full sm:w-auto bg-[#080A0A]/85 hover:bg-[#141A19] text-[#FFFFFF] border border-[#2DD4BF]/40 py-4 px-8 rounded-lg text-xs tracking-[0.2em] uppercase font-semibold flex items-center justify-center gap-2 backdrop-blur-md transition-all duration-300 hover:border-[#2DD4BF]"
@@ -195,23 +250,39 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Quick Metrics Bar */}
+          {/* Quick Metrics Bar (Fully Editable via Admin) */}
           <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-[#2DD4BF]/30 max-w-3xl mx-auto text-center bg-[#080A0A]/75 backdrop-blur-md p-5 rounded-2xl shadow-2xl">
             <div>
-              <p className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFFFF]">{products.length}+</p>
-              <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">{t('stats.compositions')}</p>
+              <p className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFFFF]">
+                {siteContent.stat1Value || `${products.length}+`}
+              </p>
+              <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
+                {siteContent.stat1Label || t('stats.compositions')}
+              </p>
             </div>
             <div>
-              <p className="font-serif text-2xl sm:text-3xl font-bold text-[#2DD4BF]">35%</p>
-              <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">{t('stats.oil_ratio')}</p>
+              <p className="font-serif text-2xl sm:text-3xl font-bold text-[#2DD4BF]">
+                {siteContent.stat2Value || '35%'}
+              </p>
+              <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
+                {siteContent.stat2Label || t('stats.oil_ratio')}
+              </p>
             </div>
             <div>
-              <p className="font-serif text-2xl sm:text-3xl font-bold text-[#C6A66B]">100%</p>
-              <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">{t('stats.cod')}</p>
+              <p className="font-serif text-2xl sm:text-3xl font-bold text-[#C6A66B]">
+                {siteContent.stat3Value || '100%'}
+              </p>
+              <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
+                {siteContent.stat3Label || t('stats.cod')}
+              </p>
             </div>
             <div>
-              <p className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFFFF]">24–48h</p>
-              <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">{t('stats.delivery_time')}</p>
+              <p className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFFFF]">
+                {siteContent.stat4Value || '24–48h'}
+              </p>
+              <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
+                {siteContent.stat4Label || t('stats.delivery_time')}
+              </p>
             </div>
           </div>
         </div>
@@ -247,6 +318,94 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 2.5 BESPOKE CONCIERGE BANNER: CUSTOM PERFUME & BLEND REQUEST */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#080A0A] via-[#0E1514] to-[#080A0A] border-2 border-[#54d1b2]/40 p-8 sm:p-12 lg:p-14 shadow-[0_0_50px_rgba(84,209,178,0.12)] overflow-hidden">
+          {/* Ambient luminous glow */}
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#54d1b2]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#54d1b2]/40 bg-[#141F1D] text-[#54d1b2] text-xs font-bold tracking-widest uppercase shadow-md">
+              <FlaskConical className="w-4 h-4 text-[#54d1b2] animate-pulse" />
+              <span>{siteContent.bespokeBadge || (isRtl ? 'خدمة التفصيل العطري الملكي المخصص' : 'Bespoke Haute Concierge')}</span>
+            </div>
+
+            <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
+              {siteContent.bespokeHeadline || (
+                isRtl ? (
+                  <>
+                    لو عاوز عطر معين أو <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#54d1b2] to-[#00bc7d]">خلطة خاصة</span>... اكتب لينا اسمه وحجمه وبنوفرو ليك
+                  </>
+                ) : (
+                  <>
+                    Looking for a Specific Scent or a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#54d1b2] to-[#00bc7d]">Custom Blend</span>? We Craft It for You.
+                  </>
+                )
+              )}
+            </h2>
+
+            <p className="text-sm sm:text-base text-[#D5D1C7] max-w-2xl mx-auto font-light leading-relaxed">
+              {siteContent.bespokeSubtitle || (
+                isRtl
+                  ? 'مهما كان العطر نادراً أو عالمياً، أو حتى تركيبة سرية تجمع بين نفحاتك المفضلة (عود، مسك، أمبرغريس، أو زهور نادرة)، خبراؤنا يركبونه لك بتركيز 35% Extrait de Parfum مع ضمان ثبات وفوحان يتجاوز 24 ساعة.'
+                  : 'From rare vintage flacons to personal signature accords, tell us your desired perfume name and bottle volume. Our master perfumers will craft and deliver it across Egypt.'
+              )}
+            </p>
+
+            {/* Quick Interactive Request Bar */}
+            <div className="pt-2 max-w-2xl mx-auto">
+              <div className="flex flex-col sm:flex-row gap-3 bg-[#141B1A] p-2 sm:p-2.5 rounded-2xl border border-[#54d1b2]/40 shadow-xl">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={quickSearchPerfume}
+                    onChange={(e) => setQuickSearchPerfume(e.target.value)}
+                    placeholder={
+                      siteContent.bespokePlaceholder ||
+                      (isRtl
+                        ? 'اكتب اسم العطر أو الخلطة المطلوبة هنا (مثلاً: Creed Aventus أو خلطة توم فورد)...'
+                        : 'Type the perfume name or custom notes (e.g. Creed Aventus)...')
+                    }
+                    className="w-full bg-transparent border-0 px-4 py-3 text-sm text-white placeholder-[#788784] focus:outline-none"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        openModal(quickSearchPerfume);
+                      }
+                    }}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => openModal(quickSearchPerfume)}
+                  className="bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:brightness-110 text-[#080A0A] font-extrabold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 shadow-md shrink-0"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{siteContent.bespokeButtonText || (isRtl ? 'اطلب الآن وحدد الحجم' : 'Request & Choose Volume')}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Feature Pills */}
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-[#A2ADA9]">
+              <span className="flex items-center gap-1.5">
+                <span className="text-[#54d1b2]">✓</span>
+                <span>{siteContent.bespokeFeature1 || (isRtl ? 'أحجام 50ml و 100ml و 200ml' : 'Volumes 50ml, 100ml, 200ml')}</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="text-[#54d1b2]">✓</span>
+                <span>{siteContent.bespokeFeature2 || (isRtl ? 'تركيز نيش Extrait de Parfum 35%' : '35% Pure Extrait Sillage')}</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="text-[#54d1b2]">✓</span>
+                <span>{siteContent.bespokeFeature3 || (isRtl ? 'الدفع عند الاستلام بعد المعاينة' : 'Inspect before Cash on Delivery')}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 3. DIOR SAUVAGE BENCHMARK: THE SENSORY MASTERY & OLFACTORY RITUAL */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#080A0A] text-[#F5F2EB] rounded-3xl p-8 sm:p-14 lg:p-16 border border-[#2DD4BF]/40 shadow-2xl relative overflow-hidden">
@@ -260,52 +419,52 @@ export default function HomePage() {
             <div className="lg:col-span-7 space-y-8">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#2DD4BF]/50 bg-[#111716] text-[#2DD4BF] text-[11px] font-bold tracking-widest uppercase">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{isRtl ? 'معايير الفخامة العالمية المستوحاة من باريس' : 'Haute Parfumerie Global Standards'}</span>
+                <span>{isRtl ? (siteContent.showcaseBadge || 'معايير الفخامة العالمية المستوحاة من باريس') : 'Haute Parfumerie Global Standards'}</span>
               </div>
 
               <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
-                {isRtl ? 'هندسة العطر الفاخر.. ثباتٌ أسطوري وحضورٌ يأسر الحواس' : 'Olfactory Architecture & Unmatched Sillage'}
+                {isRtl ? (siteContent.showcaseHeadline || 'هندسة العطر الفاخر.. ثباتٌ أسطوري وحضورٌ يأسر الحواس') : 'Olfactory Architecture & Unmatched Sillage'}
               </h2>
 
               <p className="text-sm sm:text-base text-[#C5CECB] leading-relaxed">
                 {isRtl
-                  ? 'تم تصميم كل قطرة في معملنا بالقاهرة وفق أعلى معايير الدور العالمية كـ Dior و Creed، بتركيز Extrait de Parfum يصل إلى 35% من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً لأكثر من 14 ساعة.'
-                  : 'Engineered with rare natural absolutes and a 35% Extrait de Parfum concentration, mirroring the artisanal rigor of world-class Parisian perfume houses.'}
+                  ? (siteContent.showcaseDescription || 'تم تصميم كل قطرة في معملنا بالقاهرة وفق أعلى معايير الدور العالمية كـ Dior و Creed، بتركيز Extrait de Parfum يصل إلى 25% من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً لأكثر من 14 ساعة.')
+                  : 'Engineered with rare natural absolutes and a 25% Extrait de Parfum concentration, mirroring the artisanal rigor of world-class Parisian perfume houses.'}
               </p>
 
               {/* Dior Sauvage Style Intensity & Radar Meters */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="p-4 rounded-xl bg-[#141A19] border border-[#2DD4BF]/30">
                   <div className="flex items-center justify-between text-xs font-bold text-[#2DD4BF] mb-1">
-                    <span>{isRtl ? 'الفوحان (Sillage)' : 'Sillage'}</span>
-                    <span>9.8 / 10</span>
+                    <span>{siteContent.showcaseMeter1Title || (isRtl ? 'الفوحان (Sillage)' : 'Sillage')}</span>
+                    <span>{siteContent.showcaseMeter1Val || '9.8 / 10'}</span>
                   </div>
                   <div className="w-full bg-[#080A0A] rounded-full h-2 overflow-hidden border border-[#1A2624]">
                     <div className="bg-gradient-to-r from-[#2DD4BF] to-[#14B8A6] h-full w-[98%]" />
                   </div>
-                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{isRtl ? 'هالة قوية تملأ الأرجاء' : 'Dominant room-filling aura'}</p>
+                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{siteContent.showcaseMeter1Sub || (isRtl ? 'هالة قوية تملأ الأرجاء' : 'Dominant room-filling aura')}</p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#141A19] border border-[#2DD4BF]/30">
                   <div className="flex items-center justify-between text-xs font-bold text-[#2DD4BF] mb-1">
-                    <span>{isRtl ? 'الثبات (Longevity)' : 'Longevity'}</span>
-                    <span>+14 ساعة</span>
+                    <span>{siteContent.showcaseMeter2Title || (isRtl ? 'الثبات (Longevity)' : 'Longevity')}</span>
+                    <span>{siteContent.showcaseMeter2Val || '+14 ساعة'}</span>
                   </div>
                   <div className="w-full bg-[#080A0A] rounded-full h-2 overflow-hidden border border-[#1A2624]">
                     <div className="bg-gradient-to-r from-[#2DD4BF] to-[#14B8A6] h-full w-[95%]" />
                   </div>
-                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{isRtl ? 'يدوم على الأقمشة لأيام' : 'Lasts on fabrics for days'}</p>
+                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{siteContent.showcaseMeter2Sub || (isRtl ? 'يدوم على الأقمشة لأيام' : 'Lasts on fabrics for days')}</p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#141A19] border border-[#C6A66B]/30">
                   <div className="flex items-center justify-between text-xs font-bold text-[#C6A66B] mb-1">
-                    <span>{isRtl ? 'نسبة الزيوت' : 'Concentration'}</span>
-                    <span>35% خالص</span>
+                    <span>{siteContent.showcaseMeter3Title || (isRtl ? 'نسبة الزيوت' : 'Concentration')}</span>
+                    <span>{siteContent.showcaseMeter3Val || '25% خالص'}</span>
                   </div>
                   <div className="w-full bg-[#080A0A] rounded-full h-2 overflow-hidden border border-[#1A2624]">
                     <div className="bg-gradient-to-r from-[#C6A66B] to-[#D4AF37] h-full w-[100%]" />
                   </div>
-                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{isRtl ? 'Extrait de Parfum مغلظ' : 'Pure Extrait de Parfum'}</p>
+                  <p className="text-[10px] text-[#9EABA7] mt-1.5">{siteContent.showcaseMeter3Sub || (isRtl ? 'Extrait de Parfum مغلظ' : 'Pure Extrait de Parfum')}</p>
                 </div>
               </div>
 
@@ -315,19 +474,19 @@ export default function HomePage() {
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#54d1b2]">
                     ✓
                   </div>
-                  <span className="text-[#D5D1C7]">{isRtl ? 'زيوت فرنسية نقية 35% Extrait' : 'Pure 35% Extrait French oils'}</span>
+                  <span className="text-[#D5D1C7]">{siteContent.showcasePill1 || (isRtl ? 'زيوت فرنسية نقية 25% Extrait' : 'Pure 25% Extrait French oils')}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#54d1b2]">
                     ✓
                   </div>
-                  <span className="text-[#D5D1C7]">{isRtl ? 'معاينة الطرد قبل الدفع كاش' : 'Inspect before cash payment'}</span>
+                  <span className="text-[#D5D1C7]">{siteContent.showcasePill2 || (isRtl ? 'التوصيل إلى الباب ومعاينة قبل الدفع كاش' : 'Door delivery & inspect before cash')}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#C6A66B]">
                     ★
                   </div>
-                  <span className="text-[#D5D1C7]">{isRtl ? 'زجاجة بلورية بغطاء مغناطيسي' : 'Weighted glass flacon with magnetic cap'}</span>
+                  <span className="text-[#D5D1C7]">{siteContent.showcasePill3 || (isRtl ? 'زجاج بلوري ثقيل بغطاء مغناطيسي' : 'Weighted glass flacon with magnetic cap')}</span>
                 </div>
               </div>
             </div>
@@ -340,8 +499,8 @@ export default function HomePage() {
                 {/* Floating Bottle Art */}
                 <div className="relative z-10 float-animation w-full flex flex-col items-center">
                   <img
-                    src={bestsellers[0]?.images[0]?.url || '/images/bottle-oriental.svg'}
-                    alt="A AND S Flacon"
+                    src={siteContent.showcaseBottleImage || bestsellers[0]?.images?.[0]?.url || bestsellers[0]?.imageUrl || '/images/raheeq-official-logo.png'}
+                    alt="Raheeq Flacon Showcase"
                     className="max-h-72 object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)] filter contrast-125 transition-transform duration-500 group-hover:scale-105"
                   />
                   
@@ -351,13 +510,13 @@ export default function HomePage() {
 
                 <div className="mt-6 text-center z-10 space-y-1">
                   <span className="text-[10px] font-mono tracking-widest text-[#2DD4BF] uppercase">
-                    Signature Creation
+                    {siteContent.showcaseBottleTag || 'Signature Creation'}
                   </span>
                   <h4 className="font-serif text-xl font-bold text-white">
-                    {bestsellers[0]?.nameEn || 'SULTAN OUD EXTRAIT'}
+                    {siteContent.showcaseBottleName || bestsellers[0]?.nameEn || 'SAUVAGE ELIXIR / SULTAN OUD'}
                   </h4>
                   <p className="text-xs text-[#C6A66B]">
-                    {isRtl ? 'التوقيع العطري الأرقى في الشرق الأوسط' : 'The Most Coveted Middle Eastern Scent'}
+                    {siteContent.showcaseBottleSubtitle || (isRtl ? 'التوقيع العطري الأرقى في الشرق الأوسط' : 'The Most Coveted Middle Eastern Scent')}
                   </p>
                 </div>
               </div>
@@ -367,7 +526,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. MEDITERRANEAN RIVIERA & CITRUS COLLECTION (Campaign Photo 1: Female Model with Turquoise Scarf) */}
+      {/* 4. MEDITERRANEAN RIVIERA & CITRUS COLLECTION (Fully Editable via Admin) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl overflow-hidden border border-[#E7E3D6] shadow-xl bg-[#080A0A]">
           <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
@@ -375,8 +534,8 @@ export default function HomePage() {
             {/* Visual Image */}
             <div className="lg:col-span-7 relative min-h-[420px] lg:min-h-[500px]">
               <img
-                src="/images/campaign/female-coastal-spray.jpg"
-                alt="A AND S Mediterranean Riviera Campaign"
+                src={siteContent.rivieraImage || '/images/campaign/female-coastal-spray.jpg'}
+                alt="Raheeq Riviera Campaign"
                 className="absolute inset-0 w-full h-full object-cover filter brightness-[0.9] contrast-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 via-black/35 to-transparent" />
@@ -385,28 +544,30 @@ export default function HomePage() {
             {/* Editorial Copy */}
             <div className="lg:col-span-5 p-8 sm:p-12 lg:p-14 space-y-6 text-white relative z-10">
               <span className="badge-turquoise px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-widest inline-block">
-                {isRtl ? 'حملة صيف الريفييرا المتوسطية' : 'Mediterranean Summer Campaign'}
+                {siteContent.rivieraBadge || (isRtl ? 'حملة صيف الريفييرا المتوسطية' : 'Mediterranean Summer Campaign')}
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold leading-tight">
-                {isRtl ? 'رذاذ البحر الفيروزي.. وانتعاش الحمضيات الذهبية' : 'Turquoise Ocean Mist & Golden Citron'}
+                {siteContent.rivieraHeadline || (isRtl ? 'رذاذ البحر الفيروزي.. وانتعاش الحمضيات الذهبية' : 'Turquoise Ocean Mist & Golden Citron')}
               </h2>
               <p className="text-sm text-[#C5CECB] leading-relaxed">
-                {isRtl
-                  ? 'مستوحاة من دفء شمس الأصيل على شواطئ البحر المتوسط، حيث تلتقي نفحات البرغموت الإيطالي النادر برحيق أزهار البرتقال ورذاذ النسيم الفيروزي العليل.'
-                  : 'Inspired by golden hour sunlight on Mediterranean shores, combining rare Italian bergamot, neroli blossoms, and pure ocean mist.'}
+                {siteContent.rivieraDescription || (
+                  isRtl
+                    ? 'مستوحاة من دفء شمس الأصيل على شواطئ البحر المتوسط، حيث تلتقي نفحات البرغموت الإيطالي النادر برحيق أزهار البرتقال ورذاذ النسيم الفيروزي العليل.'
+                    : 'Inspired by golden hour sunlight on Mediterranean shores, combining rare Italian bergamot, neroli blossoms, and pure ocean mist.'
+                )}
               </p>
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/catalog?family=Fresh+Citrus"
                   className="btn-turquoise py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider text-center"
                 >
-                  {isRtl ? 'اكتشف عطور الريفييرا' : 'Explore Riviera Scents'}
+                  {siteContent.rivieraBtn1Text || (isRtl ? 'اكتشف عطور الريفييرا' : 'Explore Riviera Scents')}
                 </Link>
                 <Link
                   href="/catalog"
                   className="btn-secondary !bg-transparent !text-white !border-white/30 hover:!border-[#54d1b2] hover:!text-[#54d1b2] py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider text-center"
                 >
-                  {isRtl ? 'مشاهدة الكتالوج الكامل' : 'View Full Catalog'}
+                  {siteContent.rivieraBtn2Text || (isRtl ? 'مشاهدة الكتالوج الكامل' : 'View Full Catalog')}
                 </Link>
               </div>
             </div>
@@ -476,41 +637,41 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. BRAND STORY & ARTISANAL ATELIER */}
+      {/* 5. BRAND STORY & ARTISANAL ATELIER (Fully Editable via Admin) */}
       <section id="brand-story" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="space-y-6">
             <span className="badge-emerald px-3 py-1 rounded-sm">
-              {t('section.story_tag')}
+              {siteContent.storyBadge || t('section.story_tag')}
             </span>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-[#080A0A] leading-tight">
-              {t('section.story_title')}
+              {siteContent.storyTitle || t('section.story_title')}
             </h2>
             <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
-              {t('section.story_p1')}
+              {siteContent.storyParagraph1 || t('section.story_p1')}
             </p>
             <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
-              {t('section.story_p2')}
+              {siteContent.storyParagraph2 || t('section.story_p2')}
             </p>
 
             <div className="grid grid-cols-2 gap-6 pt-4">
               <div className="p-4 bg-white border border-[#E6E1D5] rounded-2xl shadow-sm hover:border-[#2DD4BF] transition-colors">
                 <Droplets className="w-5 h-5 text-[#0D9488] mb-2" />
                 <h4 className="font-serif font-bold text-sm text-[#080A0A]">
-                  {isRtl ? 'تركيز إكستري خالص 35%' : 'Pure Extrait Concentration'}
+                  {siteContent.storyBenefit1Title || (isRtl ? 'تركيز إكستري خالص 35%' : 'Pure Extrait Concentration')}
                 </h4>
                 <p className="text-xs text-[#576563] mt-1">
-                  {isRtl ? 'تركيز زيوت عطرية يصل إلى 35% لثبات يتجاوز 14 ساعة.' : 'Up to 35% concentration offering over 14 hours of persistent trail.'}
+                  {siteContent.storyBenefit1Desc || (isRtl ? 'تركيز زيوت عطرية يصل إلى 35% لثبات يتجاوز 14 ساعة.' : 'Up to 35% concentration offering over 14 hours of persistent trail.')}
                 </p>
               </div>
 
               <div className="p-4 bg-white border border-[#E6E1D5] rounded-2xl shadow-sm hover:border-[#2DD4BF] transition-colors">
                 <ShieldCheck className="w-5 h-5 text-[#C6A66B] mb-2" />
                 <h4 className="font-serif font-bold text-sm text-[#080A0A]">
-                  {isRtl ? 'معاينة ودفع عند الاستلام' : 'Inspection Before Payment'}
+                  {siteContent.storyBenefit2Title || (isRtl ? 'معاينة ودفع عند الاستلام' : 'Inspection Before Payment')}
                 </h4>
                 <p className="text-xs text-[#576563] mt-1">
-                  {isRtl ? 'عاين طردك الفاخر عند وصول المندوب قبل دفع أي مليم.' : 'Door-to-door insured delivery with visual inspection before cash payment.'}
+                  {siteContent.storyBenefit2Desc || (isRtl ? 'عاين طردك الفاخر عند وصول المندوب قبل دفع أي مليم.' : 'Door-to-door insured delivery with visual inspection before cash payment.')}
                 </p>
               </div>
             </div>
@@ -519,24 +680,26 @@ export default function HomePage() {
           {/* Visual Showcase Block */}
           <div className="relative aspect-square sm:aspect-[4/3] bg-[#080A0A] rounded-2xl border border-[#2DD4BF]/40 p-8 flex flex-col justify-end overflow-hidden shadow-2xl text-white">
             <img
-              src="/images/campaign/couple-sunset-romance.jpg"
-              alt="A AND S Haute Parfumerie Couple Campaign"
+              src={siteContent.storyImage || '/images/campaign/couple-sunset-romance.jpg'}
+              alt="Raheeq Artisanal Heritage"
               className="absolute inset-0 w-full h-full object-cover filter brightness-[0.55] contrast-110"
             />
             <div className={`absolute top-6 ${isRtl ? 'left-6' : 'right-6'}`}>
-              <span className="font-serif text-6xl text-[#2DD4BF]/20 font-bold">A&S</span>
+              <span className="font-serif text-5xl text-[#2DD4BF]/20 font-bold">RAHEEQ</span>
             </div>
             <div className="space-y-4 max-w-sm relative z-10">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#2DD4BF] font-bold">
                 {isRtl ? 'فلسفة العطر الفاخر' : 'Signature Philosophy'}
               </span>
               <h3 className="font-serif text-2xl font-bold text-white">
-                {isRtl
-                  ? '«العطر ليس مجرد لمسة تجميلية، بل هو هالتك غير المرئية التي تبقى في ذاكرة المكان.»'
-                  : '“A fragrance is not an accessory. It is your invisible aura.”'}
+                {siteContent.storyImageQuote || (
+                  isRtl
+                    ? '«العطر ليس مجرد لمسة تجميلية، بل هو هالتك غير المرئية التي تبقى في ذاكرة المكان.»'
+                    : '“A fragrance is not an accessory. It is your invisible aura.”'
+                )}
               </h3>
               <p className="text-xs text-[#D5D1C7]">
-                {isRtl ? 'دار A AND S للعطور الفاخرة — القاهرة' : 'A AND S Haute Parfumerie — Cairo'}
+                {siteContent.storyImageTag || (isRtl ? 'دار رحيق (RAHEEQ) للعطور الفاخرة — القاهرة' : 'Raheeq Haute Parfumerie — Cairo')}
               </p>
             </div>
           </div>

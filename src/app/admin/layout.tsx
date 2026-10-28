@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -16,23 +16,50 @@ import {
   Eye,
   LogOut,
   Film,
+  Sparkles,
+  QrCode,
+  BarChart3,
 } from 'lucide-react';
+import { AdminAuthGuard } from '@/components/AdminAuthGuard';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(true); // Default accessible for development; can be toggled
+  const [logoUrl, setLogoUrl] = useState('/images/raheeq-official-logo.png');
+
+  useEffect(() => {
+    const updateLogo = () => {
+      try {
+        const stored = localStorage.getItem('raheeq_site_content_v2');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.brandLogoUrl) setLogoUrl(parsed.brandLogoUrl);
+        }
+      } catch {}
+    };
+    updateLogo();
+    window.addEventListener('storage', updateLogo);
+    window.addEventListener('raheeq_site_content_updated', updateLogo);
+    return () => {
+      window.removeEventListener('storage', updateLogo);
+      window.removeEventListener('raheeq_site_content_updated', updateLogo);
+    };
+  }, []);
 
   const navItems = [
-    { label: 'Overview Analytics', href: '/admin', icon: LayoutDashboard },
-    { label: 'Hero Media & Video (فيديو الموقع)', href: '/admin/media', icon: Film },
-    { label: 'Orders & COD Settlement', href: '/admin/orders', icon: ShoppingBag },
-    { label: 'Products & Formulations', href: '/admin/products', icon: Package },
-    { label: 'Inventory Movements', href: '/admin/inventory', icon: Layers },
+    { label: 'نظرة عامة على الأرباح (Overview)', href: '/admin', icon: LayoutDashboard },
+    { label: 'تحليل الزوار والنقرات والتحويل (Analytics)', href: '/admin/analytics', icon: BarChart3 },
+    { label: 'طلبات العطور والخلطات (Bespoke)', href: '/admin/custom-requests', icon: Sparkles },
+    { label: 'المنتجات والعطور (50+ Perfumes)', href: '/admin/products', icon: Package },
+    { label: 'الواجهة والصور والكلام (CMS & Media)', href: '/admin/media', icon: Sparkles },
+    { label: 'كود QR والتغليف (QR Packaging)', href: '/admin/qr', icon: QrCode },
+    { label: 'الطلبات وفواتير الدفع (Orders & COD)', href: '/admin/orders', icon: ShoppingBag },
+    { label: 'المخزون وحركة القطع (Inventory)', href: '/admin/inventory', icon: Layers },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
+    <AdminAuthGuard>
+      <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
       {/* Top Admin Header Bar (Clean White) */}
       <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-3">
@@ -43,13 +70,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div className="flex items-center gap-2">
-            <span className="font-serif text-xl font-bold tracking-widest text-slate-900">A AND S</span>
+            <img src={logoUrl} alt="Raheeq" className="w-8 h-8 object-cover rounded-full border border-[#D4AF37]/40 shadow-xs" />
+            <span className="font-serif text-lg font-bold tracking-wider text-slate-900">رَحِيقْ | RAHEEQ</span>
             <span className="text-[10px] tracking-widest uppercase bg-teal-50 text-teal-800 border border-teal-200 px-2 py-0.5 rounded font-bold font-mono">
-              Staff & Founder Portal
+              Staff Portal
             </span>
             <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
               <Lock className="w-3 h-3" />
-              <span>Private Access (مخفية عن الجمهور)</span>
+              <span>قفل تلقائي 10 دقائق</span>
             </span>
           </div>
         </div>
@@ -129,5 +157,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
       </div>
     </div>
+    </AdminAuthGuard>
   );
 }

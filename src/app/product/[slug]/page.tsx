@@ -29,13 +29,45 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   const { t, isRtl } = useLanguage();
   const { addItem } = useCart();
 
-  const product = getProductBySlug(resolvedParams.slug) || products[0];
+  const decodedSlug = decodeURIComponent(resolvedParams.slug).toLowerCase();
+  const rawSlug = resolvedParams.slug.toLowerCase();
+  const product =
+    getProductBySlug(resolvedParams.slug) ||
+    products.find(
+      (p) =>
+        p.slug?.toLowerCase() === decodedSlug ||
+        p.id?.toLowerCase() === decodedSlug ||
+        p.slug?.toLowerCase() === rawSlug ||
+        p.id?.toLowerCase() === rawSlug ||
+        p.nameEn?.toLowerCase() === decodedSlug ||
+        p.nameAr?.toLowerCase() === decodedSlug
+    );
 
-  const [selectedVariant, setSelectedVariant] = useState(product?.variants[0]);
-  const [selectedImage, setSelectedImage] = useState(product?.images[0]?.url);
+  const fallbackVariant = product?.variants?.[0] || {
+    id: `${product?.id || 'prod'}-var-100`,
+    productId: product?.id || '',
+    sku: `RHQ-100ML`,
+    volumeMl: 100,
+    titleEn: '100ml Eau De Parfum',
+    regularPriceInPiasters: 250000,
+    regularPriceEgp: 2500,
+    stockQuantity: 20,
+    lowStockThreshold: 5,
+    isActive: true,
+  };
+
+  const [selectedVariant, setSelectedVariant] = useState(fallbackVariant);
+  const [selectedImage, setSelectedImage] = useState(product?.images?.[0]?.url || product?.imageUrl || '');
   const [quantity, setQuantity] = useState(1);
   const [addedAnimation, setAddedAnimation] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    if (product) {
+      setSelectedVariant(product.variants?.[0] || fallbackVariant);
+      setSelectedImage(product.images?.[0]?.url || product.imageUrl || '');
+    }
+  }, [product]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,17 +77,30 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (!product || !selectedVariant) {
+  if (!product) {
     return (
-      <div className="max-w-7xl mx-auto p-16 text-center text-[#576563]">
-        <p>{isRtl ? 'جاري تحميل تفاصيل العطر...' : 'Loading fragrance details...'}</p>
+      <div className="max-w-7xl mx-auto py-28 px-4 text-center space-y-6">
+        <h2 className="font-serif text-3xl font-bold text-slate-900">
+          {isRtl ? 'لم يتم العثور على هذا العطر' : 'Fragrance Not Found'}
+        </h2>
+        <p className="text-sm text-slate-600 max-w-md mx-auto">
+          {isRtl
+            ? 'يبدو أن هذا العطر غير متوفر حالياً أو تم تعديل اسمه في الكتالوج.'
+            : 'This fragrance is currently unavailable or the catalog entry was changed.'}
+        </p>
+        <Link
+          href="/catalog"
+          className="inline-flex items-center gap-2 bg-[#080A0A] hover:bg-teal-700 text-white px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors shadow-lg"
+        >
+          <span>{isRtl ? 'تصفح جميع عطور الدار' : 'Browse All Fragrances'}</span>
+        </Link>
       </div>
     );
   }
 
   // Financials for selected variant
-  const regularPrice = selectedVariant.regularPriceInPiasters;
-  const salePrice = selectedVariant.salePriceInPiasters;
+  const regularPrice = selectedVariant.regularPriceInPiasters ?? ((selectedVariant.regularPriceEgp ?? 0) * 100);
+  const salePrice = selectedVariant.salePriceInPiasters ?? (selectedVariant.salePriceEgp ? selectedVariant.salePriceEgp * 100 : null);
   const isSale = salePrice !== null && salePrice !== undefined && salePrice < regularPrice;
   const currentPrice = salePrice || regularPrice;
 
@@ -81,10 +126,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     router.push('/checkout');
   };
 
-  const whatsappInquiryUrl = `https://wa.me/201012345678?text=${encodeURIComponent(
+  const whatsappInquiryUrl = `https://wa.me/201131068790?text=${encodeURIComponent(
     isRtl
-      ? `مرحباً، أود الاستفسار وطلب عطر ${product.nameEn} حجم ${selectedVariant.volumeMl} مل بسعر ${formatPrice(currentPrice)}.`
-      : `Hello, I want to inquire about ${product.nameEn} ${selectedVariant.volumeMl}ml priced at ${formatPrice(currentPrice)}.`
+      ? `مرحباً دار رَحِيقْ، أود الاستفسار وطلب عطر ${product.nameEn} حجم ${selectedVariant.volumeMl} مل بسعر ${formatPrice(currentPrice)}.`
+      : `Hello Raheeq, I want to inquire about ${product.nameEn} ${selectedVariant.volumeMl}ml priced at ${formatPrice(currentPrice)}.`
   )}`;
 
   return (
@@ -112,7 +157,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             <div className="space-y-4">
               <div className="aspect-[4/5] bg-[#FAF8F4] rounded-2xl border border-[#E6E1D5] overflow-hidden relative shadow-lg group">
                 <img
-                  src={selectedImage || product.images[0]?.url}
+                  src={selectedImage || product.images?.[0]?.url || product.imageUrl}
                   alt={product.nameEn}
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
@@ -129,12 +174,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
               {/* Thumbnail Gallery */}
               <div className="flex gap-3">
-                {product.images.map((img, idx) => (
+                {(product.images || (product.imageUrl ? [{ id: '1', url: product.imageUrl, altTextEn: product.nameEn, isPrimary: true, sortOrder: 0 }] : [])).map((img, idx) => (
                   <button
                     key={img.id || idx}
                     onClick={() => setSelectedImage(img.url)}
                     className={`w-20 h-24 rounded-xl bg-[#FAF8F4] border overflow-hidden transition-all ${
-                      (selectedImage || product.images[0]?.url) === img.url
+                      (selectedImage || product.images?.[0]?.url || product.imageUrl) === img.url
                         ? 'border-[#2DD4BF] ring-2 ring-[#2DD4BF]/40 scale-105 shadow-md'
                         : 'border-[#E6E1D5] opacity-70 hover:opacity-100'
                     }`}
@@ -169,9 +214,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                       <Star key={i} className="w-4 h-4 fill-[#C6A66B]" />
                     ))}
                   </div>
-                  <span className="text-sm font-bold text-[#080A0A]">{product.rating.toFixed(1)}</span>
+                  <span className="text-sm font-bold text-[#080A0A]">{(product.rating || 5.0).toFixed(1)}</span>
                   <span className="text-xs text-[#576563]">
-                    ({product.reviewCount} {isRtl ? 'تقييم من عشاق العطور' : 'reviews'})
+                    ({product.reviewCount || 1} {isRtl ? 'تقييم من عشاق العطور' : 'reviews'})
                   </span>
                 </div>
 
@@ -226,7 +271,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <div className="grid grid-cols-2 gap-3">
                   {product.variants.map((variant) => {
                     const isSelected = selectedVariant.id === variant.id;
-                    const vPrice = variant.salePriceInPiasters || variant.regularPriceInPiasters;
+                    const vPrice =
+                      variant.salePriceInPiasters ??
+                      variant.regularPriceInPiasters ??
+                      ((variant.salePriceEgp ?? variant.regularPriceEgp ?? 0) * 100);
                     return (
                       <button
                         key={variant.id}
@@ -458,7 +506,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <img
-              src={selectedImage || product.images[0]?.url}
+              src={selectedImage || product.images?.[0]?.url || product.imageUrl}
               alt=""
               className="w-12 h-12 object-cover rounded-lg border border-[#2DD4BF]/40 bg-[#141A19]"
             />

@@ -2,16 +2,19 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, ProductVariant } from '@/types';
-import { DEMO_PRODUCTS } from '@/lib/data/products';
+import { FAMOUS_50_PERFUMES } from '@/lib/data/products';
 
 interface ProductContextType {
   products: Product[];
   addProduct: (newProductData: {
     nameEn: string;
     nameAr?: string;
+    brand?: string;
+    gender?: 'MEN' | 'WOMEN' | 'UNISEX';
     fragranceFamily: string;
     concentration: any;
     descriptionEn: string;
+    descriptionAr?: string;
     topNotes: string[];
     heartNotes: string[];
     baseNotes: string[];
@@ -22,6 +25,16 @@ interface ProductContextType {
     stockQuantity: number;
     volumeMl?: number;
   }) => Product;
+  editProduct: (
+    id: string,
+    updatedFields: Partial<Product> & {
+      regularPriceEgp?: number;
+      salePriceEgp?: number;
+      costPriceEgp?: number;
+      stockQuantity?: number;
+      imageUrl?: string;
+    }
+  ) => void;
   deleteProduct: (productId: string) => void;
   getProductBySlug: (slug: string) => Product | undefined;
   resetToDefault: () => void;
@@ -29,10 +42,10 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const PRODUCTS_STORAGE_KEY = 'a_and_s_catalog_v2';
+const PRODUCTS_STORAGE_KEY = 'a_and_s_ready_perfumes_v3';
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(DEMO_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(FAMOUS_50_PERFUMES);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load merged products from localStorage on mount
@@ -40,9 +53,16 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     try {
       const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
       if (stored) {
-        setProducts(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length >= 50) {
+          setProducts(parsed);
+        } else {
+          // Upgrade to the full 50 famous perfumes
+          setProducts(FAMOUS_50_PERFUMES);
+          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(FAMOUS_50_PERFUMES));
+        }
       } else {
-        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(DEMO_PRODUCTS));
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(FAMOUS_50_PERFUMES));
       }
     } catch (e) {
       console.error(e);
@@ -59,12 +79,77 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const editProduct = (
+    id: string,
+    updatedFields: Partial<Product> & {
+      regularPriceEgp?: number;
+      salePriceEgp?: number;
+      costPriceEgp?: number;
+      stockQuantity?: number;
+      imageUrl?: string;
+    }
+  ) => {
+    const updated = products.map((p) => {
+      if (p.id !== id) return p;
+      const merged: Product = { ...p, ...updatedFields };
+
+      if (updatedFields.imageUrl) {
+        merged.imageUrl = updatedFields.imageUrl;
+        merged.images = [
+          {
+            id: `${id}-img-primary`,
+            url: updatedFields.imageUrl,
+            altTextEn: merged.nameEn,
+            isPrimary: true,
+            sortOrder: 0,
+          },
+          ...(merged.images ? merged.images.filter((_, i) => i > 0) : []),
+        ];
+      }
+
+      if (
+        updatedFields.regularPriceEgp !== undefined ||
+        updatedFields.salePriceEgp !== undefined ||
+        updatedFields.costPriceEgp !== undefined ||
+        updatedFields.stockQuantity !== undefined
+      ) {
+        const variants = merged.variants && merged.variants.length > 0 ? [...merged.variants] : [];
+        if (variants.length > 0) {
+          const v0 = { ...variants[0] };
+          if (updatedFields.regularPriceEgp !== undefined) {
+            v0.regularPriceEgp = updatedFields.regularPriceEgp;
+            v0.regularPriceInPiasters = Math.round(updatedFields.regularPriceEgp * 100);
+          }
+          if (updatedFields.salePriceEgp !== undefined) {
+            v0.salePriceEgp = updatedFields.salePriceEgp;
+            v0.salePriceInPiasters = updatedFields.salePriceEgp ? Math.round(updatedFields.salePriceEgp * 100) : null;
+          }
+          if (updatedFields.costPriceEgp !== undefined) {
+            v0.costPriceEgp = updatedFields.costPriceEgp;
+            v0.costPriceInPiasters = updatedFields.costPriceEgp ? Math.round(updatedFields.costPriceEgp * 100) : undefined;
+          }
+          if (updatedFields.stockQuantity !== undefined) {
+            v0.stockQuantity = updatedFields.stockQuantity;
+          }
+          variants[0] = v0;
+          merged.variants = variants;
+        }
+      }
+
+      return merged;
+    });
+    saveProducts(updated);
+  };
+
   const addProduct = (data: {
     nameEn: string;
     nameAr?: string;
+    brand?: string;
+    gender?: 'MEN' | 'WOMEN' | 'UNISEX';
     fragranceFamily: string;
     concentration: any;
     descriptionEn: string;
+    descriptionAr?: string;
     topNotes: string[];
     heartNotes: string[];
     baseNotes: string[];
@@ -76,8 +161,11 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     volumeMl?: number;
   }): Product => {
     const nextIndex = products.length + 1;
-    const id = `as-perfume-custom-${Date.now()}`;
-    const slug = data.nameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const id = `raheeq-fragrance-${Date.now()}`;
+    let slug = data.nameEn.toLowerCase().trim().replace(/[^a-z0-9\u0600-\u06FF]+/g, '-').replace(/(^-|-$)/g, '');
+    if (!slug || slug === '-') {
+      slug = `raheeq-${nextIndex}-${Date.now().toString().slice(-4)}`;
+    }
     
     const regularPriceInPiasters = Math.round(data.regularPriceEgp * 100);
     const salePriceInPiasters = data.salePriceEgp ? Math.round(data.salePriceEgp * 100) : null;
@@ -88,12 +176,15 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     const newVariant: ProductVariant = {
       id: `${id}-var-${volume}`,
       productId: id,
-      sku: `AS-${String(nextIndex).padStart(3, '0')}-${volume}ML`,
+      sku: `RHQ-${String(nextIndex).padStart(3, '0')}-${volume}ML`,
       volumeMl: volume,
       titleEn: `${volume}ml ${data.concentration.replace(/_/g, ' ')}`,
       regularPriceInPiasters,
+      regularPriceEgp: data.regularPriceEgp,
       salePriceInPiasters,
+      salePriceEgp: data.salePriceEgp,
       costPriceInPiasters,
+      costPriceEgp: data.costPriceEgp,
       stockQuantity: data.stockQuantity || 20,
       lowStockThreshold: 5,
       isActive: true,
@@ -103,8 +194,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       id,
       slug,
       nameEn: data.nameEn,
-      headlineEn: 'Exclusive bespoke formulation created in Cairo.',
-      descriptionEn: data.descriptionEn || `An opulent masterpiece by A AND S, blending ${data.topNotes.join(', ')} with a rich heart of ${data.heartNotes.join(', ')}.`,
+      nameAr: data.nameAr || data.nameEn,
+      brand: data.brand || 'رحيق (Raheeq)',
+      gender: data.gender || 'UNISEX',
+      headlineEn: 'Exclusive bespoke formulation crafted by Raheeq.',
+      descriptionEn: data.descriptionEn || `An opulent masterpiece by Raheeq Haute Parfumerie, blending ${data.topNotes.join(', ')} with a rich heart of ${data.heartNotes.join(', ')}.`,
+      descriptionAr: data.descriptionAr || `تحفة عطرية استثنائية من دار رحيق للعطور الفاخرة، تمزج أرقى الخلاصات العطرية لثبات وفوحان يدوم طويلاً.`,
       concentration: data.concentration,
       fragranceFamily: data.fragranceFamily,
       topNotes: data.topNotes.length > 0 ? data.topNotes : ['Bergamot', 'Saffron'],
@@ -128,6 +223,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
           sortOrder: 0,
         },
       ],
+      imageUrl: data.imageUrl,
       variants: [newVariant],
       createdAt: new Date().toISOString(),
     };
@@ -143,11 +239,20 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getProductBySlug = (slug: string): Product | undefined => {
-    return products.find((p) => p.slug === slug);
+    if (!slug) return undefined;
+    const decoded = decodeURIComponent(slug).toLowerCase();
+    const raw = slug.toLowerCase();
+    return products.find(
+      (p) =>
+        p.slug?.toLowerCase() === decoded ||
+        p.id?.toLowerCase() === decoded ||
+        p.slug?.toLowerCase() === raw ||
+        p.id?.toLowerCase() === raw
+    );
   };
 
   const resetToDefault = () => {
-    saveProducts(DEMO_PRODUCTS);
+    saveProducts(FAMOUS_50_PERFUMES);
   };
 
   return (
@@ -155,6 +260,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       value={{
         products,
         addProduct,
+        editProduct,
         deleteProduct,
         getProductBySlug,
         resetToDefault,

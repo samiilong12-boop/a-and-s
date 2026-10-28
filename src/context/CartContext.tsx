@@ -69,8 +69,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = (product: Product, variant: ProductVariant, quantity: number = 1) => {
     setItems((prev) => {
       const existing = prev.find((item) => item.variantId === variant.id);
-      const unitPrice = variant.salePriceInPiasters || variant.regularPriceInPiasters;
-      const primaryImg = product.images.find((img) => img.isPrimary)?.url || product.images[0]?.url || '';
+      const unitPrice =
+        variant.salePriceInPiasters ??
+        variant.regularPriceInPiasters ??
+        ((variant.salePriceEgp ?? variant.regularPriceEgp ?? 0) * 100);
+      const primaryImg =
+        product.images?.find((img) => img.isPrimary)?.url ||
+        product.images?.[0]?.url ||
+        product.imageUrl ||
+        '';
+      const variantTitle = variant.titleEn || `${variant.volumeMl}ml Extrait de Parfum`;
 
       if (existing) {
         const newQty = Math.min(existing.quantity + quantity, variant.stockQuantity);
@@ -84,7 +92,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             variantId: variant.id,
             productId: product.id,
             productName: product.nameEn,
-            variantTitle: variant.titleEn,
+            variantTitle,
             volumeMl: variant.volumeMl,
             sku: variant.sku,
             unitPriceInPiasters: unitPrice,

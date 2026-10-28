@@ -69,8 +69,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'section.story_tag': { en: 'Artisanal Heritage & Vision', ar: 'أصالة الحرفة والرؤية' },
   'section.story_title': { en: 'Crafted in Cairo for the Discerning Connoisseur.', ar: 'صُنعت في القاهرة لأصحاب الذوق الرفيع.' },
   'section.story_p1': {
-    en: 'At A AND S, we reject fleeting synthetic trends in favor of timeless perfume architecture. Founded in Cairo, our atelier unites ancient Egyptian botanical heritage with contemporary French Haute Parfumerie.',
-    ar: 'في A AND S نرفض الروائح الاصطناعية العابرة ونعتمد على البناء العطري الأصيل. انطلقت دارنا من القاهرة لتمزج تراث النباتات والعطور المصرية العريقة مع أرقى أسرار صناعة العطور الفرنسية.',
+    en: 'At Raheeq Haute Parfumerie, we reject fleeting synthetic trends in favor of timeless perfume architecture. Founded in Cairo, our atelier unites ancient Egyptian botanical heritage with contemporary French Haute Parfumerie.',
+    ar: 'في دار رحيق (Raheeq) نرفض الروائح الاصطناعية العابرة ونعتمد على البناء العطري الأصيل. انطلقت دارنا من القاهرة لتمزج تراث النباتات والعطور المصرية العريقة مع أرقى أسرار صناعة العطور الفرنسية.',
   },
   'section.story_p2': {
     en: 'Every creation is aged through a meticulous maceration process of over 60 days, ensuring that rare Damascus roses, smoked aged agarwood, and ethically sourced ambergris marry in perfect equilibrium.',

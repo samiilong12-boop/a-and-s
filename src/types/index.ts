@@ -1,22 +1,26 @@
 export type FragranceConcentration =
   | 'EXTRAIT_DE_PARFUM'
   | 'EAU_DE_PARFUM'
+  | 'PARFUM'
   | 'EAU_DE_TOILETTE'
   | 'EAU_DE_COLOGNE'
   | 'OIL_PERFUME';
 
 export interface ProductVariant {
   id: string;
-  productId: string;
+  productId?: string;
   sku: string;
-  volumeMl: number; // e.g. 30, 50, 100
-  titleEn: string;
-  regularPriceInPiasters: number; // e.g. 240000 = 2,400.00 EGP
+  volumeMl: number; // e.g. 50, 100
+  titleEn?: string;
+  regularPriceInPiasters?: number; // e.g. 240000 = 2,400.00 EGP
+  regularPriceEgp?: number; // direct EGP number
   salePriceInPiasters?: number | null;
+  salePriceEgp?: number | null;
   costPriceInPiasters?: number; // confidential COGS
+  costPriceEgp?: number;
   stockQuantity: number;
   lowStockThreshold: number;
-  isActive: boolean;
+  isActive?: boolean;
 }
 
 export interface ProductImage {
@@ -31,24 +35,42 @@ export interface Product {
   id: string;
   slug: string;
   nameEn: string;
-  headlineEn: string;
+  nameAr?: string;
+  brand?: string;
+  gender?: 'MEN' | 'WOMEN' | 'UNISEX';
+  headlineEn?: string;
   descriptionEn: string;
+  descriptionAr?: string;
   concentration: FragranceConcentration;
   fragranceFamily: string; // e.g. "Oriental Woody", "Floral Amber", "Fresh Citrus"
   topNotes: string[];
   heartNotes: string[];
   baseNotes: string[];
-  categoryId: string;
-  categoryName: string;
-  collectionIds: string[];
-  isFeatured: boolean;
-  isNewArrival: boolean;
-  isBestseller: boolean;
-  isPublished: boolean;
-  rating: number;
-  reviewCount: number;
-  images: ProductImage[];
+  categoryId?: string;
+  categoryName?: string;
+  collectionIds?: string[];
+  isFeatured?: boolean;
+  isNewArrival?: boolean;
+  isBestseller?: boolean;
+  isPublished?: boolean;
+  rating?: number;
+  reviewCount?: number;
+  images?: ProductImage[];
+  imageUrl?: string;
   variants: ProductVariant[];
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface BespokePerfumeRequest {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  perfumeName: string;
+  volumeMl: string;
+  concentration: string;
+  notes?: string;
+  status: 'NEW' | 'CONTACTED' | 'FULFILLED' | 'CANCELLED';
   createdAt: string;
 }
 

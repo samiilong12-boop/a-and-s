@@ -6,53 +6,43 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get('video') as File | null;
+    const mediaType = (formData.get('type') as string) || 'video';
 
     if (!file) {
-      return NextResponse.json({ error: 'لم يتم اختيار ملف فيديو' }, { status: 400 });
+      return NextResponse.json({ error: 'لم يتم اختيار ملف' }, { status: 400 });
     }
 
-    // Limit check (e.g. up to 100MB)
-    if (file.size > 100 * 1024 * 1024) {
-      return NextResponse.json({ error: 'حجم الفيديو كبير جداً. الحد الأقصى 100 ميجابايت' }, { status: 400 });
-    }
-
+    const originalName = file.name || 'custom-media';
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const videosDir = path.join(process.cwd(), 'public', 'videos');
-    if (!fs.existsSync(videosDir)) {
-      fs.mkdirSync(videosDir, { recursive: true });
+    let relativeUrl = '';
+
+    // Attempt local file write (works locally)
+    try {
+      const videosDir = path.join(process.cwd(), 'public', 'videos');
+      if (!fs.existsSync(videosDir)) {
+        fs.mkdirSync(videosDir, { recursive: true });
+      }
+      const ext = path.extname(originalName).toLowerCase() || (mediaType === 'video' ? '.mp4' : '.jpg');
+      const fileName = `custom-hero-${Date.now()}${ext}`;
+      const filePath = path.join(videosDir, fileName);
+      fs.writeFileSync(filePath, buffer);
+      relativeUrl = `/videos/${fileName}`;
+    } catch (fsErr) {
+      // On Vercel / serverless (read-only filesystem): use base64 data URL
+      const mime = file.type || (mediaType === 'video' ? 'video/mp4' : 'image/jpeg');
+      relativeUrl = `data:${mime};base64,${buffer.toString('base64')}`;
     }
-
-    // Determine extension or fallback to mp4
-    const originalName = file.name || 'custom-hero.mp4';
-    const ext = path.extname(originalName).toLowerCase() || '.mp4';
-    const fileName = `custom-hero${ext}`;
-    const filePath = path.join(videosDir, fileName);
-
-    fs.writeFileSync(filePath, buffer);
-
-    const relativeUrl = `/videos/${fileName}?v=${Date.now()}`;
-
-    // Automatically update hero-config.json
-    const configFilePath = path.join(videosDir, 'hero-config.json');
-    const newConfig = {
-      activeVideoUrl: relativeUrl,
-      visualMode: 'video',
-      videoTitle: `فيديو مرفوع من الجهاز (${originalName})`,
-      updatedAt: new Date().toISOString(),
-    };
-    fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2), 'utf-8');
 
     return NextResponse.json({
       success: true,
       url: relativeUrl,
       name: originalName,
       size: file.size,
-      config: newConfig,
     });
   } catch (error: any) {
-    console.error('Error handling video upload:', error);
-    return NextResponse.json({ error: error.message || 'حدث خطأ أثناء حفظ الفيديو' }, { status: 500 });
+    console.error('Error handling media upload:', error);
+    return NextResponse.json({ error: error.message || 'حدث خطأ أثناء معالجة الملف' }, { status: 500 });
   }
 }

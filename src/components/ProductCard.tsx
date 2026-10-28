@@ -15,11 +15,19 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const { isRtl } = useLanguage();
-  const primaryImage = product.images.find((img) => img.isPrimary)?.url || product.images[0]?.url;
+  const primaryImage =
+    product.images?.find((img) => img.isPrimary)?.url ||
+    product.images?.[0]?.url ||
+    product.imageUrl ||
+    '';
   const defaultVariant = product.variants[0];
 
-  const regularPrice = defaultVariant?.regularPriceInPiasters || 0;
-  const salePrice = defaultVariant?.salePriceInPiasters;
+  const regularPrice =
+    defaultVariant?.regularPriceInPiasters ??
+    ((defaultVariant?.regularPriceEgp ?? 0) * 100);
+  const salePrice =
+    defaultVariant?.salePriceInPiasters ??
+    (defaultVariant?.salePriceEgp ? defaultVariant.salePriceEgp * 100 : null);
   const hasSale = salePrice !== null && salePrice !== undefined && salePrice < regularPrice;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
@@ -105,8 +113,8 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="flex text-[#C6A66B]">
               <Star className="w-3.5 h-3.5 fill-[#C6A66B]" />
             </div>
-            <span className="text-xs font-bold text-[#080A0A]">{product.rating.toFixed(1)}</span>
-            <span className="text-[11px] text-[#788784]">({product.reviewCount})</span>
+            <span className="text-xs font-bold text-[#080A0A]">{(product.rating || 5.0).toFixed(1)}</span>
+            <span className="text-[11px] text-[#788784]">({product.reviewCount || 1})</span>
           </div>
         </div>
 

@@ -22,9 +22,9 @@ export default function OrderConfirmationPage({
   const orderNumber = resolvedParams.orderNumber;
 
   const whatsappMessage = encodeURIComponent(
-    `مرحباً دار A AND S للعطور الفاخرة، قمت بطلب العطر برقم المرجع ${orderNumber}. أود تأكيد تفاصيل الشحن والاستلام.`
+    `مرحباً دار رَحِيقْ (RAHEEQ) للعطور الفاخرة 💎، قمت بطلب العطر برقم المرجع #${orderNumber}. أود تأكيد تفاصيل الشحن والتوصيل للباب.`
   );
-  const whatsappUrl = `https://wa.me/201012345678?text=${whatsappMessage}`;
+  const whatsappUrl = `https://wa.me/201131068790?text=${whatsappMessage}`;
 
   return (
     <div className="min-h-screen bg-[#F7F5EE] py-16">
@@ -41,7 +41,7 @@ export default function OrderConfirmationPage({
           </span>
 
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[#080A0A] tracking-tight">
-            شكراً لاختيارك دار A AND S للعطور
+            شكراً لاختيارك دار رَحِـيـقْ للعطور الفاخرة
           </h1>
 
           <div className="inline-block bg-white border border-[#E7E3D6] px-8 py-4 rounded-2xl shadow-sm mt-2">

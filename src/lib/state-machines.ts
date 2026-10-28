@@ -51,17 +51,17 @@ export function getOrderStatusLabel(status: OrderStatus): { labelEn: string; lab
   }
 }
 
-export function getPaymentStatusLabel(status: PaymentStatus): { labelEn: string; colorClass: string } {
+export function getPaymentStatusLabel(status: PaymentStatus): { labelEn: string; labelAr: string; colorClass: string } {
   switch (status) {
     case 'PENDING_COLLECTION':
-      return { labelEn: 'Cash Pending Collection', colorClass: 'text-amber-400 bg-amber-400/10' };
+      return { labelEn: 'Cash Pending Collection', labelAr: 'الدفع عند الاستلام (قيد التحصيل)', colorClass: 'text-amber-400 bg-amber-400/10' };
     case 'COLLECTED_BY_COURIER':
-      return { labelEn: 'Collected by Courier', colorClass: 'text-cyan-400 bg-cyan-400/10' };
+      return { labelEn: 'Collected by Courier', labelAr: 'تم التحصيل من المندوب', colorClass: 'text-cyan-400 bg-cyan-400/10' };
     case 'REMITTED_TO_STORE':
-      return { labelEn: 'Remitted to Store Bank', colorClass: 'text-emerald-400 bg-emerald-400/10' };
+      return { labelEn: 'Remitted to Store Bank', labelAr: 'تم التوريد لحساب المتجر', colorClass: 'text-emerald-400 bg-emerald-400/10' };
     case 'FAILED_COLLECTION':
-      return { labelEn: 'Failed Collection', colorClass: 'text-rose-400 bg-rose-400/10' };
+      return { labelEn: 'Failed Collection', labelAr: 'فشل التحصيل', colorClass: 'text-rose-400 bg-rose-400/10' };
     case 'REFUNDED':
-      return { labelEn: 'Refunded', colorClass: 'text-purple-400 bg-purple-400/10' };
+      return { labelEn: 'Refunded', labelAr: 'مسترد للعميل', colorClass: 'text-purple-400 bg-purple-400/10' };
   }
 }

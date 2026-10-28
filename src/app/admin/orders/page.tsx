@@ -15,6 +15,13 @@ import {
   ShieldCheck,
   DollarSign,
   PackageCheck,
+  Trash2,
+  Archive,
+  RotateCcw,
+  Download,
+  History,
+  Check,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
 import { OrderStatus, PaymentStatus } from '@/types';
@@ -23,11 +30,16 @@ import {
   getPaymentStatusLabel,
 } from '@/lib/state-machines';
 
+const ACTIVE_ORDERS_KEY = 'a_and_s_demo_orders';
+const ARCHIVE_ORDERS_KEY = 'a_and_s_archived_orders';
+
 function AdminOrdersContent() {
   const searchParams = useSearchParams();
   const highlightedOrder = searchParams.get('highlight');
 
+  const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
   const [orders, setOrders] = useState<any[]>([]);
+  const [archivedOrders, setArchivedOrders] = useState<any[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -39,24 +51,43 @@ function AdminOrdersContent() {
   const [editTrackingNumber, setEditTrackingNumber] = useState('');
   const [editAdminNotes, setEditAdminNotes] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
-  useEffect(() => {
+  const showNotice = (msg: string) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3500);
+  };
+
+  const loadOrders = () => {
     try {
-      const stored = localStorage.getItem('a_and_s_demo_orders');
-      if (stored) {
-        const parsed = JSON.parse(stored);
+      const storedActive = localStorage.getItem(ACTIVE_ORDERS_KEY);
+      if (storedActive) {
+        const parsed = JSON.parse(storedActive);
         setOrders(parsed);
-
         if (highlightedOrder) {
           const found = parsed.find((o: any) => o.orderNumber === highlightedOrder);
-          if (found) {
-            openOrderDetails(found);
-          }
+          if (found) openOrderDetails(found);
         }
+      } else {
+        setOrders([]);
+      }
+
+      const storedArchive = localStorage.getItem(ARCHIVE_ORDERS_KEY);
+      if (storedArchive) {
+        setArchivedOrders(JSON.parse(storedArchive));
+      } else {
+        setArchivedOrders([]);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Error loading orders:', e);
     }
+  };
+
+  useEffect(() => {
+    loadOrders();
+    const handleStorage = () => loadOrders();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, [highlightedOrder]);
 
   const openOrderDetails = (order: any) => {
@@ -72,42 +103,161 @@ function AdminOrdersContent() {
   const handleSaveChanges = () => {
     if (!selectedOrder) return;
 
-    const updated = orders.map((o) => {
-      if (o.id === selectedOrder.id) {
-        return {
-          ...o,
-          status: editStatus,
-          paymentStatus: editPaymentStatus,
-          courierName: editCourierName.trim() || null,
-          trackingNumber: editTrackingNumber.trim() || null,
-          adminNotes: editAdminNotes.trim() || null,
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      return o;
-    });
+    const isArchived = archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber);
 
-    setOrders(updated);
-    localStorage.setItem('a_and_s_demo_orders', JSON.stringify(updated));
-    setSelectedOrder((prev: any) => ({
-      ...prev,
-      status: editStatus,
-      paymentStatus: editPaymentStatus,
-      courierName: editCourierName.trim() || null,
-      trackingNumber: editTrackingNumber.trim() || null,
-      adminNotes: editAdminNotes.trim() || null,
-    }));
+    if (isArchived) {
+      const updated = archivedOrders.map((o) => {
+        if (o.orderNumber === selectedOrder.orderNumber) {
+          return {
+            ...o,
+            status: editStatus,
+            paymentStatus: editPaymentStatus,
+            courierName: editCourierName.trim() || null,
+            trackingNumber: editTrackingNumber.trim() || null,
+            adminNotes: editAdminNotes.trim() || null,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return o;
+      });
+      setArchivedOrders(updated);
+      localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updated));
+    } else {
+      const updated = orders.map((o) => {
+        if (o.orderNumber === selectedOrder.orderNumber) {
+          return {
+            ...o,
+            status: editStatus,
+            paymentStatus: editPaymentStatus,
+            courierName: editCourierName.trim() || null,
+            trackingNumber: editTrackingNumber.trim() || null,
+            adminNotes: editAdminNotes.trim() || null,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return o;
+      });
+      setOrders(updated);
+      localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updated));
+    }
+
     setSaveSuccess(true);
+    showNotice('تم حفظ تعديلات الطلب بنجاح.');
     setTimeout(() => setSaveSuccess(false), 2500);
   };
 
-  const filteredOrders = orders.filter((o) => {
+  // Archive an active order
+  const handleArchiveOrder = (orderToArchive: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm(`هل تريد نقل الطلب #${orderToArchive.orderNumber} إلى سجل الأرشيف المحفوظ؟`)) return;
+
+    const remainingActive = orders.filter((o) => o.orderNumber !== orderToArchive.orderNumber);
+    const orderWithArchiveTag = {
+      ...orderToArchive,
+      archivedAt: new Date().toISOString(),
+    };
+    const updatedArchive = [orderWithArchiveTag, ...archivedOrders.filter((o) => o.orderNumber !== orderToArchive.orderNumber)];
+
+    setOrders(remainingActive);
+    setArchivedOrders(updatedArchive);
+    localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(remainingActive));
+    localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updatedArchive));
+
+    if (selectedOrder?.orderNumber === orderToArchive.orderNumber) {
+      setSelectedOrder(null);
+    }
+    showNotice(`تم نقل الطلب #${orderToArchive.orderNumber} إلى سجل الأرشيف بنجاح.`);
+  };
+
+  // Restore order from archive back to active
+  const handleRestoreOrder = (orderToRestore: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+
+    const remainingArchive = archivedOrders.filter((o) => o.orderNumber !== orderToRestore.orderNumber);
+    const updatedActive = [orderToRestore, ...orders.filter((o) => o.orderNumber !== orderToRestore.orderNumber)];
+
+    setArchivedOrders(remainingArchive);
+    setOrders(updatedActive);
+    localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(remainingArchive));
+    localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updatedActive));
+
+    if (selectedOrder?.orderNumber === orderToRestore.orderNumber) {
+      setSelectedOrder(null);
+    }
+    showNotice(`تمت استعادة الطلب #${orderToRestore.orderNumber} إلى قائمة الطلبات النشطة.`);
+  };
+
+  // Permanently delete order
+  const handleDeletePermanently = (orderNumber: string, isFromArchive = false, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm(`تحذير: هل أنت متأكد من حذف الطلب #${orderNumber} نهائياً؟ لن يمكن التراجع عن هذا الإجراء.`)) return;
+
+    if (isFromArchive) {
+      const updated = archivedOrders.filter((o) => o.orderNumber !== orderNumber);
+      setArchivedOrders(updated);
+      localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updated));
+    } else {
+      const updated = orders.filter((o) => o.orderNumber !== orderNumber);
+      setOrders(updated);
+      localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updated));
+    }
+
+    if (selectedOrder?.orderNumber === orderNumber) {
+      setSelectedOrder(null);
+    }
+    showNotice(`تم حذف الطلب #${orderNumber} نهائياً.`);
+  };
+
+  // Clear entire archive
+  const handleClearArchive = () => {
+    if (archivedOrders.length === 0) return;
+    if (!confirm(`هل أنت متأكد من مسح جميع الطلبات المؤرشفة (${archivedOrders.length} طلب) نهائياً؟`)) return;
+
+    setArchivedOrders([]);
+    localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify([]));
+    showNotice('تم تفريغ سجل الأرشيف بالكامل.');
+  };
+
+  // Export orders to CSV
+  const handleExportCSV = () => {
+    const listToExport = activeTab === 'active' ? orders : archivedOrders;
+    if (listToExport.length === 0) {
+      alert('لا توجد طلبات لتصديرها.');
+      return;
+    }
+
+    const headers = ['Order Ref', 'Date', 'Customer Name', 'Phone', 'Governorate', 'City', 'Status', 'Total EGP'];
+    const rows = listToExport.map((o) => [
+      o.orderNumber,
+      new Date(o.createdAt).toLocaleDateString('en-GB'),
+      `"${o.customerName || ''}"`,
+      o.customerPhone || '',
+      o.shippingAddress?.governorate || o.governorate || '',
+      `"${o.shippingAddress?.city || ''}"`,
+      o.status,
+      (o.totalInPiasters / 100).toFixed(2),
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `raheeq-orders-${activeTab}-${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const currentDisplayList = activeTab === 'active' ? orders : archivedOrders;
+
+  const filteredOrders = currentDisplayList.filter((o) => {
     if (filterStatus !== 'All' && o.status !== filterStatus) return false;
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
-      const matchNumber = o.orderNumber.toLowerCase().includes(term);
-      const matchName = o.customerName.toLowerCase().includes(term);
-      const matchPhone = o.customerPhone.includes(term);
+      const matchNumber = o.orderNumber?.toLowerCase().includes(term);
+      const matchName = o.customerName?.toLowerCase().includes(term);
+      const matchPhone = o.customerPhone?.includes(term);
       if (!matchNumber && !matchName && !matchPhone) return false;
     }
     return true;
@@ -115,105 +265,187 @@ function AdminOrdersContent() {
 
   return (
     <div className="space-y-6">
-      {/* Title (Clean White UI) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      {/* Toast Notification */}
+      {notification && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-2.5 rounded-xl shadow-2xl text-xs font-bold flex items-center gap-2 border border-teal-500/50 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-[#54d1b2]" />
+          <span>{notification}</span>
+        </div>
+      )}
+
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <span className="text-xs font-bold tracking-wider text-teal-800 uppercase">
-            إدارة طلبات الدفع عند الاستلام والشحن
-          </span>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
-            Orders & Cash Settlement ({orders.length})
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold tracking-wider text-teal-800 uppercase">
+              إدارة وأرشفة طلبات الدفع عند الاستلام والشحن
+            </span>
+            <span className="bg-teal-50 text-teal-800 border border-teal-200 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
+              Raheeq Order Management
+            </span>
+          </div>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-slate-900 mt-1 flex items-center gap-2.5">
+            <span>إدارة وتاريخ وسجل الطلبات</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            تأكيد الطلبات بالاتصال أو الواتساب، وتعيين شركة الشحن، ومتابعة توريد الأموال المحصلة.
+          <p className="text-xs text-slate-500 mt-1">
+            يمكنك تأكيد ومتابعة الطلبات، نقل الطلبات المكتملة إلى سجل الأرشيف الدائم، أو حذف أي طلب نهائياً.
           </p>
+        </div>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors shadow-xs"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>تصدير السجل (CSV)</span>
+          </button>
+
+          {activeTab === 'archive' && archivedOrders.length > 0 && (
+            <button
+              onClick={handleClearArchive}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition-colors shadow-xs"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>تفريغ الأرشيف بالكامل</span>
+            </button>
+          )}
         </div>
       </div>
 
+      {/* Main Tabs: Active vs Archive Log */}
+      <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap gap-2">
+        <button
+          onClick={() => {
+            setActiveTab('active');
+            setFilterStatus('All');
+          }}
+          className={`flex-1 min-w-[200px] py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+            activeTab === 'active'
+              ? 'bg-teal-700 text-white shadow-md'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Truck className="w-4 h-4" />
+          <span>الطلبات النشطة والجارية</span>
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-800'}`}>
+            {orders.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('archive');
+            setFilterStatus('All');
+          }}
+          className={`flex-1 min-w-[200px] py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+            activeTab === 'archive'
+              ? 'bg-teal-700 text-white shadow-md'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Archive className="w-4 h-4" />
+          <span>سجل أرشيف الطلبات المحفوظة (History Log)</span>
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${activeTab === 'archive' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-800'}`}>
+            {archivedOrders.length}
+          </span>
+        </button>
+      </div>
+
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 text-xs">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 text-xs">
           {['All', 'PENDING_CONFIRMATION', 'CONFIRMED', 'PROCESSING', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'].map((st) => (
             <button
               key={st}
               onClick={() => setFilterStatus(st)}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap font-bold transition-colors ${
                 filterStatus === st
-                  ? 'bg-teal-700 text-white shadow-sm'
+                  ? 'bg-teal-700 text-white shadow-xs'
                   : 'bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-100'
               }`}
             >
-              {st === 'All' ? 'جميع الطلبات' : st.replace(/_/g, ' ')}
+              {st === 'All' ? 'جميع الحالات' : st.replace(/_/g, ' ')}
             </button>
           ))}
         </div>
 
-        <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative w-full md:w-80">
+          <Search className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search order #, phone, or name..."
-            className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-600 font-medium"
+            placeholder="بحث برقم الطلب، الهاتف، أو اسم العميل..."
+            className="w-full bg-slate-50 border border-slate-300 rounded-lg pr-9 pl-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-teal-600 font-medium"
           />
         </div>
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-[10px] border-b border-slate-200 font-bold">
+          <table className="w-full text-right text-xs">
+            <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-[11px] border-b border-slate-200 font-bold">
               <tr>
-                <th className="p-3.5">Order Ref</th>
-                <th className="p-3.5">Customer & Phone</th>
-                <th className="p-3.5">Governorate</th>
-                <th className="p-3.5">Order Status</th>
-                <th className="p-3.5">Payment / COD</th>
-                <th className="p-3.5">Courier & Tracking</th>
-                <th className="p-3.5">Total Amount</th>
-                <th className="p-3.5 text-right">Action</th>
+                <th className="p-4 text-right">رقم الطلب (Ref)</th>
+                <th className="p-4 text-right">العميل والهاتف</th>
+                <th className="p-4 text-right">المحافظة</th>
+                <th className="p-4 text-right">حالة التجهيز</th>
+                <th className="p-4 text-right">حالة التحصيل</th>
+                <th className="p-4 text-right">شركة الشحن</th>
+                <th className="p-4 text-right">إجمالي المبلغ</th>
+                <th className="p-4 text-center">إجراءات التحكم</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-500">
-                    لا توجد طلبات تطابق معايير البحث.
+                  <td colSpan={8} className="p-12 text-center text-slate-500 space-y-2">
+                    <History className="w-10 h-10 text-slate-300 mx-auto" />
+                    <p className="font-bold text-slate-700">
+                      {activeTab === 'active'
+                        ? 'لا توجد طلبات نشطة حالياً تطابق معايير البحث.'
+                        : 'سجل الأرشيف فارغ حالياً. الطلبات المؤرشفة ستحفظ هنا بأمان.'}
+                    </p>
                   </td>
                 </tr>
               ) : (
                 filteredOrders.map((order) => {
                   const statusMeta = getOrderStatusLabel(order.status);
                   const payMeta = getPaymentStatusLabel(order.paymentStatus);
+                  const isArchived = activeTab === 'archive';
+
                   return (
                     <tr
-                      key={order.id}
+                      key={order.orderNumber}
                       className={`hover:bg-slate-50/80 transition-colors cursor-pointer ${
-                        selectedOrder?.id === order.id ? 'bg-teal-50/40 border-l-4 border-teal-600' : ''
+                        selectedOrder?.orderNumber === order.orderNumber ? 'bg-teal-50/50' : ''
                       }`}
                       onClick={() => openOrderDetails(order)}
                     >
-                      <td className="p-3.5 font-mono text-teal-800 font-bold text-sm">
+                      <td className="p-4 font-mono text-teal-800 font-bold text-sm">
                         {order.orderNumber}
                       </td>
-                      <td className="p-3.5">
+                      <td className="p-4">
                         <p className="font-bold text-slate-900">{order.customerName}</p>
                         <p className="text-[11px] text-slate-500 font-mono">{order.customerPhone}</p>
                       </td>
-                      <td className="p-3.5 text-slate-700 font-semibold">{order.governorate}</td>
-                      <td className="p-3.5">
-                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${statusMeta.colorClass}`}>
-                          {statusMeta.labelEn}
+                      <td className="p-4 text-slate-700 font-semibold">
+                        {order.shippingAddress?.governorate || order.governorate || 'القاهرة'}
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusMeta.colorClass}`}>
+                          {statusMeta.labelAr || statusMeta.labelEn}
                         </span>
                       </td>
-                      <td className="p-3.5">
+                      <td className="p-4">
                         <span className={`text-[11px] font-bold ${payMeta.colorClass}`}>
-                          {payMeta.labelEn}
+                          {payMeta.labelAr || payMeta.labelEn}
                         </span>
                       </td>
-                      <td className="p-3.5 text-slate-600">
+                      <td className="p-4 text-slate-600">
                         {order.courierName ? (
                           <span className="text-teal-700 font-semibold">
                             {order.courierName} ({order.trackingNumber || 'Pending'})
@@ -222,19 +454,45 @@ function AdminOrdersContent() {
                           <span className="text-slate-400">لم يتم التعيين</span>
                         )}
                       </td>
-                      <td className="p-3.5 font-bold text-slate-900 text-sm">
+                      <td className="p-4 font-bold text-slate-900 text-sm font-mono">
                         {formatPrice(order.totalInPiasters)}
                       </td>
-                      <td className="p-3.5 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openOrderDetails(order);
-                          }}
-                          className="px-3 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded font-semibold text-xs border border-teal-200 transition-colors"
-                        >
-                          إدارة
-                        </button>
+                      <td className="p-4 text-center">
+                        <div className="inline-flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => openOrderDetails(order)}
+                            className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg font-bold text-xs border border-teal-200 transition-colors"
+                            title="عرض وتعديل التفاصيل"
+                          >
+                            عرض
+                          </button>
+
+                          {isArchived ? (
+                            <button
+                              onClick={(e) => handleRestoreOrder(order, e)}
+                              className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors border border-blue-200"
+                              title="استعادة إلى الطلبات النشطة"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={(e) => handleArchiveOrder(order, e)}
+                              className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors border border-amber-200"
+                              title="نقل إلى سجل الأرشيف"
+                            >
+                              <Archive className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+
+                          <button
+                            onClick={(e) => handleDeletePermanently(order.orderNumber, isArchived, e)}
+                            className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200"
+                            title="حذف نهائي"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -245,7 +503,7 @@ function AdminOrdersContent() {
         </div>
       </div>
 
-      {/* Selected Order Detailed Drawer */}
+      {/* Selected Order Detailed Drawer / Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedOrder(null)} />
@@ -255,46 +513,55 @@ function AdminOrdersContent() {
               {/* Drawer Header */}
               <div className="flex justify-between items-start pb-4 border-b border-slate-200">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-teal-800">تفاصيل الطلب والتحصيل</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-bold text-teal-800">تفاصيل الطلب والتحصيل</span>
+                    {archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber) && (
+                      <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        مؤرشف في السجل
+                      </span>
+                    )}
+                  </div>
                   <h2 className="font-mono text-2xl font-bold text-teal-800">{selectedOrder.orderNumber}</h2>
                   <p className="text-xs text-slate-500">
-                    تاريخ الطلب: {new Date(selectedOrder.createdAt).toLocaleString('en-EG')}
+                    تاريخ الطلب: {new Date(selectedOrder.createdAt).toLocaleDateString('ar-EG', { dateStyle: 'long', timeStyle: 'short' })}
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="p-1.5 text-slate-400 hover:text-slate-900 rounded-lg"
+                  className="p-2 text-slate-400 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Customer Contact & Call/WhatsApp Action */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 text-xs">
+              {/* Customer Contact Card with Direct WhatsApp */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-slate-700">بيانات العميل (التأكيد الهاتفي)</span>
-                  <span className="text-teal-800 font-bold">{selectedOrder.governorate}</span>
+                  <div>
+                    <h3 className="font-serif font-bold text-base text-slate-900">{selectedOrder.customerName}</h3>
+                    <p className="text-xs text-slate-600 font-mono mt-0.5">{selectedOrder.customerPhone}</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {selectedOrder.shippingAddress?.streetAddress || ''} — {selectedOrder.shippingAddress?.city || ''} ({selectedOrder.shippingAddress?.governorate || selectedOrder.governorate || ''})
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-base text-slate-900">{selectedOrder.customerName}</p>
-                  <p className="text-xs font-mono text-slate-600 mt-0.5">الهاتف: {selectedOrder.customerPhone}</p>
-                  <p className="text-xs text-slate-600 mt-1">
-                    العنوان: {selectedOrder.streetAddress}, {selectedOrder.buildingDetails && `${selectedOrder.buildingDetails}, `}{selectedOrder.city}
-                  </p>
-                </div>
-                <div className="flex gap-2 pt-2">
+
+                <div className="pt-2 flex gap-2">
                   <a
                     href={`tel:${selectedOrder.customerPhone}`}
-                    className="flex-1 py-2 bg-white hover:bg-slate-100 text-slate-800 rounded-lg text-center font-bold border border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"
+                    className="flex-1 bg-white hover:bg-slate-100 text-slate-800 font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-300 transition-colors"
                   >
-                    <Phone className="w-3.5 h-3.5 text-teal-600" />
+                    <Phone className="w-3.5 h-3.5 text-slate-600" />
                     <span>اتصال بالعميل</span>
                   </a>
+
                   <a
-                    href={`https://wa.me/2${selectedOrder.customerPhone}?text=${encodeURIComponent(`مرحباً ${selectedOrder.customerName}، معكم دار A AND S للعطور بخصوص تأكيد طلبك رقم ${selectedOrder.orderNumber}.`)}`}
+                    href={`https://wa.me/${selectedOrder.customerPhone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                      `مرحباً أستاذ ${selectedOrder.customerName}، معك دار رَحِيقْ للعطور الفاخرة 💎 بخصوص طلبكم رقم ${selectedOrder.orderNumber}. نود تأكيد موعد وصول الشحنة إلى باب بيتكم.`
+                    )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-center font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                    className="flex-1 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>مراسلة واتساب</span>
@@ -380,11 +647,11 @@ function AdminOrdersContent() {
               <div className="space-y-2 text-xs">
                 <h4 className="font-bold text-slate-700">العطور المطلوبة:</h4>
                 <div className="space-y-2">
-                  {selectedOrder.items.map((item: any) => (
-                    <div key={item.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+                  {selectedOrder.items?.map((item: any, idx: number) => (
+                    <div key={idx} className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
                       <div>
-                        <p className="font-bold text-slate-900">{item.productNameSnapshot}</p>
-                        <p className="text-[11px] text-teal-800 font-mono">{item.variantTitleSnapshot} • SKU: {item.skuSnapshot}</p>
+                        <p className="font-bold text-slate-900">{item.productNameEn || item.productNameSnapshot || 'عطر فاخر'}</p>
+                        <p className="text-[11px] text-teal-800 font-mono">{item.variantTitleEn || item.variantTitleSnapshot || ''} {item.volumeMl ? `• ${item.volumeMl}ml` : ''}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-slate-900">{formatPrice(item.subtotalInPiasters)}</p>
@@ -402,19 +669,19 @@ function AdminOrdersContent() {
                   <span className="font-semibold text-slate-900">{formatPrice(selectedOrder.subtotalInPiasters)}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
-                  <span>تكلفة الشحن:</span>
+                  <span>تكلفة الشحن والتوصيل:</span>
                   <span className="text-teal-700 font-bold">
                     {selectedOrder.shippingInPiasters === 0 ? 'مجاني' : formatPrice(selectedOrder.shippingInPiasters)}
                   </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-slate-200 font-bold text-sm">
-                  <span>إجمالي المبلغ المطلوب نقداً:</span>
+                  <span>إجمالي المبلغ المطلوب نقداً عند الباب:</span>
                   <span className="text-teal-800 text-base">{formatPrice(selectedOrder.totalInPiasters)}</span>
                 </div>
               </div>
 
-              {/* Save Button */}
-              <div className="pt-2">
+              {/* Action Buttons: Save, Archive, and Permanent Delete */}
+              <div className="pt-2 space-y-2.5">
                 <button
                   onClick={handleSaveChanges}
                   className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3.5 px-4 rounded-xl text-xs tracking-wider uppercase font-bold flex items-center justify-center gap-2 shadow-lg transition-all"
@@ -422,6 +689,34 @@ function AdminOrdersContent() {
                   <PackageCheck className="w-4 h-4" />
                   <span>{saveSuccess ? 'تم حفظ التعديلات بنجاح!' : 'حفظ التغييرات على الطلب'}</span>
                 </button>
+
+                <div className="flex gap-2">
+                  {archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber) ? (
+                    <button
+                      onClick={() => handleRestoreOrder(selectedOrder)}
+                      className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      <span>استعادة إلى الطلبات النشطة</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleArchiveOrder(selectedOrder)}
+                      className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <Archive className="w-4 h-4" />
+                      <span>نقل إلى سجل الأرشيف</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleDeletePermanently(selectedOrder.orderNumber, archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber))}
+                    className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>حذف الطلب نهائياً</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

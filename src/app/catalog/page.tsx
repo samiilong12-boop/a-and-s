@@ -2,9 +2,10 @@
 
 import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles, Filter } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles, Filter, FlaskConical, Send } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useCustomRequest } from '@/context/CustomRequestContext';
 import { FRAGRANCE_FAMILIES, CONCENTRATIONS } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
 
@@ -15,9 +16,11 @@ function CatalogContent() {
 
   const { products } = useProducts();
   const { t, isRtl } = useLanguage();
+  const { openModal } = useCustomRequest();
 
   // State
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGender, setSelectedGender] = useState<string>('ALL');
   const [selectedFamily, setSelectedFamily] = useState(initialFamily);
   const [selectedConcentration, setSelectedConcentration] = useState<string>('All');
   const [priceRange, setPriceRange] = useState<string>('All');
@@ -34,12 +37,27 @@ function CatalogContent() {
       if (searchTerm.trim()) {
         const term = searchTerm.toLowerCase();
         const matchesName = product.nameEn.toLowerCase().includes(term);
+        const matchesBrand = product.brand?.toLowerCase().includes(term);
         const matchesSku = product.variants.some((v) => v.sku.toLowerCase().includes(term));
         const matchesNotes = [...product.topNotes, ...product.heartNotes, ...product.baseNotes].some((n) =>
           n.toLowerCase().includes(term)
         );
         const matchesFamily = product.fragranceFamily.toLowerCase().includes(term);
-        if (!matchesName && !matchesSku && !matchesNotes && !matchesFamily) return false;
+        if (!matchesName && !matchesBrand && !matchesSku && !matchesNotes && !matchesFamily) return false;
+      }
+
+      // Gender filter
+      if (selectedGender !== 'ALL') {
+        if (selectedGender === 'MEN' && product.gender !== 'MEN') return false;
+        if (selectedGender === 'WOMEN' && product.gender !== 'WOMEN') return false;
+        if (selectedGender === 'UNISEX' && product.gender !== 'UNISEX') return false;
+        if (selectedGender === 'OUD') {
+          const isOud =
+            product.fragranceFamily.toLowerCase().includes('oud') ||
+            product.fragranceFamily.toLowerCase().includes('oriental') ||
+            product.nameEn.toLowerCase().includes('oud');
+          if (!isOud) return false;
+        }
       }
 
       // Fragrance family
@@ -70,7 +88,7 @@ function CatalogContent() {
       if (sortBy === 'bestselling') return a.isBestseller ? -1 : 1;
       return 0;
     });
-  }, [products, searchTerm, selectedFamily, selectedConcentration, priceRange, sortBy]);
+  }, [products, searchTerm, selectedGender, selectedFamily, selectedConcentration, priceRange, sortBy]);
 
   // Pagination calculation
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
@@ -81,6 +99,7 @@ function CatalogContent() {
 
   const resetFilters = () => {
     setSearchTerm('');
+    setSelectedGender('ALL');
     setSelectedFamily('All');
     setSelectedConcentration('All');
     setPriceRange('All');
@@ -115,20 +134,46 @@ function CatalogContent() {
             </div>
           </div>
 
-          {/* Smooth Horizontal Family Scroll Chips (Faces Egypt Inspired) */}
-          <div className="pt-6 flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none">
+          {/* Category / Gender Selection Tabs */}
+          <div className="pt-6 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {[
+              { id: 'ALL', labelAr: 'الكل (50 عطر جاهز)', labelEn: 'All 50 Fragrances' },
+              { id: 'MEN', labelAr: 'رجالي (Men)', labelEn: "Men's Icons" },
+              { id: 'WOMEN', labelAr: 'نسائي (Women)', labelEn: "Women's Icons" },
+              { id: 'UNISEX', labelAr: 'يونيسكس ونيش (Niche)', labelEn: 'Unisex & Niche' },
+              { id: 'OUD', labelAr: 'عود وشرقيات (Oud)', labelEn: 'Oud & Orientals' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setSelectedGender(tab.id);
+                  setCurrentPage(1);
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  selectedGender === tab.id
+                    ? 'bg-[#080A0A] text-[#54d1b2] border border-[#54d1b2] shadow-md'
+                    : 'bg-white text-[#4A5553] hover:text-[#080A0A] border border-[#E7E3D6]'
+                }`}
+              >
+                {isRtl ? tab.labelAr : tab.labelEn}
+              </button>
+            ))}
+          </div>
+
+          {/* Smooth Horizontal Family Scroll Chips */}
+          <div className="pt-3 flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none">
             <button
               onClick={() => {
                 setSelectedFamily('All');
                 setCurrentPage(1);
               }}
-              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                 selectedFamily === 'All'
-                  ? 'bg-[#080A0A] text-[#2DD4BF] border border-[#2DD4BF] shadow-md'
-                  : 'bg-white text-[#4A5553] hover:text-[#080A0A] border border-[#E7E3D6] hover:border-[#2DD4BF]'
+                  ? 'bg-teal-900 text-teal-100 font-bold'
+                  : 'bg-white/80 text-[#788784] hover:text-[#080A0A] border border-[#E7E3D6]'
               }`}
             >
-              {isRtl ? 'جميع العائلات العطرية' : 'All Olfactory Families'}
+              {isRtl ? 'جميع العائلات' : 'All Families'}
             </button>
             {FRAGRANCE_FAMILIES.map((family) => (
               <button
@@ -137,16 +182,43 @@ function CatalogContent() {
                   setSelectedFamily(family);
                   setCurrentPage(1);
                 }}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                   selectedFamily === family
-                    ? 'bg-[#080A0A] text-[#2DD4BF] border border-[#2DD4BF] shadow-md'
-                    : 'bg-white text-[#4A5553] hover:text-[#080A0A] border border-[#E7E3D6] hover:border-[#2DD4BF]'
+                    ? 'bg-teal-900 text-teal-100 font-bold'
+                    : 'bg-white/80 text-[#788784] hover:text-[#080A0A] border border-[#E7E3D6]'
                 }`}
               >
                 {family}
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Bespoke Fragrance Concierge Strip */}
+        <div className="bg-[#080A0A] border border-[#54d1b2]/40 rounded-2xl p-4 sm:p-5 text-[#FAF9F5] flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#54d1b2]/20 border border-[#54d1b2]/40 flex items-center justify-center text-[#54d1b2] shrink-0">
+              <FlaskConical className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold font-serif text-white flex items-center gap-2">
+                <span>{isRtl ? 'عطرك المفضل غير معروض؟ أو حابب خلطة خاصة؟' : 'Looking for a perfume not listed, or a custom blend?'}</span>
+              </h3>
+              <p className="text-xs text-[#A2ADA9]">
+                {isRtl
+                  ? 'اكتب لينا اسم العطر وحجمه وبنوفره ليك بأعلى ثبات وتركيز 35% Extrait de Parfum مع التوصيل والمعاينة.'
+                  : 'Tell us the name & size, and our master perfumers will blend and ship it to you.'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => openModal()}
+            className="w-full md:w-auto bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:brightness-110 text-[#080A0A] font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-transform hover:scale-105 shadow-md shrink-0"
+          >
+            <FlaskConical className="w-4 h-4" />
+            <span>{isRtl ? 'اطلب عطرك الخاص الآن' : 'Request Bespoke Scent'}</span>
+          </button>
         </div>
 
         {/* Filter & Search Bar */}

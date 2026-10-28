@@ -4,11 +4,14 @@ import './globals.css';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { ProductProvider } from '@/context/ProductContext';
 import { CartProvider } from '@/context/CartContext';
+import { CustomRequestProvider } from '@/context/CustomRequestContext';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
 import { Navbar } from '@/components/Navbar';
 import { CartDrawer } from '@/components/CartDrawer';
 import { Footer } from '@/components/Footer';
 import { FloatingContact } from '@/components/FloatingContact';
+import { CustomPerfumeRequestModal } from '@/components/CustomPerfumeRequestModal';
+import { ClientAnalyticsTracker } from '@/components/ClientAnalyticsTracker';
 
 import { CookieConsent } from '@/components/CookieConsent';
 
@@ -27,12 +30,22 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  title: 'A AND S — Haute Parfumerie | دار العطور الفاخرة',
-  description: 'The art of leaving an impression. Discover handcrafted luxury fragrances and rare essences from A AND S, delivered across Egypt with cash on delivery. فن ترك الانطباع الذي لا يُنسى.',
-  keywords: ['luxury perfume Egypt', 'A AND S fragrance', 'عطور فاخرة مصر', 'عود فاخر القاهرة', 'extrait de parfum Cairo', 'niche perfumes Egypt'],
+  title: 'رَحِيق (RAHEEQ) — دار العطور الملكية الفاخرة | Haute Parfumerie',
+  description:
+    'دار رحيق للعطور الفاخرة — فن ترك الانطباع الذي لا يُنسى. أرقى العطور العالمية والتركيبات الخاصة المصنوعة بأندر الزيوت المعتقة، شحن سريع ومعاينة عند الاستلام في جميع أنحاء مصر.',
+  keywords: [
+    'عطور رحيق',
+    'Raheeq perfume',
+    'luxury perfume Egypt',
+    'دار رحيق للعطور',
+    'عطور فاخرة مصر',
+    'تركيبات عطور خاصة',
+    'extrait de parfum Cairo',
+  ],
   openGraph: {
-    title: 'A AND S — Haute Parfumerie',
-    description: 'The art of leaving an impression. Handcrafted luxury fragrances, delivered across Egypt with cash on delivery.',
+    title: 'رَحِيق (RAHEEQ) — دار العطور الملكية الفاخرة',
+    description:
+      'دار رحيق للعطور الفاخرة — فن ترك الانطباع الذي لا يُنسى. أرقى العطور والتركيبات الخاصة مع المعاينة عند الاستلام.',
     type: 'website',
     locale: 'ar_EG',
   },
@@ -49,15 +62,19 @@ export default function RootLayout({
         <LanguageProvider>
           <ProductProvider>
             <CartProvider>
-              <AnnouncementBar />
-              <Navbar />
-              <main className="flex-1">
-                {children}
-              </main>
-              <CartDrawer />
-              <Footer />
-              <FloatingContact />
-              <CookieConsent />
+              <CustomRequestProvider>
+                <AnnouncementBar />
+                <Navbar />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <CartDrawer />
+                <Footer />
+                <FloatingContact />
+                <CustomPerfumeRequestModal />
+                <CookieConsent />
+                <ClientAnalyticsTracker />
+              </CustomRequestProvider>
             </CartProvider>
           </ProductProvider>
         </LanguageProvider>

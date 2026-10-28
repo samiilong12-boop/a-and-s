@@ -1,15 +1,57 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Search, Menu, X, Globe, Phone } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, Globe, Phone, Sparkles, FlaskConical } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useCustomRequest } from '@/context/CustomRequestContext';
+import { DEFAULT_SITE_CONTENT, SITE_CONTENT_STORAGE_KEY, SiteContentConfig } from '@/lib/siteContent';
 
 export function Navbar() {
   const { itemCount, setIsCartOpen } = useCart();
   const { language, toggleLanguage, t, isRtl } = useLanguage();
+  const { openModal } = useCustomRequest();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [siteContent, setSiteContent] = useState<SiteContentConfig>(DEFAULT_SITE_CONTENT);
+
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(SITE_CONTENT_STORAGE_KEY);
+      if (cached) setSiteContent((prev) => ({ ...prev, ...JSON.parse(cached) }));
+    } catch {}
+
+    const handleUpdate = () => {
+      try {
+        const cached = localStorage.getItem(SITE_CONTENT_STORAGE_KEY);
+        if (cached) setSiteContent((prev) => ({ ...prev, ...JSON.parse(cached) }));
+      } catch {}
+    };
+
+    window.addEventListener('storage', handleUpdate);
+    window.addEventListener('raheeq_site_content_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('raheeq_site_content_updated', handleUpdate);
+    };
+  }, []);
+
+  const logoUrl = siteContent.brandLogoUrl || '/images/raheeq-official-logo.png';
+  const shapeClass =
+    siteContent.brandLogoShape === 'square'
+      ? 'rounded-none'
+      : siteContent.brandLogoShape === 'rounded'
+      ? 'rounded-xl'
+      : 'rounded-full';
+
+  const borderClass =
+    siteContent.brandLogoBorder === 'turquoise'
+      ? 'border-[#54d1b2] shadow-[0_0_12px_rgba(84,209,178,0.3)]'
+      : siteContent.brandLogoBorder === 'none'
+      ? 'border-transparent'
+      : siteContent.brandLogoBorder === 'subtle'
+      ? 'border-white/20'
+      : 'border-[#D4AF37]/60';
 
   return (
     <header className="sticky top-0 z-40 bg-[#F7F5EE]/95 backdrop-blur-md border-b border-[#E7E3D6] shadow-xs transition-colors duration-300">
@@ -30,15 +72,22 @@ export function Navbar() {
           {/* Brand Logo with Royal Crest & Signature Turquoise Gemstone Dot */}
           <div className="flex-1 md:flex-none flex justify-center md:justify-start">
             <Link href="/" className="group flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full border border-[#D4AF37]/40 bg-[#080A0A] flex items-center justify-center p-1.5 shadow-md group-hover:border-[#54d1b2] group-hover:shadow-[0_0_12px_rgba(84,209,178,0.3)] transition-all flex-shrink-0">
-                <img src="/images/brand-crest.svg" alt="A AND S Royal Crest" className="w-full h-full object-contain" />
+              <div className={`w-11 h-11 ${shapeClass} border ${borderClass} bg-[#080A0A] flex items-center justify-center shadow-md group-hover:border-[#54d1b2] group-hover:shadow-[0_0_12px_rgba(84,209,178,0.3)] transition-all flex-shrink-0 overflow-hidden`}>
+                <img
+                  src={logoUrl}
+                  alt="Raheeq Royal Emblem"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex flex-col items-start">
                 <div className="flex items-center">
-                  <span className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.25em] text-[#080A0A] group-hover:text-[#00bc7d] transition-colors">
-                    A AND S
+                  <span className="font-serif text-2xl sm:text-3xl font-bold tracking-[0.18em] text-[#080A0A] group-hover:text-[#00bc7d] transition-colors">
+                    رَحِيقْ
                   </span>
-                  <span className="w-2 h-2 rounded-full bg-[#54d1b2] shadow-[0_0_8px_#54d1b2] mx-1 mb-1 animate-pulse" />
+                  <span className="font-sans text-xs tracking-[0.25em] text-[#C6A66B] font-extrabold mx-1.5 uppercase">
+                    RAHEEQ
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-[#54d1b2] shadow-[0_0_8px_#54d1b2] mb-1 animate-pulse" />
                 </div>
                 <span className="text-[9px] tracking-[0.35em] text-[#C6A66B] uppercase font-sans font-bold -mt-0.5">
                   Haute Parfumerie
@@ -84,6 +133,16 @@ export function Navbar() {
           {/* Action Icons */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             
+            {/* Custom Fragrance / Bespoke Blend Request Button */}
+            <button
+              onClick={() => openModal()}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#080A0A] text-[#54d1b2] hover:text-white border border-[#54d1b2]/40 text-xs font-bold transition-all shadow-xs hover:border-[#54d1b2] hover:shadow-[0_0_12px_rgba(84,209,178,0.3)]"
+              title={language === 'ar' ? 'اطلب عطر معين أو خلطة خاصة' : 'Request Bespoke Scent'}
+            >
+              <FlaskConical className="w-3.5 h-3.5 text-[#54d1b2]" />
+              <span>{language === 'ar' ? 'اطلب عطرك الخاص' : 'Bespoke Blend'}</span>
+            </button>
+
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
@@ -123,6 +182,18 @@ export function Navbar() {
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#F7F5EE] border-b border-[#E7E3D6] px-4 pt-3 pb-6 space-y-3 shadow-xl">
+          {/* Bespoke Request Mobile Button */}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              openModal();
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#080A0A] text-[#54d1b2] font-bold text-xs uppercase tracking-wider border border-[#54d1b2]/40 shadow-sm"
+          >
+            <FlaskConical className="w-4 h-4 text-[#54d1b2]" />
+            <span>{language === 'ar' ? 'اطلب عطر معين أو خلطة خاصة' : 'Request Bespoke Perfume / Blend'}</span>
+          </button>
+
           <Link
             href="/catalog"
             onClick={() => setMobileMenuOpen(false)}
