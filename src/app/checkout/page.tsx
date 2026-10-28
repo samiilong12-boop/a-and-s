@@ -149,6 +149,17 @@ export default function CheckoutPage() {
       const existingOrders = existingOrdersStr ? JSON.parse(existingOrdersStr) : [];
       localStorage.setItem('a_and_s_demo_orders', JSON.stringify([orderPayload, ...existingOrders]));
 
+      // 3. Persist order to server so it appears in Admin Portal across all devices
+      try {
+        await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderPayload),
+        });
+      } catch (apiErr) {
+        console.warn('Order saved to local storage, server sync retry pending:', apiErr);
+      }
+
       clearCart();
       router.push(`/order-confirmation/${orderNumber}`);
     } catch (err) {

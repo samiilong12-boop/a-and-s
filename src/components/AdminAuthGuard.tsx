@@ -16,8 +16,8 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 
-const ADMIN_MASTER_PASSWORD = '0913982509M';
 const STORAGE_KEY = 'a_and_s_admin_session_auth';
+const TOKEN_KEY = 'a_and_s_admin_jwt_token';
 const LAST_ACTIVITY_KEY = 'a_and_s_admin_last_activity';
 const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes (600,000 ms)
 
@@ -44,12 +44,17 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
   const timerCheckRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-lock handler
-  const lockDueToInactivity = useCallback(() => {
+  const lockDueToInactivity = useCallback(async () => {
     try {
       sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(TOKEN_KEY);
       sessionStorage.removeItem(LAST_ACTIVITY_KEY);
       localStorage.removeItem(LAST_ACTIVITY_KEY);
+
+      // Call server to expire cookie
+      await fetch('/api/admin/auth', { method: 'DELETE' }).catch(() => {});
     } catch {
       // ignore
     }
@@ -72,30 +77,54 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 
   // Initial authentication check & auto-lock timeout check on mount
   useEffect(() => {
-    try {
-      const sessionAuth = sessionStorage.getItem(STORAGE_KEY);
-      const localAuth = localStorage.getItem(STORAGE_KEY);
-      const isAuth = sessionAuth === 'authenticated' || localAuth === 'authenticated';
+    let isMounted = true;
 
-      if (isAuth) {
+    async function checkAuthStatus() {
+      try {
         const savedActivity =
           sessionStorage.getItem(LAST_ACTIVITY_KEY) || localStorage.getItem(LAST_ACTIVITY_KEY);
         const lastTime = savedActivity ? parseInt(savedActivity, 10) : Date.now();
         const diff = Date.now() - lastTime;
 
         if (diff > INACTIVITY_TIMEOUT_MS) {
-          // Exceeded 10 minutes while tab was inactive/closed
-          lockDueToInactivity();
-        } else {
-          lastActivityRef.current = Date.now();
-          setIsAuthenticated(true);
+          if (isMounted) lockDueToInactivity();
+          return;
         }
-      } else {
-        setIsAuthenticated(false);
+
+        // Verify with server
+        const token = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || '';
+        const headers: Record<string, string> = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch('/api/admin/auth', {
+          method: 'GET',
+          headers,
+          cache: 'no-store',
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            if (data.authenticated) {
+              lastActivityRef.current = Date.now();
+              setIsAuthenticated(true);
+            } else {
+              setIsAuthenticated(false);
+            }
+          }
+        } else {
+          if (isMounted) setIsAuthenticated(false);
+        }
+      } catch {
+        if (isMounted) setIsAuthenticated(false);
       }
-    } catch {
-      setIsAuthenticated(false);
     }
+
+    checkAuthStatus();
+
+    return () => {
+      isMounted = false;
+    };
   }, [lockDueToInactivity]);
 
   // Set up 10-minute inactivity tracker when authenticated
@@ -129,18 +158,30 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     };
   }, [isAuthenticated, lockDueToInactivity, recordActivity]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!passwordInput) return;
+
     setIsSubmitting(true);
     setErrorMessage('');
     setWasAutoLocked(false);
 
-    setTimeout(() => {
-      if (passwordInput.trim() === ADMIN_MASTER_PASSWORD) {
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: passwordInput }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success && data.token) {
         const now = Date.now();
         try {
           sessionStorage.setItem(STORAGE_KEY, 'authenticated');
+          sessionStorage.setItem(TOKEN_KEY, data.token);
           localStorage.setItem(STORAGE_KEY, 'authenticated');
+          localStorage.setItem(TOKEN_KEY, data.token);
           sessionStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
           localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
         } catch {
@@ -148,15 +189,19 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
         }
         lastActivityRef.current = now;
         setIsAuthenticated(true);
+        setPasswordInput('');
       } else {
-        setErrorMessage('كلمة المرور غير صحيحة. يرجى إدخال كلمة المرور المعتمدة لمالك المتجر.');
+        setErrorMessage(data.error || 'رمز المرور غير صحيح. يرجى إدخال رمز المرور المعتمد لمالك المتجر.');
       }
+    } catch {
+      setErrorMessage('تعذر الاتصال بخادم المصادقة، يرجى المحاولة مرة أخرى.');
+    } finally {
       setIsSubmitting(false);
-    }, 300);
+    }
   };
 
-  const handleLogout = () => {
-    lockDueToInactivity();
+  const handleLogout = async () => {
+    await lockDueToInactivity();
     setWasAutoLocked(false);
   };
 
@@ -167,7 +212,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-2 border-[#54d1b2] border-t-transparent rounded-full animate-spin" />
           <span className="text-xs uppercase tracking-widest text-[#E6E1D5]">
-            التحقق الأمني لدار رحيق (Raheeq Security)...
+            التحقق الأمني المشفر لدار رحيق (Raheeq Cryptographic Guard)...
           </span>
         </div>
       </div>
@@ -192,7 +237,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
           </Link>
           <div className="flex items-center gap-1.5 text-[11px] text-[#D4AF37] bg-[#D4AF37]/10 border border-[#D4AF37]/20 px-3 py-1 rounded-full">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>لوحة التحكم السرية للمالك (خاصة)</span>
+            <span>بوابة الإدارة السيرفرية المشفرة (Server-Verified)</span>
           </div>
         </div>
 
@@ -215,7 +260,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
                 </p>
               </div>
               <p className="text-xs text-[#A2ADA9] max-w-xs mx-auto leading-relaxed">
-                لوحة التحكم المركزية لإدارة عطور الدار، تعديل الأسعار والمخزون، وخلفية الواجهة.
+                لوحة التحكم المركزية لإدارة عطور الدار، متابعة أرباح المبيعات، ومراجعة طلبات التوصيل.
               </p>
             </div>
 
@@ -225,7 +270,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
                 <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <strong className="block font-bold text-amber-300">تم قفل اللوحة تلقائياً (Auto-Locked)</strong>
-                  <span>لحماية متجرك، تم قفل لوحة التحكم بعد مرور 10 دقائق من عدم النشاط. يرجى إدخال كلمة المرور للمتابعة.</span>
+                  <span>لحماية متجرك، تم قفل لوحة التحكم بعد مرور 10 دقائق من عدم النشاط. يرجى إدخال رمز المرور للمتابعة.</span>
                 </div>
               </div>
             )}
@@ -242,7 +287,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-[#E6E1D5] uppercase tracking-wider mb-2">
-                  كلمة المرور الخاصة (Master Admin Password)
+                  رمز المرور الخاص (Master Admin Password)
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-[#788784]">
@@ -252,7 +297,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
                     type={showPassword ? 'text' : 'password'}
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
-                    placeholder="أدخل كلمة المرور..."
+                    placeholder="أدخل رمز المرور السري..."
                     required
                     autoFocus
                     className="w-full bg-[#141B1A] border border-white/15 focus:border-[#54d1b2] rounded-xl pr-10 pl-11 py-3 text-sm text-white placeholder-[#788784] focus:outline-none transition-colors font-mono"
@@ -271,10 +316,10 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:from-[#54d1b2] hover:to-[#00bc7d] text-[#080A0A] font-extrabold py-3.5 px-6 rounded-xl text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(84,209,178,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:from-[#54d1b2] hover:to-[#00bc7d] text-[#080A0A] font-extrabold py-3.5 px-6 rounded-xl text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(84,209,178,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
               >
                 <KeyRound className="w-4 h-4" />
-                <span>{isSubmitting ? 'جاري التحقق...' : 'دخول إلى لوحة التحكم'}</span>
+                <span>{isSubmitting ? 'جاري التحقق بالسيرفر...' : 'دخول إلى لوحة التحكم'}</span>
               </button>
             </form>
 
@@ -282,7 +327,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
             <div className="border-t border-white/10 pt-4 text-center space-y-1">
               <span className="text-[11px] text-[#788784] flex items-center justify-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#54d1b2]" />
-                <span>نظام حماية القفل التلقائي مفعل (10 دقائق خمول)</span>
+                <span>مصادقة سيرفرية مشفرة (JWT + HttpOnly Cookie)</span>
               </span>
             </div>
           </div>
@@ -304,7 +349,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#00bc7d] animate-ping" />
           <span className="text-[11px] text-[#A2ADA9]">
-            جلسة الإدارة نشطة — مرحباً بمالك دار رحيق (قفل تلقائي بعد 10 دقائق من عدم النشاط)
+            جلسة الإدارة نشطة ومشفرة — مرحباً بمالك دار رحيق (قفل تلقائي بعد 10 دقائق من عدم النشاط)
           </span>
         </div>
         <button

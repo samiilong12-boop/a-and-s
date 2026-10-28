@@ -32,6 +32,16 @@ import {
 
 const ACTIVE_ORDERS_KEY = 'a_and_s_demo_orders';
 const ARCHIVE_ORDERS_KEY = 'a_and_s_archived_orders';
+const TOKEN_KEY = 'a_and_s_admin_jwt_token';
+
+function getAdminAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (typeof window !== 'undefined') {
+    const token = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
 
 function AdminOrdersContent() {
   const searchParams = useSearchParams();
@@ -58,14 +68,15 @@ function AdminOrdersContent() {
     setTimeout(() => setNotification(null), 3500);
   };
 
-  const loadOrders = () => {
+  const loadOrders = async () => {
+    let localActive: any[] = [];
     try {
       const storedActive = localStorage.getItem(ACTIVE_ORDERS_KEY);
       if (storedActive) {
-        const parsed = JSON.parse(storedActive);
-        setOrders(parsed);
+        localActive = JSON.parse(storedActive);
+        setOrders(localActive);
         if (highlightedOrder) {
-          const found = parsed.find((o: any) => o.orderNumber === highlightedOrder);
+          const found = localActive.find((o: any) => o.orderNumber === highlightedOrder);
           if (found) openOrderDetails(found);
         }
       } else {
@@ -79,7 +90,28 @@ function AdminOrdersContent() {
         setArchivedOrders([]);
       }
     } catch (e) {
-      console.error('Error loading orders:', e);
+      console.error('Error loading orders from localStorage:', e);
+    }
+
+    // Server-side sync: Fetch all orders across Egypt
+    try {
+      const res = await fetch('/api/orders', {
+        headers: getAdminAuthHeaders(),
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const remoteOrders: any[] = await res.json();
+        const map = new Map<string, any>();
+        localActive.forEach((o) => map.set(o.orderNumber, o));
+        remoteOrders.forEach((o) => map.set(o.orderNumber, o));
+        const merged = Array.from(map.values()).sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setOrders(merged);
+        localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(merged));
+      }
+    } catch (netErr) {
+      // Gracefully continue with local orders
     }
   };
 

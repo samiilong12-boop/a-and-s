@@ -27,7 +27,19 @@ interface CustomRequestContextType {
 const CustomRequestContext = createContext<CustomRequestContextType | undefined>(undefined);
 
 export const CUSTOM_REQUESTS_STORAGE_KEY = 'raheeq_custom_requests_cache_v2';
-const LEGACY_STORAGE_KEY = 'a_and_s_custom_requests_cache';
+export const LEGACY_STORAGE_KEY = 'a_and_s_custom_requests_cache';
+export const TOKEN_KEY = 'a_and_s_admin_jwt_token';
+
+function getAdminAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (typeof window !== 'undefined') {
+    const token = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  return headers;
+}
 
 export function CustomRequestProvider({ children }: { children: React.ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,12 +74,26 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     return [];
   }, []);
 
-  // Intelligently merge without losing any requests
+  // Intelligently merge without losing any requests (Scoped for Admin)
   const refreshRequests = useCallback(async () => {
     const local = getLocalStoredRequests();
 
+    // Privacy & Security Lockdown: Only fetch remote customer database if logged in as Admin
+    const isAdmin =
+      typeof window !== 'undefined' &&
+      (Boolean(sessionStorage.getItem(TOKEN_KEY)) ||
+        Boolean(localStorage.getItem(TOKEN_KEY)) ||
+        window.location.pathname.startsWith('/admin'));
+
+    if (!isAdmin) {
+      if (local.length > 0) setRequests(local);
+      return;
+    }
+
     try {
-      const res = await fetch('/api/custom-requests');
+      const res = await fetch('/api/custom-requests', {
+        headers: getAdminAuthHeaders(),
+      });
       if (res.ok) {
         const remote: BespokePerfumeRequest[] = await res.json();
 
@@ -185,7 +211,7 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     try {
       await fetch('/api/custom-requests', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminAuthHeaders(),
         body: JSON.stringify({ id, status }),
       });
     } catch (e) {
@@ -207,6 +233,7 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     try {
       await fetch(`/api/custom-requests?id=${id}`, {
         method: 'DELETE',
+        headers: getAdminAuthHeaders(),
       });
     } catch (e) {
       console.error('Failed to delete request', e);
@@ -227,6 +254,7 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     try {
       await fetch('/api/custom-requests?clearFulfilled=true', {
         method: 'DELETE',
+        headers: getAdminAuthHeaders(),
       });
     } catch (e) {
       console.error('Failed to clear fulfilled requests', e);

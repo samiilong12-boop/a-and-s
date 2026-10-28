@@ -88,17 +88,38 @@ function TrackOrderContent() {
         if (storedBespoke) allBespoke = JSON.parse(storedBespoke);
       } catch {}
 
+      // 2. Query server for matching bespoke request (Secure Targeted Query without exposing other users)
       try {
-        const apiRes = await fetch('/api/custom-requests', { cache: 'no-store' });
+        const params = new URLSearchParams();
+        if (queryCode) params.set('id', queryCode);
+        if (queryPhone) params.set('phone', queryPhone);
+
+        const apiRes = await fetch(`/api/custom-requests?${params.toString()}`, { cache: 'no-store' });
         if (apiRes.ok) {
-          const remoteList: BespokePerfumeRequest[] = await apiRes.json();
-          const map = new Map<string, BespokePerfumeRequest>();
-          allBespoke.forEach((r) => map.set(r.id, r));
-          remoteList.forEach((r) => map.set(r.id, r));
-          allBespoke = Array.from(map.values());
+          const resJson = await apiRes.json();
+          if (resJson.success && resJson.request) {
+            allBespoke = [resJson.request, ...allBespoke.filter((r) => r.id !== resJson.request.id)];
+          }
         }
       } catch (e) {
-        console.warn('Custom requests fetch error:', e);
+        console.warn('Custom requests targeted fetch error:', e);
+      }
+
+      // 3. Query server for matching catalog order (Secure Targeted Query)
+      try {
+        const params = new URLSearchParams();
+        if (queryCode) params.set('orderNumber', queryCode);
+        if (queryPhone) params.set('phone', queryPhone);
+
+        const orderRes = await fetch(`/api/orders?${params.toString()}`, { cache: 'no-store' });
+        if (orderRes.ok) {
+          const resJson = await orderRes.json();
+          if (resJson.success && resJson.order) {
+            allOrders = [resJson.order, ...allOrders.filter((o) => o.orderNumber !== resJson.order.orderNumber)];
+          }
+        }
+      } catch (e) {
+        console.warn('Orders targeted fetch error:', e);
       }
 
       // Check ID Match helper

@@ -1,0 +1,186 @@
+import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { verifyAdminSession } from '@/lib/serverAuth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+
+// Global memory container for serverless runtime
+declare global {
+  var __CATALOG_ORDERS__: any[] | undefined;
+}
+
+const tmpFilePath = path.join(os.tmpdir(), 'raheeq-catalog-orders.json');
+const publicFilePath = path.join(process.cwd(), 'public', 'data', 'orders.json');
+
+function loadPersistedOrders(): any[] {
+  if (globalThis.__CATALOG_ORDERS__ && Array.isArray(globalThis.__CATALOG_ORDERS__)) {
+    return globalThis.__CATALOG_ORDERS__;
+  }
+
+  // Check /tmp
+  try {
+    if (fs.existsSync(tmpFilePath)) {
+      const data = fs.readFileSync(tmpFilePath, 'utf-8');
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        globalThis.__CATALOG_ORDERS__ = parsed;
+        return parsed;
+      }
+    }
+  } catch {}
+
+  // Check public/data/orders.json
+  try {
+    if (fs.existsSync(publicFilePath)) {
+      const data = fs.readFileSync(publicFilePath, 'utf-8');
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        globalThis.__CATALOG_ORDERS__ = parsed;
+        return parsed;
+      }
+    }
+  } catch {}
+
+  globalThis.__CATALOG_ORDERS__ = [];
+  return [];
+}
+
+function persistOrders(list: any[]) {
+  globalThis.__CATALOG_ORDERS__ = list;
+
+  try {
+    fs.writeFileSync(tmpFilePath, JSON.stringify(list, null, 2), 'utf-8');
+  } catch (e) {
+    console.warn('Failed writing orders to tmp:', e);
+  }
+
+  try {
+    const dir = path.dirname(publicFilePath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(publicFilePath, JSON.stringify(list, null, 2), 'utf-8');
+  } catch {}
+}
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const cleanDigits = (s?: string) => (s || '').replace(/[^0-9]/g, '');
+const cleanStr = (s?: string) => (s || '').trim().toLowerCase().replace(/^#/, '');
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const orderNumber = searchParams.get('orderNumber');
+  const phone = searchParams.get('phone');
+  const orders = loadPersistedOrders();
+
+  // Mode 1: Customer single order tracking lookup
+  if (orderNumber || phone) {
+    const cOrderNum = cleanStr(orderNumber || '');
+    const cPhone = cleanDigits(phone || '');
+
+    const found = orders.find((o) => {
+      const oNum = cleanStr(o.orderNumber);
+      const oPhone = cleanDigits(o.customerPhone);
+
+      const numMatch = cOrderNum ? (oNum === cOrderNum || oNum.endsWith(cOrderNum) || cOrderNum.endsWith(oNum)) : false;
+      const phoneMatch = cPhone.length >= 6 ? oPhone.endsWith(cPhone.slice(-8)) : false;
+
+      if (cOrderNum && cPhone) return numMatch && phoneMatch;
+      return numMatch || phoneMatch;
+    });
+
+    if (found) {
+      const maskedPhone = found.customerPhone ? found.customerPhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '';
+      return NextResponse.json({
+        success: true,
+        order: {
+          ...found,
+          customerPhone: maskedPhone,
+        },
+      });
+    }
+
+    return NextResponse.json({ success: false, error: 'لم يتم العثور على الطلب' }, { status: 404 });
+  }
+
+  // Mode 2: Admin list all orders (Protected by Admin Session)
+  const isAdmin = await verifyAdminSession(req);
+  if (!isAdmin) {
+    return NextResponse.json({ error: 'غير مصرح بالوصول لقائمة الطلبات' }, { status: 401 });
+  }
+
+  return NextResponse.json(orders, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+    },
+  });
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const clientIp = getClientIp(req);
+    // Rate limit: max 10 orders per minute per IP
+    const rateCheck = checkRateLimit(`order_checkout_${clientIp}`, 10, 60000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ success: false, error: 'يرجى الانتظار قبل إرسال طلب جديد' }, { status: 429 });
+    }
+
+    const orderData = await req.json();
+
+    if (!orderData || !orderData.orderNumber || !orderData.customerPhone) {
+      return NextResponse.json({ success: false, error: 'بيانات الطلب غير مكتملة' }, { status: 400 });
+    }
+
+    const existing = loadPersistedOrders();
+    const updated = [orderData, ...existing.filter((o) => o.orderNumber !== orderData.orderNumber)];
+    persistOrders(updated);
+
+    return NextResponse.json({ success: true, order: orderData });
+  } catch (error) {
+    console.error('Failed to save order:', error);
+    return NextResponse.json({ success: false, error: 'حدث خطأ في حفظ الطلب' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const isAdmin = await verifyAdminSession(req);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'غير مصرح بتعديل الطلبات' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { orderNumber, updates } = body;
+    const existing = loadPersistedOrders();
+
+    const updated = existing.map((o) =>
+      o.orderNumber === orderNumber ? { ...o, ...updates } : o
+    );
+    persistOrders(updated);
+
+    return NextResponse.json({ success: true, orders: updated });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Failed to update order' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const isAdmin = await verifyAdminSession(req);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'غير مصرح بحذف الطلبات' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const orderNumber = searchParams.get('orderNumber');
+    const existing = loadPersistedOrders();
+
+    const updated = existing.filter((o) => o.orderNumber !== orderNumber);
+    persistOrders(updated);
+
+    return NextResponse.json({ success: true, orders: updated });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Failed to delete order' }, { status: 500 });
+  }
+}
