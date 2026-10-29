@@ -145,10 +145,18 @@ export default function AdminStorefrontContentPage() {
         console.warn('localStorage save warning:', lsErr);
       }
 
-      // Sync with API
+      // Sync with API with Admin Authentication
+      const token =
+        typeof window !== 'undefined'
+          ? sessionStorage.getItem('a_and_s_admin_jwt_token') ||
+            localStorage.getItem('a_and_s_admin_jwt_token')
+          : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       await fetch('/api/admin/hero-config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(updated),
       });
 

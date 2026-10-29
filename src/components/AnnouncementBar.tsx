@@ -3,9 +3,12 @@
 import React from 'react';
 import { Truck, Sparkles, Phone, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSiteContent } from '@/context/SiteContentContext';
 
 export function AnnouncementBar() {
   const { t, isRtl } = useLanguage();
+  const { siteContent } = useSiteContent();
+  const phone = siteContent.whatsapp1 || '01131068790';
 
   return (
     <div className="bg-[#080A0A] text-[#FAF9F5] text-xs py-2 px-4 border-b border-[#2DD4BF]/20">
@@ -27,11 +30,11 @@ export function AnnouncementBar() {
           </span>
           <span className="hidden md:inline text-[#4A5553]">•</span>
           <a
-            href="tel:+201131068790"
+            href={`tel:${phone}`}
             className="hidden md:flex items-center gap-1 text-[#FFFFFF] hover:text-[#2DD4BF] font-bold transition-colors font-mono"
           >
             <Phone className="w-3 h-3 text-[#2DD4BF]" />
-            <span>01131068790</span>
+            <span>{phone}</span>
           </a>
         </div>
       </div>

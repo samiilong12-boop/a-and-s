@@ -22,14 +22,9 @@ import { useProducts } from '@/context/ProductContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCustomRequest } from '@/context/CustomRequestContext';
 import { useFragranceFinder } from '@/context/FragranceFinderContext';
+import { useSiteContent } from '@/context/SiteContentContext';
 import { FRAGRANCE_FAMILIES } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
-import {
-  DEFAULT_SITE_CONTENT,
-  SITE_CONTENT_STORAGE_KEY,
-  LEGACY_HERO_KEY,
-  SiteContentConfig,
-} from '@/lib/siteContent';
 
 export default function HomePage() {
   const { products } = useProducts();
@@ -43,50 +38,10 @@ export default function HomePage() {
   const [isMuted, setIsMuted] = useState(true);
 
   // Full Storefront Dynamic CMS Content & Media
-  const [siteContent, setSiteContent] = useState<SiteContentConfig>(DEFAULT_SITE_CONTENT);
+  const { siteContent } = useSiteContent();
   const heroConfig = siteContent; // alias for backwards compatibility
   const [videoLoaded, setVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Fetch admin configured storefront content (texts, images, video, clarity, stats)
-  useEffect(() => {
-    // 1. Instant load from localStorage
-    try {
-      const cached =
-        localStorage.getItem(SITE_CONTENT_STORAGE_KEY) || localStorage.getItem(LEGACY_HERO_KEY);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        setSiteContent((prev) => ({ ...prev, ...parsed }));
-      }
-    } catch (e) {
-      // ignore
-    }
-
-    // 2. Fetch server config to keep synced
-    fetch('/api/admin/hero-config')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data) {
-          setSiteContent((prev) => ({ ...prev, ...data }));
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to load site content config', err);
-      });
-
-    // 3. Listen to storage changes across tabs
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === SITE_CONTENT_STORAGE_KEY || e.key === LEGACY_HERO_KEY) {
-        try {
-          if (e.newValue) {
-            setSiteContent((prev) => ({ ...prev, ...JSON.parse(e.newValue!) }));
-          }
-        } catch {}
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   // Ensure autoplay on mount or mode change
   useEffect(() => {

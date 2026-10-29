@@ -16,6 +16,8 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 
+import { useSiteContent } from '@/context/SiteContentContext';
+
 const STORAGE_KEY = 'a_and_s_admin_session_auth';
 const TOKEN_KEY = 'a_and_s_admin_jwt_token';
 const LAST_ACTIVITY_KEY = 'a_and_s_admin_last_activity';
@@ -28,17 +30,8 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [wasAutoLocked, setWasAutoLocked] = useState(false);
-  const [logoUrl, setLogoUrl] = useState('/images/raheeq-official-logo.png');
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('raheeq_site_content_v2');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.brandLogoUrl) setLogoUrl(parsed.brandLogoUrl);
-      }
-    } catch {}
-  }, []);
+  const { siteContent } = useSiteContent();
+  const logoUrl = siteContent.brandLogoUrl || '/images/raheeq-official-logo.png';
 
   const lastActivityRef = useRef<number>(Date.now());
   const timerCheckRef = useRef<NodeJS.Timeout | null>(null);

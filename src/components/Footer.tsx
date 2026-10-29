@@ -4,36 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, Truck, Clock, Phone, MapPin, Mail, Lock, Sparkles, Gift } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { DEFAULT_SITE_CONTENT, SITE_CONTENT_STORAGE_KEY, SiteContentConfig } from '@/lib/siteContent';
+import { useSiteContent } from '@/context/SiteContentContext';
 
 export function Footer() {
   const { t, isRtl } = useLanguage();
-  const [content, setContent] = useState<SiteContentConfig>(DEFAULT_SITE_CONTENT);
-
-  useEffect(() => {
-    try {
-      const cached = localStorage.getItem(SITE_CONTENT_STORAGE_KEY);
-      if (cached) {
-        setContent((prev) => ({ ...prev, ...JSON.parse(cached) }));
-      }
-    } catch {}
-
-    const handleUpdate = () => {
-      try {
-        const cached = localStorage.getItem(SITE_CONTENT_STORAGE_KEY);
-        if (cached) {
-          setContent((prev) => ({ ...prev, ...JSON.parse(cached) }));
-        }
-      } catch {}
-    };
-
-    window.addEventListener('storage', handleUpdate);
-    window.addEventListener('raheeq_site_content_updated', handleUpdate);
-    return () => {
-      window.removeEventListener('storage', handleUpdate);
-      window.removeEventListener('raheeq_site_content_updated', handleUpdate);
-    };
-  }, []);
+  const { siteContent: content } = useSiteContent();
 
   return (
     <footer className="bg-[#080A0A] border-t border-[#1A2624] text-[#FAF9F5] mt-24">

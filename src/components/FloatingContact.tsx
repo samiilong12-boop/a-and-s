@@ -3,21 +3,28 @@
 import React, { useState } from 'react';
 import { Phone, MessageSquare, X, Sparkles, ChevronUp, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSiteContent } from '@/context/SiteContentContext';
 
 export function FloatingContact() {
   const { t, isRtl } = useLanguage();
+  const { siteContent } = useSiteContent();
   const [isOpen, setIsOpen] = useState(false);
 
-  const phone1 = '01131068790';
-  const phone2 = '01011800245';
+  const phone1 = siteContent.whatsapp1 || '01131068790';
+  const phone2 = siteContent.whatsapp2 || '01011800245';
 
-  const waUrl1 = `https://wa.me/201131068790?text=${encodeURIComponent(
+  const cleanPhone1 = phone1.replace(/[^0-9]/g, '');
+  const cleanPhone2 = phone2.replace(/[^0-9]/g, '');
+  const waNumber1 = cleanPhone1.startsWith('0') ? `2${cleanPhone1}` : cleanPhone1;
+  const waNumber2 = cleanPhone2.startsWith('0') ? `2${cleanPhone2}` : cleanPhone2;
+
+  const waUrl1 = `https://wa.me/${waNumber1}?text=${encodeURIComponent(
     isRtl
       ? 'مرحباً دار رَحِيقْ للعطور الفاخرة 💎، أود الاستفسار عن تشكيلة العطور وتفاصيل التوصيل والمعاينة عند الاستلام.'
       : 'Hello Raheeq Haute Parfumerie, I would like to inquire about fragrances and door delivery with inspection.'
   )}`;
 
-  const waUrl2 = `https://wa.me/201011800245?text=${encodeURIComponent(
+  const waUrl2 = `https://wa.me/${waNumber2}?text=${encodeURIComponent(
     isRtl
       ? 'مرحباً دار رَحِيقْ للعطور الفاخرة 💎، أود الاستفسار عن تشكيلة العطور وطلب عطر خاص.'
       : 'Hello Raheeq Haute Parfumerie, I would like to inquire about bespoke fragrances.'

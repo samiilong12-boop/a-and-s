@@ -6,6 +6,7 @@ import { ProductProvider } from '@/context/ProductContext';
 import { CartProvider } from '@/context/CartContext';
 import { CustomRequestProvider } from '@/context/CustomRequestContext';
 import { FragranceFinderProvider } from '@/context/FragranceFinderContext';
+import { SiteContentProvider } from '@/context/SiteContentContext';
 import { StorefrontShell } from '@/components/StorefrontShell';
 
 const bodoniModa = Bodoni_Moda({
@@ -53,17 +54,19 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className={`${bodoniModa.variable} ${jost.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#F6F3EC] text-[#080A0A] font-sans antialiased selection:bg-[#2DD4BF] selection:text-[#080A0A]">
         <LanguageProvider>
-          <ProductProvider>
-            <CartProvider>
-              <CustomRequestProvider>
-                <FragranceFinderProvider>
-                  <StorefrontShell>
-                    {children}
-                  </StorefrontShell>
-                </FragranceFinderProvider>
-              </CustomRequestProvider>
-            </CartProvider>
-          </ProductProvider>
+          <SiteContentProvider>
+            <ProductProvider>
+              <CartProvider>
+                <CustomRequestProvider>
+                  <FragranceFinderProvider>
+                    <StorefrontShell>
+                      {children}
+                    </StorefrontShell>
+                  </FragranceFinderProvider>
+                </CustomRequestProvider>
+              </CartProvider>
+            </ProductProvider>
+          </SiteContentProvider>
         </LanguageProvider>
       </body>
     </html>

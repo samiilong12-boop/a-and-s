@@ -21,30 +21,13 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { AdminAuthGuard } from '@/components/AdminAuthGuard';
+import { useSiteContent } from '@/context/SiteContentContext';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [logoUrl, setLogoUrl] = useState('/images/raheeq-official-logo.png');
-
-  useEffect(() => {
-    const updateLogo = () => {
-      try {
-        const stored = localStorage.getItem('raheeq_site_content_v2');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (parsed.brandLogoUrl) setLogoUrl(parsed.brandLogoUrl);
-        }
-      } catch {}
-    };
-    updateLogo();
-    window.addEventListener('storage', updateLogo);
-    window.addEventListener('raheeq_site_content_updated', updateLogo);
-    return () => {
-      window.removeEventListener('storage', updateLogo);
-      window.removeEventListener('raheeq_site_content_updated', updateLogo);
-    };
-  }, []);
+  const { siteContent } = useSiteContent();
+  const logoUrl = siteContent.brandLogoUrl || '/images/raheeq-official-logo.png';
 
   const navItems = [
     { label: 'نظرة عامة على الأرباح (Overview)', href: '/admin', icon: LayoutDashboard },

@@ -7,36 +7,15 @@ import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCustomRequest } from '@/context/CustomRequestContext';
 import { useFragranceFinder } from '@/context/FragranceFinderContext';
-import { DEFAULT_SITE_CONTENT, SITE_CONTENT_STORAGE_KEY, SiteContentConfig } from '@/lib/siteContent';
+import { useSiteContent } from '@/context/SiteContentContext';
 
 export function Navbar() {
   const { itemCount, setIsCartOpen } = useCart();
   const { language, toggleLanguage, t, isRtl } = useLanguage();
   const { openModal } = useCustomRequest();
   const { openFinder } = useFragranceFinder();
+  const { siteContent } = useSiteContent();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [siteContent, setSiteContent] = useState<SiteContentConfig>(DEFAULT_SITE_CONTENT);
-
-  useEffect(() => {
-    try {
-      const cached = localStorage.getItem(SITE_CONTENT_STORAGE_KEY);
-      if (cached) setSiteContent((prev) => ({ ...prev, ...JSON.parse(cached) }));
-    } catch {}
-
-    const handleUpdate = () => {
-      try {
-        const cached = localStorage.getItem(SITE_CONTENT_STORAGE_KEY);
-        if (cached) setSiteContent((prev) => ({ ...prev, ...JSON.parse(cached) }));
-      } catch {}
-    };
-
-    window.addEventListener('storage', handleUpdate);
-    window.addEventListener('raheeq_site_content_updated', handleUpdate);
-    return () => {
-      window.removeEventListener('storage', handleUpdate);
-      window.removeEventListener('raheeq_site_content_updated', handleUpdate);
-    };
-  }, []);
 
   const logoUrl = siteContent.brandLogoUrl || '/images/raheeq-official-logo.png';
   const shapeClass =
