@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Bodoni_Moda, Jost } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '@/context/LanguageContext';
@@ -8,6 +8,13 @@ import { CustomRequestProvider } from '@/context/CustomRequestContext';
 import { FragranceFinderProvider } from '@/context/FragranceFinderContext';
 import { SiteContentProvider } from '@/context/SiteContentContext';
 import { StorefrontShell } from '@/components/StorefrontShell';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#080A0A',
+};
 
 const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],

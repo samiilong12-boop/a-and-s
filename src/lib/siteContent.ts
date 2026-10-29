@@ -91,6 +91,13 @@ export interface SiteContentConfig {
   footerBottleTitle: string;
   footerBottleDesc: string;
 
+  // 7. Social Media Links (روابط منصات التواصل الاجتماعي الرسمية)
+  facebookUrl: string;
+  instagramUrl: string;
+  tiktokUrl: string;
+  youtubeUrl?: string;
+  snapchatUrl?: string;
+
   updatedAt?: string;
 }
 
@@ -195,4 +202,11 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   footerConcentrationDesc: 'ثبات استثنائي يتجاوز 14 ساعة وفوحان يملأ الأرجاء.',
   footerBottleTitle: 'زجاج بلوري ثقيل بغطاء مغناطيسي',
   footerBottleDesc: 'زجاجة بلورية محكمة الإغلاق تحفظ كثافة ونقاء الزيوت العطرية النادرة.',
+
+  // 7. Social Media Links (روابط منصات التواصل الاجتماعي الرسمية)
+  facebookUrl: 'https://facebook.com',
+  instagramUrl: 'https://instagram.com',
+  tiktokUrl: 'https://tiktok.com',
+  youtubeUrl: '',
+  snapchatUrl: '',
 };

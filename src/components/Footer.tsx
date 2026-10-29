@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Truck, Clock, Phone, MapPin, Mail, Lock, Sparkles, Gift } from 'lucide-react';
+import { ShieldCheck, Truck, Clock, Phone, MapPin, Mail, Lock, Sparkles, Gift, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSiteContent } from '@/context/SiteContentContext';
 
@@ -134,6 +134,63 @@ export function Footer() {
                 <span>concierge@raheeq-parfums.com</span>
               </div>
             </div>
+
+            {/* Official Social Media Channels (فيسبوك، إنستغرام، تيك توك) */}
+            {(content.facebookUrl || content.instagramUrl || content.tiktokUrl || content.youtubeUrl || content.snapchatUrl) && (
+              <div className="pt-3 space-y-2 border-t border-[#1A2624]/60">
+                <span className="text-[11px] font-bold text-slate-300 block tracking-wider">
+                  {isRtl ? 'حسابات الدار على مواقع التواصل:' : 'Official Social Channels:'}
+                </span>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  {content.facebookUrl && (
+                    <a
+                      href={content.facebookUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-[#141A19] hover:bg-[#1877F2] text-[#FAF9F5] flex items-center justify-center border border-[#2DD4BF]/30 transition-all hover:scale-110 shadow-sm group"
+                      title="Facebook | فيسبوك دار رحيق"
+                    >
+                      <Facebook className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    </a>
+                  )}
+                  {content.instagramUrl && (
+                    <a
+                      href={content.instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-[#141A19] hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] text-[#FAF9F5] flex items-center justify-center border border-[#2DD4BF]/30 transition-all hover:scale-110 shadow-sm group"
+                      title="Instagram | إنستغرام دار رحيق"
+                    >
+                      <Instagram className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    </a>
+                  )}
+                  {content.tiktokUrl && (
+                    <a
+                      href={content.tiktokUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-[#141A19] hover:bg-black text-[#FAF9F5] flex items-center justify-center border border-[#2DD4BF]/30 hover:border-[#25F4EE] transition-all hover:scale-110 shadow-sm group"
+                      title="TikTok | تيك توك دار رحيق"
+                    >
+                      <svg className="w-3.5 h-3.5 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.94-4.48V8.6a8.28 8.28 0 0 0 4.83 1.54V6.69z" />
+                      </svg>
+                    </a>
+                  )}
+                  {content.youtubeUrl && (
+                    <a
+                      href={content.youtubeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-[#141A19] hover:bg-[#FF0000] text-[#FAF9F5] flex items-center justify-center border border-[#2DD4BF]/30 transition-all hover:scale-110 shadow-sm group"
+                      title="YouTube"
+                    >
+                      <Youtube className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Fragrance Families */}

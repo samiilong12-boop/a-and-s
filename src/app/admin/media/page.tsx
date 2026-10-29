@@ -30,6 +30,11 @@ import {
   Undo2,
   MessageSquare,
   Phone,
+  Share2,
+  Globe,
+  Facebook,
+  Instagram,
+  Youtube,
 } from 'lucide-react';
 import {
   DEFAULT_SITE_CONTENT,
@@ -492,7 +497,7 @@ export default function AdminStorefrontContentPage() {
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>6. مميزات المتجر والتوصيل (Footer)</span>
+          <span>6. مميزات المتجر والسوشيال ميديا (Footer & Social)</span>
         </button>
       </div>
 
@@ -2205,6 +2210,169 @@ export default function AdminStorefrontContentPage() {
                   className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-700"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Social Media Links Customizer (روابط السوشيال ميديا: فيسبوك، إنستغرام، تيك توك) */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Share2 className="w-5 h-5 text-teal-700" />
+                  <h3 className="font-bold text-base text-slate-900">
+                    روابط منصات التواصل الاجتماعي (Facebook, Instagram, TikTok)
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  ضع روابط صفحات وحسابات دار رحيق الرسمية لتظهر كأيقونات تفاعلية قابلة للنقر في أسفل كل صفحات المتجر.
+                </p>
+              </div>
+              <span className="text-[10px] bg-teal-50 text-teal-800 font-bold px-3 py-1 rounded-full border border-teal-200 self-start sm:self-auto">
+                تحديث سحابي فوري لجميع الأجهزة
+              </span>
+            </div>
+
+            {/* Live Social Icons Preview */}
+            <div className="p-4 rounded-xl bg-[#080A0A] border border-[#2DD4BF]/30 text-white flex items-center justify-between flex-wrap gap-3">
+              <span className="text-xs font-bold text-slate-300">
+                المعاينة في أسفل المتجر (Live Preview):
+              </span>
+              <div className="flex items-center gap-2.5">
+                {config.facebookUrl ? (
+                  <a
+                    href={config.facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-[#141A19] hover:bg-[#1877F2] text-white flex items-center justify-center border border-[#2DD4BF]/40 transition-colors shadow-xs"
+                    title="Facebook"
+                  >
+                    <Facebook className="w-4 h-4" />
+                  </a>
+                ) : (
+                  <span className="text-[10px] text-slate-500">لم يتم إدخال فيسبوك</span>
+                )}
+                {config.instagramUrl && (
+                  <a
+                    href={config.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-[#141A19] hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] text-white flex items-center justify-center border border-[#2DD4BF]/40 transition-colors shadow-xs"
+                    title="Instagram"
+                  >
+                    <Instagram className="w-4 h-4" />
+                  </a>
+                )}
+                {config.tiktokUrl && (
+                  <a
+                    href={config.tiktokUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-[#141A19] hover:bg-black text-white flex items-center justify-center border border-[#2DD4BF]/40 transition-colors shadow-xs"
+                    title="TikTok"
+                  >
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.94-4.48V8.6a8.28 8.28 0 0 0 4.83 1.54V6.69z" />
+                    </svg>
+                  </a>
+                )}
+                {config.youtubeUrl && (
+                  <a
+                    href={config.youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full bg-[#141A19] hover:bg-[#FF0000] text-white flex items-center justify-center border border-[#2DD4BF]/40 transition-colors shadow-xs"
+                    title="YouTube"
+                  >
+                    <Youtube className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Input Fields for Social Media URLs */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Facebook Field */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+                  <div className="w-6 h-6 rounded-full bg-[#1877F2] text-white flex items-center justify-center shadow-xs">
+                    <Facebook className="w-3.5 h-3.5" />
+                  </div>
+                  <span>رابط صفحة فيسبوك (Facebook):</span>
+                </div>
+                <input
+                  type="url"
+                  value={config.facebookUrl || ''}
+                  onChange={(e) => setConfig({ ...config, facebookUrl: e.target.value })}
+                  onBlur={() => handleSaveConfig({ facebookUrl: config.facebookUrl })}
+                  placeholder="https://facebook.com/raheeq.parfum"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:border-teal-600"
+                />
+                <span className="text-[10px] text-slate-400 block">
+                  مثال: https://facebook.com/اسم_صفحتك
+                </span>
+              </div>
+
+              {/* Instagram Field */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-xs">
+                    <Instagram className="w-3.5 h-3.5" />
+                  </div>
+                  <span>رابط حساب إنستغرام (Instagram):</span>
+                </div>
+                <input
+                  type="url"
+                  value={config.instagramUrl || ''}
+                  onChange={(e) => setConfig({ ...config, instagramUrl: e.target.value })}
+                  onBlur={() => handleSaveConfig({ instagramUrl: config.instagramUrl })}
+                  placeholder="https://instagram.com/raheeq_parfum"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:border-teal-600"
+                />
+                <span className="text-[10px] text-slate-400 block">
+                  مثال: https://instagram.com/اسم_حسابك
+                </span>
+              </div>
+
+              {/* TikTok Field */}
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+                  <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.94-4.48V8.6a8.28 8.28 0 0 0 4.83 1.54V6.69z" />
+                    </svg>
+                  </div>
+                  <span>رابط حساب تيك توك (TikTok):</span>
+                </div>
+                <input
+                  type="url"
+                  value={config.tiktokUrl || ''}
+                  onChange={(e) => setConfig({ ...config, tiktokUrl: e.target.value })}
+                  onBlur={() => handleSaveConfig({ tiktokUrl: config.tiktokUrl })}
+                  placeholder="https://tiktok.com/@raheeq_perfumes"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:border-teal-600"
+                />
+                <span className="text-[10px] text-slate-400 block">
+                  مثال: https://tiktok.com/@اسم_حسابك
+                </span>
+              </div>
+            </div>
+
+            {/* Optional Additional Platforms: YouTube */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+                <div className="w-6 h-6 rounded-full bg-[#FF0000] text-white flex items-center justify-center shadow-xs">
+                  <Youtube className="w-3.5 h-3.5" />
+                </div>
+                <span>رابط قناة يوتيوب (YouTube - اختياري):</span>
+              </div>
+              <input
+                type="url"
+                value={config.youtubeUrl || ''}
+                onChange={(e) => setConfig({ ...config, youtubeUrl: e.target.value })}
+                onBlur={() => handleSaveConfig({ youtubeUrl: config.youtubeUrl })}
+                placeholder="https://youtube.com/@raheeq_parfum"
+                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-800 focus:outline-none focus:border-teal-600"
+              />
             </div>
           </div>
         </div>
