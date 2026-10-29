@@ -493,8 +493,23 @@ export default function CheckoutPage() {
                 <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
               </button>
 
-              <p className="text-[10px] text-center text-[#788784]">
-                {isRtl ? 'بالضغط على تأكيد، توافق على معاينة الطرد الفاخر واستلامه كاش.' : 'By clicking place order, you agree to inspect and receive your COD delivery.'}
+              <p className="text-[10px] text-center text-[#788784] leading-relaxed">
+                {isRtl ? (
+                  <>
+                    بالضغط على تأكيد، فإنك تقر وتوافق على{' '}
+                    <Link href="/terms" target="_blank" className="text-[#00bc7d] hover:underline font-bold">
+                      شروط الاستخدام والمعاينة وسياسة الموقع
+                    </Link>{' '}
+                    والدفع عند الاستلام.
+                  </>
+                ) : (
+                  <>
+                    By placing your order, you agree to our{' '}
+                    <Link href="/terms" target="_blank" className="text-[#00bc7d] hover:underline font-bold">
+                      Terms of Use & Doorstep Inspection Policy
+                    </Link>.
+                  </>
+                )}
               </p>
             </div>
           </div>

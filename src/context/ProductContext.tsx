@@ -34,11 +34,12 @@ interface ProductContextType {
       stockQuantity?: number;
       imageUrl?: string;
     }
-  ) => Promise<void>;
+  ) => Promise<{ success: boolean; error?: string }>;
   deleteProduct: (productId: string) => Promise<void>;
   getProductBySlug: (slug: string) => Product | undefined;
   resetToDefault: () => Promise<void>;
   syncWithServer: () => Promise<void>;
+  syncLocalToCloud: () => Promise<{ success: boolean; message: string; count?: number }>;
   bulkImport: (importedProducts: Product[]) => Promise<boolean>;
   exportCatalogJson: () => string;
 }
@@ -61,25 +62,29 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>(FAMOUS_50_PERFUMES);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Sync with /api/products server database
+  // Sync with /api/products server database (PostgreSQL Cloud Source of Truth)
   const syncWithServer = useCallback(async () => {
     try {
       const res = await fetch('/api/products', { cache: 'no-store' });
       if (res.ok) {
         const remoteProducts = await res.json();
         if (Array.isArray(remoteProducts) && remoteProducts.length > 0) {
-          // Merge remote products with local cache
+          // Cloud PostgreSQL database is authoritative
           const localStored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
           const localParsed: Product[] = localStored ? JSON.parse(localStored) : [];
 
           const map = new Map<string, Product>();
-          // 1. Initial 50
+          // 1. Initial 50 fallback
           FAMOUS_50_PERFUMES.forEach((p) => map.set(p.id, p));
-          // 2. Server products
+          // 2. Authoritative server database
           remoteProducts.forEach((p: Product) => map.set(p.id, p));
-          // 3. Local custom products
+          // 3. Keep any brand-new offline products not yet in cloud
           if (Array.isArray(localParsed)) {
-            localParsed.forEach((p) => map.set(p.id, p));
+            localParsed.forEach((p) => {
+              if (!map.has(p.id)) {
+                map.set(p.id, p);
+              }
+            });
           }
 
           const merged = Array.from(map.values());
@@ -188,15 +193,23 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     const editedProduct = updated.find((p) => p.id === id);
     saveProductsLocally(updated);
 
-    // Sync update to server with full product payload
+    // Sync update to PostgreSQL server database with full product payload
     try {
-      await fetch('/api/products', {
+      const res = await fetch('/api/products', {
         method: 'PUT',
         headers: getAdminAuthHeaders(),
         body: JSON.stringify({ id, updatedFields, product: editedProduct }),
       });
-    } catch (err) {
-      console.warn('Server sync error on edit:', err);
+      if (res.ok) {
+        return { success: true };
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        console.warn('Server sync error on edit:', errJson);
+        return { success: false, error: errJson.error || `HTTP ${res.status}` };
+      }
+    } catch (err: any) {
+      console.warn('Server sync network error on edit:', err);
+      return { success: false, error: err.message || 'خطأ اتصال بالشبكة' };
     }
   };
 
@@ -343,6 +356,54 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // One-click manual or automatic push of entire local catalog (all prices + uploaded images) to PostgreSQL
+  const syncLocalToCloud = async (): Promise<{ success: boolean; message: string; count?: number }> => {
+    try {
+      // 1. Get latest products from memory or localStorage
+      let currentProducts = products;
+      try {
+        const localStored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+        if (localStored) {
+          const parsed = JSON.parse(localStored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            currentProducts = parsed;
+          }
+        }
+      } catch {}
+
+      if (!Array.isArray(currentProducts) || currentProducts.length === 0) {
+        return { success: false, message: 'لا توجد منتجات محددة للمزامنة' };
+      }
+
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: getAdminAuthHeaders(),
+        body: JSON.stringify({ action: 'bulk_import', products: currentProducts }),
+      });
+
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        await syncWithServer();
+        return {
+          success: true,
+          count: currentProducts.length,
+          message: data.message || `تمت مزامنة وحفظ ${currentProducts.length} منتج بالكامل في قاعدة البيانات السحابية!`,
+        };
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        return {
+          success: false,
+          message: errJson.error || `فشلت المزامنة بالسيرفر (كود: ${res.status})`,
+        };
+      }
+    } catch (err: any) {
+      return {
+        success: false,
+        message: err.message || 'خطأ في الاتصال بالسيرفر أثناء المزامنة السحابية',
+      };
+    }
+  };
+
   const exportCatalogJson = (): string => {
     return JSON.stringify(products, null, 2);
   };
@@ -381,6 +442,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         getProductBySlug,
         resetToDefault,
         syncWithServer,
+        syncLocalToCloud,
         bulkImport,
         exportCatalogJson,
       }}

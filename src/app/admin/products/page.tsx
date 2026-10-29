@@ -32,6 +32,7 @@ export default function AdminProductsPage() {
     editProduct,
     deleteProduct,
     syncWithServer,
+    syncLocalToCloud,
     bulkImport,
     exportCatalogJson,
   } = useProducts();
@@ -82,20 +83,19 @@ export default function AdminProductsPage() {
 
   const handleSyncCloud = async () => {
     setIsSyncing(true);
-    setToastMessage('جاري رفع وتثبيت جميع العطور والأسعار الحالية في قاعدة البيانات السحابية...');
+    setToastMessage('جاري رفع وتثبيت جميع العطور والصور والأسعار الحالية في قاعدة البيانات السحابية الدائمة...');
     try {
-      const success = await bulkImport(products);
-      if (success) {
-        setToastMessage(`تم حفظ وتثبيت ${products.length} عطر في قاعدة بيانات فيرسال السحابية بنجاح ✓`);
+      const res = await syncLocalToCloud();
+      if (res.success) {
+        setToastMessage(`✓ ${res.message}`);
       } else {
-        await syncWithServer();
-        setToastMessage('تمت مزامنة العطور مع السيرفر بنجاح ✓');
+        setToastMessage(`تنبيه: ${res.message}`);
       }
-    } catch {
-      setToastMessage('فشلت المزامنة مؤقتاً، تعمل النسخة المحلية بأمان.');
+    } catch (err: any) {
+      setToastMessage('فشلت المزامنة مؤقتاً، يرجى المحاولة بعد قليل.');
     } finally {
       setIsSyncing(false);
-      setTimeout(() => setToastMessage(''), 4000);
+      setTimeout(() => setToastMessage(''), 5000);
     }
   };
 
@@ -259,7 +259,7 @@ export default function AdminProductsPage() {
       return;
     }
 
-    await editProduct(editingId, {
+    const syncRes = await editProduct(editingId, {
       nameEn: editFormData.nameEn.trim(),
       nameAr: editFormData.nameAr.trim() || editFormData.nameEn.trim(),
       brand: editFormData.brand.trim() || 'رحيق (Raheeq)',
@@ -279,8 +279,12 @@ export default function AdminProductsPage() {
     });
 
     setIsEditModalOpen(false);
-    setToastMessage(`تم حفظ وتحديث بيانات العطر في السيرفر بنجاح: ${editFormData.nameEn} ✓`);
-    setTimeout(() => setToastMessage(''), 3500);
+    if (syncRes && syncRes.success === false) {
+      setToastMessage(`تنبيه: تم الحفظ في المتصفح، ولكن تعذر تحديث السحابة (${syncRes.error || 'جلسة منتهية'}) - يرجى الضغط على زر المزامنة السحابية`);
+    } else {
+      setToastMessage(`تم حفظ وتحديث بيانات وصور العطر في قاعدة البيانات السحابية بنجاح: ${editFormData.nameEn} ✓`);
+    }
+    setTimeout(() => setToastMessage(''), 4500);
     setEditingId(null);
   };
 
@@ -351,11 +355,11 @@ export default function AdminProductsPage() {
           <button
             onClick={handleSyncCloud}
             disabled={isSyncing}
-            className="bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 border border-teal-300 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
-            title="مزامنة وتثبيت العطور مع السيرفر السحابي وقاعدة البيانات"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
+            title="مزامنة وحفظ جميع العطور والأسعار والصور الحالية في قاعدة بيانات فيرسال السحابية"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-teal-700 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>مزامنة سحابية</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>حفظ ومزامنة السحابة فوراً (Cloud Sync)</span>
           </button>
 
           <button

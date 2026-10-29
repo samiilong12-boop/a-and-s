@@ -168,9 +168,36 @@ export function Footer() {
           {/* Client Concierge */}
           <div className="space-y-3">
             <h4 className="font-serif text-sm font-bold text-[#FFFFFF] tracking-wider uppercase">
-              {isRtl ? 'خدمة العملاء' : 'Client Care'}
+              {isRtl ? 'خدمة العملاء والسياسات' : 'Client Care & Policies'}
             </h4>
             <ul className="space-y-2 text-xs text-[#9EABA7]">
+              <li>
+                <Link href="/terms#delivery" className="hover:text-[#2DD4BF] transition-colors flex items-center gap-1.5 font-medium text-emerald-400">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>{isRtl ? 'شروط المعاينة عند الاستلام' : 'Doorstep Inspection Policy'}</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms#terms" className="hover:text-[#2DD4BF] transition-colors">
+                  {isRtl ? 'شروط الاستخدام والطلب' : 'Terms of Use'}
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms#privacy" className="hover:text-[#2DD4BF] transition-colors">
+                  {isRtl ? 'سياسة الخصوصية وأمان البيانات' : 'Privacy & Security'}
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms#returns" className="hover:text-[#2DD4BF] transition-colors">
+                  {isRtl ? 'الاستبدال والاسترجاع والضمان' : 'Returns & Warranty'}
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms#ai" className="hover:text-[#2DD4BF] transition-colors flex items-center gap-1.5 text-amber-300">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{isRtl ? 'إشعار محتوى الذكاء الاصطناعي (AI)' : 'AI Content Notice'}</span>
+                </Link>
+              </li>
               <li>
                 <Link href="/track-order" className="hover:text-[#2DD4BF] transition-colors">
                   {t('nav.track_order')}
@@ -182,18 +209,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/catalog?sort=bestselling" className="hover:text-[#2DD4BF] transition-colors">
-                  {isRtl ? 'الأكثر طلباً في مصر' : 'Bestsellers in Egypt'}
-                </Link>
-              </li>
-              <li>
                 <a href="https://wa.me/201131068790" target="_blank" rel="noopener noreferrer" className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'واتساب 1: 01131068790' : 'WhatsApp 1: 01131068790'}
-                </a>
-              </li>
-              <li>
-                <a href="https://wa.me/201011800245" target="_blank" rel="noopener noreferrer" className="hover:text-[#2DD4BF] transition-colors">
-                  {isRtl ? 'واتساب 2: 01011800245' : 'WhatsApp 2: 01011800245'}
                 </a>
               </li>
             </ul>
@@ -227,8 +244,33 @@ export function Footer() {
 
         </div>
 
+        {/* AI Transparency & Accuracy Legal Notice Banner */}
+        <div className="mt-12 p-4 sm:p-5 rounded-2xl bg-[#0E1413] border border-[#2DD4BF]/25 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#A2ADA9]">
+          <div className="flex items-start sm:items-center gap-3">
+            <span className="p-2.5 rounded-xl bg-[#141A19] border border-[#2DD4BF]/30 text-[#54d1b2] flex-shrink-0 mt-0.5 sm:mt-0 shadow-sm">
+              <Sparkles className="w-4 h-4" />
+            </span>
+            <div className="space-y-1">
+              <p className="leading-relaxed text-[11px] sm:text-xs">
+                <strong className="text-white font-bold ml-1">
+                  {isRtl ? 'إشعار الشفافية ومحتوى الذكاء الاصطناعي (AI Disclosure):' : 'AI Transparency & Legal Notice:'}
+                </strong>
+                {isRtl
+                  ? 'جميع البيانات والأوصاف الإبداعية وتوليفات النوتات العطرية المعروضة على هذا الموقع تم توليدها وصياغتها بالاستعانة بتقنيات الذكاء الاصطناعي وتحتمل نسبة من السهو أو الخطأ غير المقصود. المواصفات المعتمدة هي المنتج الفعلي مع حقك الكامل في المعاينة عند الاستلام قبل السداد.'
+                  : 'Creative fragrance narratives, accords, and pyramids on this site are synthesized using Artificial Intelligence and may contain unintentional inaccuracies. Delivered flacons verified at your doorstep represent the binding specification.'}
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/terms"
+            className="flex-shrink-0 px-4 py-2 rounded-xl bg-[#141A19] hover:bg-[#1A2624] text-[#54d1b2] hover:text-white border border-[#2DD4BF]/40 transition-colors font-bold text-xs whitespace-nowrap"
+          >
+            {isRtl ? 'وثيقة الشروط والسياسات ←' : 'Read Terms & Policies ←'}
+          </Link>
+        </div>
+
         {/* Bottom Bar: Copyright and National Service Badges */}
-        <div className="mt-14 pt-8 border-t border-[#1A2624] flex flex-col sm:flex-row items-center justify-between text-xs text-[#6C7A77] gap-4">
+        <div className="mt-8 pt-8 border-t border-[#1A2624] flex flex-col sm:flex-row items-center justify-between text-xs text-[#6C7A77] gap-4">
           <p>
             &copy; {new Date().getFullYear()} {isRtl ? 'رَحِـيـقْ | RAHEEQ Haute Parfumerie (دار رحيق للعطور الفاخرة). جميع الحقوق محفوظة.' : 'RAHEEQ Haute Parfumerie Cairo. All rights reserved.'}
           </p>
