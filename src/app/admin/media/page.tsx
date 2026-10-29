@@ -37,6 +37,7 @@ import {
   LEGACY_HERO_KEY,
   SiteContentConfig,
 } from '@/lib/siteContent';
+import { compressImageFile } from '@/lib/imageCompression';
 
 type TabType = 'logo' | 'hero' | 'bespoke' | 'showcase' | 'riviera' | 'story' | 'footer';
 
@@ -207,8 +208,8 @@ export default function AdminStorefrontContentPage() {
     }
   };
 
-  // Generic Image Upload to Base64 (zero-latency, never fails on Vercel)
-  const handleGenericImageUpload = (
+  // Generic Image Upload to Base64 (compressed & persisted to cloud database)
+  const handleGenericImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     field: keyof SiteContentConfig,
     successLabel: string
@@ -216,16 +217,24 @@ export default function AdminStorefrontContentPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        handleSaveConfig({
-          [field]: event.target.result as string,
-        });
-        showNotification(`تم رفع وتحديث صورة (${successLabel}) بنجاح!`);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImageFile(file);
+      handleSaveConfig({
+        [field]: compressed,
+      });
+      showNotification(`تم رفع وتحديث صورة (${successLabel}) بنجاح!`);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          handleSaveConfig({
+            [field]: event.target.result as string,
+          });
+          showNotification(`تم رفع وتحديث صورة (${successLabel}) بنجاح!`);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const togglePreviewPlayback = () => {

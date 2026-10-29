@@ -72,6 +72,26 @@ function persistProducts(list: Product[]) {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+async function persistToCloudSetting(list: Product[]) {
+  try {
+    const hasDb = await isDatabaseConnected();
+    if (hasDb) {
+      const jsonStr = JSON.stringify(list);
+      await prisma.storeSetting.upsert({
+        where: { key: 'catalog_products' },
+        update: { value: jsonStr },
+        create: {
+          key: 'catalog_products',
+          value: jsonStr,
+          description: 'Cloud catalog of all perfumes and variants',
+        },
+      });
+    }
+  } catch (err) {
+    console.warn('Cloud storeSetting sync warning:', err);
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -84,69 +104,83 @@ export async function GET(req: NextRequest) {
     try {
       const hasDb = await isDatabaseConnected();
       if (hasDb) {
-        const dbProducts = await prisma.product.findMany({
-          include: {
-            variants: true,
-            images: true,
-          },
+        // Priority 1: Check storeSetting for full cloud catalog
+        const setting = await prisma.storeSetting.findUnique({
+          where: { key: 'catalog_products' },
         });
-        if (dbProducts && dbProducts.length > 0) {
-          const formattedDbProducts: Product[] = dbProducts.map((p: any) => ({
-            id: p.id,
-            slug: p.slug,
-            nameEn: p.nameEn,
-            nameAr: p.nameAr || undefined,
-            brand: p.brand || 'رحيق (Raheeq)',
-            gender: p.gender || 'UNISEX',
-            headlineEn: p.headlineEn || undefined,
-            descriptionEn: p.descriptionEn,
-            descriptionAr: p.descriptionAr || undefined,
-            concentration: p.concentration as any,
-            fragranceFamily: p.fragranceFamily,
-            topNotes: p.topNotes || [],
-            heartNotes: p.heartNotes || [],
-            baseNotes: p.baseNotes || [],
-            categoryId: p.categoryId || undefined,
-            isFeatured: p.isFeatured,
-            isNewArrival: p.isNewArrival,
-            isBestseller: p.isBestseller,
-            isPublished: p.isPublished,
-            rating: p.rating || 5.0,
-            reviewCount: p.reviewCount || 1,
-            images: p.images.map((img: any) => ({
-              id: img.id,
-              url: img.url,
-              altTextEn: img.altTextEn || p.nameEn || 'Raheeq Perfume',
-              isPrimary: img.isPrimary,
-              sortOrder: img.sortOrder,
-            })),
-            imageUrl: p.images[0]?.url,
-            createdAt: p.createdAt ? p.createdAt.toISOString() : new Date().toISOString(),
-            updatedAt: p.updatedAt ? p.updatedAt.toISOString() : undefined,
-            variants: p.variants.map((v: any) => ({
-              id: v.id,
-              productId: v.productId,
-              sku: v.sku,
-              volumeMl: v.volumeMl,
-              titleEn: v.titleEn || undefined,
-              regularPriceInPiasters: v.regularPriceInPiasters,
-              regularPriceEgp: Math.round(v.regularPriceInPiasters / 100),
-              salePriceInPiasters: v.salePriceInPiasters,
-              salePriceEgp: v.salePriceInPiasters ? Math.round(v.salePriceInPiasters / 100) : null,
-              costPriceInPiasters: v.costPriceInPiasters,
-              costPriceEgp: v.costPriceInPiasters ? Math.round(v.costPriceInPiasters / 100) : undefined,
-              stockQuantity: v.stockQuantity,
-              lowStockThreshold: v.lowStockThreshold,
-              isActive: v.isActive,
-            })),
-          }));
+        if (setting && setting.value) {
+          const parsed = JSON.parse(setting.value);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            products = parsed;
+            globalThis.__PRODUCTS_CATALOG__ = parsed;
+          }
+        } else {
+          // Priority 2: Check relational product table
+          const dbProducts = await prisma.product.findMany({
+            include: {
+              variants: true,
+              images: true,
+            },
+          });
+          if (dbProducts && dbProducts.length > 0) {
+            const formattedDbProducts: Product[] = dbProducts.map((p: any) => ({
+              id: p.id,
+              slug: p.slug,
+              nameEn: p.nameEn,
+              nameAr: p.nameAr || undefined,
+              brand: p.brand || 'رحيق (Raheeq)',
+              gender: p.gender || 'UNISEX',
+              headlineEn: p.headlineEn || undefined,
+              descriptionEn: p.descriptionEn,
+              descriptionAr: p.descriptionAr || undefined,
+              concentration: p.concentration as any,
+              fragranceFamily: p.fragranceFamily,
+              topNotes: p.topNotes || [],
+              heartNotes: p.heartNotes || [],
+              baseNotes: p.baseNotes || [],
+              categoryId: p.categoryId || undefined,
+              isFeatured: p.isFeatured,
+              isNewArrival: p.isNewArrival,
+              isBestseller: p.isBestseller,
+              isPublished: p.isPublished,
+              rating: p.rating || 5.0,
+              reviewCount: p.reviewCount || 1,
+              images: p.images.map((img: any) => ({
+                id: img.id,
+                url: img.url,
+                altTextEn: img.altTextEn || p.nameEn || 'Raheeq Perfume',
+                isPrimary: img.isPrimary,
+                sortOrder: img.sortOrder,
+              })),
+              imageUrl: p.images[0]?.url,
+              createdAt: p.createdAt ? p.createdAt.toISOString() : new Date().toISOString(),
+              updatedAt: p.updatedAt ? p.updatedAt.toISOString() : undefined,
+              variants: p.variants.map((v: any) => ({
+                id: v.id,
+                productId: v.productId,
+                sku: v.sku,
+                volumeMl: v.volumeMl,
+                titleEn: v.titleEn || undefined,
+                regularPriceInPiasters: v.regularPriceInPiasters,
+                regularPriceEgp: Math.round(v.regularPriceInPiasters / 100),
+                salePriceInPiasters: v.salePriceInPiasters,
+                salePriceEgp: v.salePriceInPiasters ? Math.round(v.salePriceInPiasters / 100) : null,
+                costPriceInPiasters: v.costPriceInPiasters,
+                costPriceEgp: v.costPriceInPiasters ? Math.round(v.costPriceInPiasters / 100) : undefined,
+                stockQuantity: v.stockQuantity,
+                lowStockThreshold: v.lowStockThreshold,
+                isActive: v.isActive,
+              })),
+            }));
 
-          // Merge DB with local items
-          const map = new Map<string, Product>();
-          products.forEach((p) => map.set(p.id, p));
-          formattedDbProducts.forEach((p) => map.set(p.id, p));
-          products = Array.from(map.values());
-          persistProducts(products);
+            // Merge DB with local items
+            const map = new Map<string, Product>();
+            products.forEach((p) => map.set(p.id, p));
+            formattedDbProducts.forEach((p) => map.set(p.id, p));
+            products = Array.from(map.values());
+            persistProducts(products);
+            persistToCloudSetting(products).catch(() => {});
+          }
         }
       }
     } catch {
@@ -203,6 +237,7 @@ export async function POST(req: NextRequest) {
       const merged = Array.from(map.values());
 
       persistProducts(merged);
+      await persistToCloudSetting(merged);
       return NextResponse.json({ success: true, count: merged.length, message: 'تم استيراد وحفظ الكتالوج بنجاح' });
     }
 
@@ -214,6 +249,7 @@ export async function POST(req: NextRequest) {
 
     const updated = [newProduct, ...currentList.filter((p) => p.id !== newProduct.id)];
     persistProducts(updated);
+    await persistToCloudSetting(updated);
 
     // Background Prisma sync if connected
     try {
@@ -282,6 +318,7 @@ export async function PUT(req: NextRequest) {
     });
 
     persistProducts(updated);
+    await persistToCloudSetting(updated);
     return NextResponse.json({ success: true, message: 'تم تحديث بيانات العطر بنجاح' });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
@@ -305,6 +342,7 @@ export async function DELETE(req: NextRequest) {
     const currentList = loadPersistedProducts();
     const updated = currentList.filter((p) => p.id !== id);
     persistProducts(updated);
+    await persistToCloudSetting(updated);
 
     // Prisma delete in background if available
     try {

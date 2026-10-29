@@ -23,6 +23,7 @@ import { useProducts } from '@/context/ProductContext';
 import { Product } from '@/types';
 import { FRAGRANCE_FAMILIES, CONCENTRATIONS, getDemoBottleSvg } from '@/lib/data/products';
 import { formatPrice } from '@/lib/currency';
+import { compressImageFile } from '@/lib/imageCompression';
 
 export default function AdminProductsPage() {
   const {
@@ -735,16 +736,21 @@ export default function AdminProductsPage() {
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            if (event.target?.result) {
-                              setEditFormData({ ...editFormData, imageUrl: event.target.result as string });
-                            }
-                          };
-                          reader.readAsDataURL(file);
+                          try {
+                            const compressed = await compressImageFile(file);
+                            setEditFormData({ ...editFormData, imageUrl: compressed });
+                          } catch {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              if (event.target?.result) {
+                                setEditFormData({ ...editFormData, imageUrl: event.target.result as string });
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
                         }
                       }}
                     />
@@ -1022,16 +1028,21 @@ export default function AdminProductsPage() {
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            if (event.target?.result) {
-                              setFormData({ ...formData, imageUrl: event.target.result as string });
-                            }
-                          };
-                          reader.readAsDataURL(file);
+                          try {
+                            const compressed = await compressImageFile(file);
+                            setFormData({ ...formData, imageUrl: compressed });
+                          } catch {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              if (event.target?.result) {
+                                setFormData({ ...formData, imageUrl: event.target.result as string });
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
                         }
                       }}
                     />
