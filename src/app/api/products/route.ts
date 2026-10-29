@@ -5,7 +5,7 @@ import os from 'os';
 import { Product } from '@/types';
 import { FAMOUS_50_PERFUMES } from '@/lib/data/products';
 import { verifyAdminSession } from '@/lib/serverAuth';
-import { prisma } from '@/lib/prisma';
+import { prisma, isDatabaseConnected } from '@/lib/prisma';
 
 // Global memory container for serverless runtime continuity
 declare global {
@@ -82,7 +82,8 @@ export async function GET(req: NextRequest) {
 
     // Sync with Prisma PostgreSQL Database if available
     try {
-      if (process.env.DATABASE_URL) {
+      const hasDb = await isDatabaseConnected();
+      if (hasDb) {
         const dbProducts = await prisma.product.findMany({
           include: {
             variants: true,
@@ -216,7 +217,8 @@ export async function POST(req: NextRequest) {
 
     // Background Prisma sync if connected
     try {
-      if (process.env.DATABASE_URL) {
+      const hasDb = await isDatabaseConnected();
+      if (hasDb) {
         await prisma.product.upsert({
           where: { id: newProduct.id },
           update: {
@@ -306,7 +308,8 @@ export async function DELETE(req: NextRequest) {
 
     // Prisma delete in background if available
     try {
-      if (process.env.DATABASE_URL) {
+      const hasDb = await isDatabaseConnected();
+      if (hasDb) {
         await prisma.product.delete({ where: { id } });
       }
     } catch {}
