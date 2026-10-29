@@ -310,11 +310,58 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'معرف العطر مفقود' }, { status: 400 });
     }
 
-    const currentList = loadPersistedProducts();
+    let currentList = loadPersistedProducts();
+    try {
+      const hasDb = await isDatabaseConnected();
+      if (hasDb) {
+        const setting = await prisma.storeSetting.findUnique({
+          where: { key: 'catalog_products' },
+        });
+        if (setting && setting.value) {
+          const parsed = JSON.parse(setting.value);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            currentList = parsed;
+          }
+        }
+      }
+    } catch {}
+
     const updated = currentList.map((p) => {
       if (p.id !== targetId) return p;
       if (product) return { ...p, ...product };
-      return { ...p, ...(updatedFields || {}) };
+
+      const merged: Product = { ...p, ...(updatedFields || {}) };
+
+      // Update variant prices and stock if provided
+      if (
+        updatedFields &&
+        (updatedFields.regularPriceEgp !== undefined ||
+          updatedFields.salePriceEgp !== undefined ||
+          updatedFields.costPriceEgp !== undefined ||
+          updatedFields.stockQuantity !== undefined)
+      ) {
+        if (Array.isArray(merged.variants) && merged.variants.length > 0) {
+          const v0 = { ...merged.variants[0] };
+          if (updatedFields.regularPriceEgp !== undefined) {
+            v0.regularPriceEgp = Number(updatedFields.regularPriceEgp);
+            v0.regularPriceInPiasters = Math.round(Number(updatedFields.regularPriceEgp) * 100);
+          }
+          if (updatedFields.salePriceEgp !== undefined) {
+            v0.salePriceEgp = updatedFields.salePriceEgp ? Number(updatedFields.salePriceEgp) : undefined;
+            v0.salePriceInPiasters = updatedFields.salePriceEgp ? Math.round(Number(updatedFields.salePriceEgp) * 100) : null;
+          }
+          if (updatedFields.costPriceEgp !== undefined) {
+            v0.costPriceEgp = Number(updatedFields.costPriceEgp);
+            v0.costPriceInPiasters = Math.round(Number(updatedFields.costPriceEgp) * 100);
+          }
+          if (updatedFields.stockQuantity !== undefined) {
+            v0.stockQuantity = Number(updatedFields.stockQuantity);
+          }
+          merged.variants = [v0, ...merged.variants.slice(1)];
+        }
+      }
+
+      return merged;
     });
 
     persistProducts(updated);

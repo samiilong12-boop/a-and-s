@@ -82,15 +82,20 @@ export default function AdminProductsPage() {
 
   const handleSyncCloud = async () => {
     setIsSyncing(true);
-    setToastMessage('جاري المزامنة مع السيرفر السحابي وقاعدة البيانات...');
+    setToastMessage('جاري رفع وتثبيت جميع العطور والأسعار الحالية في قاعدة البيانات السحابية...');
     try {
-      await syncWithServer();
-      setToastMessage('تمت مزامنة جميع العطور مع السيرفر بنجاح ✓');
+      const success = await bulkImport(products);
+      if (success) {
+        setToastMessage(`تم حفظ وتثبيت ${products.length} عطر في قاعدة بيانات فيرسال السحابية بنجاح ✓`);
+      } else {
+        await syncWithServer();
+        setToastMessage('تمت مزامنة العطور مع السيرفر بنجاح ✓');
+      }
     } catch {
       setToastMessage('فشلت المزامنة مؤقتاً، تعمل النسخة المحلية بأمان.');
     } finally {
       setIsSyncing(false);
-      setTimeout(() => setToastMessage(''), 3500);
+      setTimeout(() => setToastMessage(''), 4000);
     }
   };
 

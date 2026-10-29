@@ -185,14 +185,15 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       return merged;
     });
 
+    const editedProduct = updated.find((p) => p.id === id);
     saveProductsLocally(updated);
 
-    // Sync update to server
+    // Sync update to server with full product payload
     try {
       await fetch('/api/products', {
         method: 'PUT',
         headers: getAdminAuthHeaders(),
-        body: JSON.stringify({ id, updatedFields }),
+        body: JSON.stringify({ id, updatedFields, product: editedProduct }),
       });
     } catch (err) {
       console.warn('Server sync error on edit:', err);

@@ -154,15 +154,20 @@ export default function AdminStorefrontContentPage() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      await fetch('/api/admin/hero-config', {
+      const res = await fetch('/api/admin/hero-config', {
         method: 'POST',
         headers,
         body: JSON.stringify(updated),
       });
 
-      showNotification('تم حفظ وتحديث الصور والنصوص بنجاح! التغييرات تظهر في متجرك فوراً وبأعلى دقة.');
+      if (res.ok) {
+        showNotification('تم حفظ وتثبيت الصور والنصوص في قاعدة البيانات السحابية بنجاح! ✓');
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        showNotification(`تنبيه السيرفر: ${errJson.error || 'تم الحفظ في المتصفح، تأكد من جلسة الإدارة'}`, 'error');
+      }
     } catch (err: any) {
-      showNotification('تم الحفظ محلياً وتحديث المتجر فوراً.');
+      showNotification('تم الحفظ محلياً في المتصفح (خطأ اتصال بالشبكة)', 'error');
     } finally {
       setSaving(false);
     }
