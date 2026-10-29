@@ -25,6 +25,7 @@ import { useFragranceFinder } from '@/context/FragranceFinderContext';
 import { useSiteContent } from '@/context/SiteContentContext';
 import { FRAGRANCE_FAMILIES } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
+import { Interactive3DStudio } from '@/components/Interactive3DStudio';
 
 export default function HomePage() {
   const { products } = useProducts();
@@ -508,6 +509,11 @@ export default function HomePage() {
 
           </div>
         </div>
+      </section>
+
+      {/* 3D INTERACTIVE FLACON & SKETCHFAB STUDIO (Staging Preview Experience) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Interactive3DStudio />
       </section>
 
       {/* 4. MEDITERRANEAN RIVIERA & CITRUS COLLECTION (Fully Editable via Admin) */}

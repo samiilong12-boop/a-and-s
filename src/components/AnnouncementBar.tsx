@@ -20,6 +20,13 @@ export function AnnouncementBar() {
           <span className="hidden lg:inline text-[10px] text-[#54d1b2] font-mono tracking-wider bg-[#54d1b2]/10 px-2 py-0.5 rounded-full border border-[#54d1b2]/30">
             {isRtl ? 'معاينة عند الاستلام' : 'Inspection on Delivery'}
           </span>
+          <a
+            href="#3d-studio"
+            className="hidden sm:inline-flex items-center gap-1 text-[10px] bg-[#D4AF37]/15 hover:bg-[#D4AF37]/30 text-[#D4AF37] border border-[#D4AF37]/40 px-2.5 py-0.5 rounded-full font-bold transition-all shadow-xs"
+          >
+            <Sparkles className="w-2.5 h-2.5 text-[#D4AF37]" />
+            <span>{isRtl ? 'تجربة فحص الزجاجة 3D' : '3D Flacon Experience'}</span>
+          </a>
         </div>
 
         {/* COD & Concierge Helpline */}
