@@ -62,34 +62,17 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>(FAMOUS_50_PERFUMES);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Sync with /api/products server database (PostgreSQL Cloud Source of Truth)
+  // Sync with /api/products server database (authoritative source of truth)
   const syncWithServer = useCallback(async () => {
     try {
       const res = await fetch('/api/products', { cache: 'no-store' });
       if (res.ok) {
         const remoteProducts = await res.json();
         if (Array.isArray(remoteProducts) && remoteProducts.length > 0) {
-          // Cloud PostgreSQL database is authoritative
-          const localStored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-          const localParsed: Product[] = localStored ? JSON.parse(localStored) : [];
-
-          const map = new Map<string, Product>();
-          // 1. Initial 50 fallback
-          FAMOUS_50_PERFUMES.forEach((p) => map.set(p.id, p));
-          // 2. Authoritative server database
-          remoteProducts.forEach((p: Product) => map.set(p.id, p));
-          // 3. Keep any brand-new offline products not yet in cloud
-          if (Array.isArray(localParsed)) {
-            localParsed.forEach((p) => {
-              if (!map.has(p.id)) {
-                map.set(p.id, p);
-              }
-            });
-          }
-
-          const merged = Array.from(map.values());
-          setProducts(merged);
-          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(merged));
+          // Authoritative server database replaces memory & local cache
+          // Never re-insert deleted demo products!
+          setProducts(remoteProducts);
+          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(remoteProducts));
         }
       }
     } catch (e) {
@@ -97,13 +80,14 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Load merged products on mount
+  // Load products on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length >= 50) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Preserve the merchant's saved catalog, regardless of count (e.g. 5, 9, or 50)
           setProducts(parsed);
         } else {
           setProducts(FAMOUS_50_PERFUMES);
@@ -117,7 +101,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
     setIsLoaded(true);
 
-    // Immediate server sync
+    // Immediate server sync to fetch the latest cloud catalog
     syncWithServer();
   }, [syncWithServer]);
 
@@ -378,16 +362,19 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: getAdminAuthHeaders(),
-        body: JSON.stringify({ action: 'bulk_import', products: currentProducts }),
+        body: JSON.stringify({ action: 'replace_catalog', products: currentProducts }),
       });
 
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
-        await syncWithServer();
+        setProducts(currentProducts);
+        try {
+          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(currentProducts));
+        } catch {}
         return {
           success: true,
           count: currentProducts.length,
-          message: data.message || `تمت مزامنة وحفظ ${currentProducts.length} منتج بالكامل في قاعدة البيانات السحابية!`,
+          message: data.message || `تم تثبيت وحفظ ${currentProducts.length} عطر بالكامل في السحابة ككتالوج رسمي معتمد!`,
         };
       } else {
         const errJson = await res.json().catch(() => ({}));

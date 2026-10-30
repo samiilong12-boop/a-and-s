@@ -99,6 +99,53 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handlePurgeDemoProducts = async () => {
+    if (!confirm('هل تريد حذف جميع العطور التجريبية القديمة والاحتفاظ فقط بعطورك التي أضفتها وعدلتها؟')) {
+      return;
+    }
+    setIsSyncing(true);
+    setToastMessage('جاري تنظيف الكتالوج وحذف العطور التجريبية القديمة...');
+    try {
+      const customOnly = products.filter(
+        (p) =>
+          (p.imageUrl && !p.imageUrl.includes('getDemoBottleSvg') && !p.imageUrl.includes('<svg')) ||
+          p.id.includes('custom') ||
+          p.nameEn.includes('Stronger') ||
+          p.nameEn.includes('Phantom') ||
+          p.nameEn.includes('DIOR')
+      );
+
+      if (customOnly.length === 0) {
+        alert('لم يتم العثور على عطور مخصصة. يرجى إضافة عطورك أولاً قبل حذف النماذج التجريبية.');
+        setIsSyncing(false);
+        return;
+      }
+
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(sessionStorage.getItem('a_and_s_admin_jwt_token')
+            ? { Authorization: `Bearer ${sessionStorage.getItem('a_and_s_admin_jwt_token')}` }
+            : {}),
+        },
+        body: JSON.stringify({ action: 'replace_catalog', products: customOnly }),
+      });
+
+      if (res.ok) {
+        setToastMessage(`✓ تم بنجاح تنظيف الكتالوج وتثبيت ${customOnly.length} عطور مخصصة في السحابة.`);
+        await syncWithServer();
+      } else {
+        setToastMessage('تعذر إتمام التنظيف عبر السيرفر.');
+      }
+    } catch {
+      setToastMessage('خطأ أثناء تنظيف الكتالوج.');
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setToastMessage(''), 5000);
+    }
+  };
+
   // Form State for Adding New Fragrance
   const [formData, setFormData] = useState({
     nameEn: '',
@@ -350,6 +397,16 @@ export default function AdminProductsPage() {
           >
             <Download className="w-3.5 h-3.5 text-slate-600" />
             <span>حفظ نسخة احتياطية</span>
+          </button>
+
+          <button
+            onClick={handlePurgeDemoProducts}
+            disabled={isSyncing}
+            className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+            title="حذف جميع العطور التجريبية القديمة بنقرة واحدة والاحتفاظ بعطورك الخاصة فقط"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+            <span>تنظيف التجريبي (عطوري فقط)</span>
           </button>
 
           <button

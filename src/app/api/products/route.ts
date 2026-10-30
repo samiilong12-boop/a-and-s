@@ -223,22 +223,32 @@ export async function POST(req: NextRequest) {
     const payload = await req.json();
     let currentList = loadPersistedProducts();
 
-    // Mode A: Bulk import of full catalog array
+    // Mode A: Replace or Import catalog array
     if (Array.isArray(payload.products)) {
       const validProducts: Product[] = payload.products.filter((p: any) => p && p.id && p.nameEn);
       if (validProducts.length === 0) {
         return NextResponse.json({ success: false, error: 'قائمة المنتجات غير صالحة' }, { status: 400 });
       }
 
-      // Merge by ID
-      const map = new Map<string, Product>();
-      currentList.forEach((p) => map.set(p.id, p));
-      validProducts.forEach((p) => map.set(p.id, p));
-      const merged = Array.from(map.values());
+      // When the admin syncs to cloud, the incoming catalog replaces the stored catalog.
+      // Deleted items remain deleted and are not revived!
+      let finalList: Product[];
+      if (payload.action === 'replace_catalog' || payload.action === 'bulk_import' || !payload.action) {
+        finalList = validProducts;
+      } else {
+        const map = new Map<string, Product>();
+        currentList.forEach((p) => map.set(p.id, p));
+        validProducts.forEach((p) => map.set(p.id, p));
+        finalList = Array.from(map.values());
+      }
 
-      persistProducts(merged);
-      await persistToCloudSetting(merged);
-      return NextResponse.json({ success: true, count: merged.length, message: 'تم استيراد وحفظ الكتالوج بنجاح' });
+      persistProducts(finalList);
+      await persistToCloudSetting(finalList);
+      return NextResponse.json({
+        success: true,
+        count: finalList.length,
+        message: `تم تثبيت وحفظ ${finalList.length} عطر في قاعدة البيانات السحابية بنجاح!`,
+      });
     }
 
     // Mode B: Single product addition / upsert
