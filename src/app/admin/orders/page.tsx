@@ -124,9 +124,18 @@ function AdminOrdersContent() {
       });
       if (res.ok) {
         const remoteOrders: any[] = await res.json();
+        const storedArchiveRaw = localStorage.getItem(ARCHIVE_ORDERS_KEY);
+        const archiveIds = new Set(
+          storedArchiveRaw ? (JSON.parse(storedArchiveRaw) as any[]).map((o) => o.orderNumber) : []
+        );
+
         const map = new Map<string, any>();
         localActive.forEach((o) => map.set(o.orderNumber, o));
-        remoteOrders.forEach((o) => map.set(o.orderNumber, o));
+        remoteOrders.forEach((o) => {
+          if (!archiveIds.has(o.orderNumber)) {
+            map.set(o.orderNumber, o);
+          }
+        });
         const merged = Array.from(map.values()).sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
@@ -158,6 +167,15 @@ function AdminOrdersContent() {
   const handleSaveChanges = () => {
     if (!selectedOrder) return;
 
+    const updates = {
+      status: editStatus,
+      paymentStatus: editPaymentStatus,
+      courierName: editCourierName.trim() || null,
+      trackingNumber: editTrackingNumber.trim() || null,
+      adminNotes: editAdminNotes.trim() || null,
+      updatedAt: new Date().toISOString(),
+    };
+
     const isArchived = archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber);
 
     if (isArchived) {
@@ -165,12 +183,7 @@ function AdminOrdersContent() {
         if (o.orderNumber === selectedOrder.orderNumber) {
           return {
             ...o,
-            status: editStatus,
-            paymentStatus: editPaymentStatus,
-            courierName: editCourierName.trim() || null,
-            trackingNumber: editTrackingNumber.trim() || null,
-            adminNotes: editAdminNotes.trim() || null,
-            updatedAt: new Date().toISOString(),
+            ...updates,
           };
         }
         return o;
@@ -182,12 +195,7 @@ function AdminOrdersContent() {
         if (o.orderNumber === selectedOrder.orderNumber) {
           return {
             ...o,
-            status: editStatus,
-            paymentStatus: editPaymentStatus,
-            courierName: editCourierName.trim() || null,
-            trackingNumber: editTrackingNumber.trim() || null,
-            adminNotes: editAdminNotes.trim() || null,
-            updatedAt: new Date().toISOString(),
+            ...updates,
           };
         }
         return o;
@@ -195,6 +203,19 @@ function AdminOrdersContent() {
       setOrders(updated);
       localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updated));
     }
+
+    // Persist changes to server database immediately
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAdminAuthHeaders(),
+      },
+      body: JSON.stringify({
+        orderNumber: selectedOrder.orderNumber,
+        updates,
+      }),
+    }).catch(() => {});
 
     setSaveSuccess(true);
     showNotice('تم حفظ تعديلات الطلب بنجاح.');
@@ -257,6 +278,12 @@ function AdminOrdersContent() {
       localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updated));
     }
 
+    // Delete from server so it never returns on reload
+    fetch(`/api/orders?orderNumber=${encodeURIComponent(orderNumber)}`, {
+      method: 'DELETE',
+      headers: getAdminAuthHeaders(),
+    }).catch(() => {});
+
     if (selectedOrder?.orderNumber === orderNumber) {
       setSelectedOrder(null);
     }
@@ -267,6 +294,13 @@ function AdminOrdersContent() {
   const handleClearArchive = () => {
     if (archivedOrders.length === 0) return;
     if (!confirm(`هل أنت متأكد من مسح جميع الطلبات المؤرشفة (${archivedOrders.length} طلب) نهائياً؟`)) return;
+
+    archivedOrders.forEach((o) => {
+      fetch(`/api/orders?orderNumber=${encodeURIComponent(o.orderNumber)}`, {
+        method: 'DELETE',
+        headers: getAdminAuthHeaders(),
+      }).catch(() => {});
+    });
 
     setArchivedOrders([]);
     localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify([]));

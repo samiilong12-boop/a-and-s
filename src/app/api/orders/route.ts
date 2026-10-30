@@ -110,6 +110,30 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'غير مصرح بالوصول لقائمة الطلبات' }, { status: 401 });
   }
 
+  // Merge with Cloud Database (Prisma PostgreSQL) when available
+  try {
+    const { prisma } = await import('@/lib/prisma');
+    const dbOrders = await prisma.order.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+    });
+    if (Array.isArray(dbOrders) && dbOrders.length > 0) {
+      const map = new Map<string, any>();
+      orders.forEach((o) => map.set(o.orderNumber, o));
+      dbOrders.forEach((dbo) => {
+        if (!map.has(dbo.orderNumber)) {
+          map.set(dbo.orderNumber, dbo);
+        }
+      });
+      const mergedList = Array.from(map.values());
+      return NextResponse.json(mergedList, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      });
+    }
+  } catch {}
+
   return NextResponse.json(orders, {
     headers: {
       'Cache-Control': 'no-store, no-cache, must-revalidate',
@@ -219,6 +243,17 @@ export async function PATCH(req: NextRequest) {
     );
     persistOrders(updated);
 
+    try {
+      const { prisma } = await import('@/lib/prisma');
+      await prisma.order.updateMany({
+        where: { orderNumber },
+        data: {
+          ...(updates.status ? { status: updates.status } : {}),
+          ...(updates.paymentStatus ? { paymentStatus: updates.paymentStatus } : {}),
+        },
+      });
+    } catch {}
+
     return NextResponse.json({ success: true, orders: updated });
   } catch (error) {
     return NextResponse.json({ success: false, error: 'Failed to update order' }, { status: 500 });
@@ -238,6 +273,13 @@ export async function DELETE(req: NextRequest) {
 
     const updated = existing.filter((o) => o.orderNumber !== orderNumber);
     persistOrders(updated);
+
+    try {
+      const { prisma } = await import('@/lib/prisma');
+      if (orderNumber) {
+        await prisma.order.deleteMany({ where: { orderNumber } });
+      }
+    } catch {}
 
     return NextResponse.json({ success: true, orders: updated });
   } catch (error) {
