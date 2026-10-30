@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { validateEgyptianPhone } from '../src/lib/phone-validation';
 import { formatPrice, parsePriceToPiasters } from '../src/lib/currency';
 import { DEFAULT_SITE_CONTENT, SiteContentConfig } from '../src/lib/siteContent';
-import { canTransitionOrderStatus, canTransitionPaymentStatus } from '../src/lib/state-machines';
+import {
+  canTransitionOrderStatus,
+  canTransitionPaymentStatus,
+  getOrderStatusLabel,
+  getPaymentStatusLabel,
+} from '../src/lib/state-machines';
 
 describe('Express 1-Click Order Flow & Schema Integration', () => {
   it('creates a compliant Express Order payload that matches the Admin Orders schema', () => {
@@ -64,6 +69,37 @@ describe('Express 1-Click Order Flow & Schema Integration', () => {
     expect(canTransitionOrderStatus('DELIVERED', 'PENDING_CONFIRMATION')).toBe(false);
 
     expect(canTransitionPaymentStatus('PENDING_COLLECTION', 'COLLECTED_BY_COURIER')).toBe(true);
+  });
+
+  it('safely resolves order and payment status labels without throwing on legacy, lowercase, or undefined values', () => {
+    // Exact uppercase
+    const s1 = getOrderStatusLabel('PENDING_CONFIRMATION');
+    expect(s1.colorClass).toBeTruthy();
+    expect(s1.labelAr).toBe('قيد التأكيد');
+
+    // Lowercase (from checkout or legacy storage)
+    const s2 = getOrderStatusLabel('pending_confirmation' as any);
+    expect(s2.colorClass).toBeTruthy();
+    expect(s2.labelAr).toBe('قيد التأكيد');
+
+    // Undefined / null / unknown status
+    const s3 = getOrderStatusLabel(undefined as any);
+    expect(s3.colorClass).toBeTruthy();
+    expect(s3.labelAr).toBe('قيد التأكيد');
+
+    const s4 = getOrderStatusLabel('UNKNOWN_STATUS' as any);
+    expect(s4.colorClass).toBeTruthy();
+
+    // Payment statuses
+    const p1 = getPaymentStatusLabel('PENDING_COLLECTION');
+    expect(p1.colorClass).toBeTruthy();
+    expect(p1.labelAr).toBe('الدفع عند الاستلام (قيد التحصيل)');
+
+    const p2 = getPaymentStatusLabel('pending' as any);
+    expect(p2.colorClass).toBeTruthy();
+
+    const p3 = getPaymentStatusLabel(null as any);
+    expect(p3.colorClass).toBeTruthy();
   });
 });
 

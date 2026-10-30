@@ -1610,7 +1610,7 @@ export default function AdminStorefrontContentPage() {
                 </p>
                 <div className="pt-2 flex items-center gap-2 text-xs text-[#2DD4BF]">
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>دوران تفاعلي كامل 360° + محاكي Sketchfab</span>
+                  <span>دوران تفاعلي واقعي 360° باللمس مع انعكاسات بلورية ورذاذ عطري</span>
                 </div>
               </div>
             </div>
@@ -1873,74 +1873,28 @@ export default function AdminStorefrontContentPage() {
             </div>
           </div>
 
-          {/* Section 4: Sketchfab 3D Model Settings */}
+          {/* Section 4: Realistic 3D Flacon Specifications */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
             <h3 className="font-serif font-bold text-slate-900 text-base flex items-center gap-2">
-              <ExternalLink className="w-5 h-5 text-teal-700" />
-              <span>تعديل موديل محاكي سكتش فاب (Sketchfab 3D Embed):</span>
+              <Sparkles className="w-5 h-5 text-teal-700" />
+              <span>مواصفات استوديو الزجاجة الواقعية 3D الفاخرة:</span>
             </h3>
             <p className="text-xs text-slate-500">
-              يمكنك وضع كود أي زجاجة عطر 3D من موقع Sketchfab أو اختيار أحد الموديلات الفاخرة المجهزة مسبقاً:
+              تم تثبيت استوديو العرض التفاعلي على نمط الزجاجة الواقعية ثلاثية الأبعاد خفيفة الوزن وسريعة التحميل المتوافقة 100% مع الهواتف الذكية:
             </p>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 block">
-                كود الموديل أو رابط صفحة Sketchfab (32-character Model ID or URL):
-              </label>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="text"
-                  value={config.studio3DSketchfabModelId || ''}
-                  onChange={(e) => {
-                    let val = e.target.value.trim();
-                    const urlMatch = val.match(/\/([a-zA-Z0-9]{32})/);
-                    if (urlMatch && urlMatch[1]) val = urlMatch[1];
-                    setConfig({ ...config, studio3DSketchfabModelId: val });
-                  }}
-                  onBlur={() => handleSaveConfig({ studio3DSketchfabModelId: config.studio3DSketchfabModelId })}
-                  placeholder="e6b54199c0174e92822a106fcebfa945"
-                  className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 font-mono focus:outline-none focus:border-teal-600"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSaveConfig({ studio3DSketchfabModelId: config.studio3DSketchfabModelId });
-                    showNotification('تم حفظ موديل Sketchfab الجديد بنجاح!');
-                  }}
-                  className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow transition-all cursor-pointer whitespace-nowrap"
-                >
-                  حفظ الموديل
-                </button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                <span className="font-bold text-slate-900 block">✨ الدوران التفاعلي 360°</span>
+                <span className="text-slate-500 text-[11px] mt-1 block">محاكاة فيزيائية فائقة السلاسة باللمس وسحب الماوس.</span>
               </div>
-            </div>
-
-            {/* Quick Preset Models */}
-            <div className="pt-2">
-              <span className="text-[11px] font-bold text-slate-700 block mb-2">موديلات 3D فاخرة جاهزة للاختيار السريع:</span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                {[
-                  { id: 'e6b54199c0174e92822a106fcebfa945', label: 'زجاجة كريستال فاخرة (Crystal Flacon)' },
-                  { id: '7b7ad9a4e8d3433fa6f20220cb95c808', label: 'زجاجة نيش باريسية (Parisian Bottle)' },
-                  { id: '433146e29780447385ceb52b2dfbe97e', label: 'زجاجة عود ملكية (Royal Oud Flacon)' },
-                ].map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => {
-                      setConfig({ ...config, studio3DSketchfabModelId: m.id });
-                      handleSaveConfig({ studio3DSketchfabModelId: m.id });
-                      showNotification(`تم تفعيل (${m.label}) بنجاح!`);
-                    }}
-                    className={`p-3 rounded-xl border text-right transition-all cursor-pointer ${
-                      (config.studio3DSketchfabModelId || 'e6b54199c0174e92822a106fcebfa945') === m.id
-                        ? 'border-teal-600 bg-teal-50 text-teal-900 font-bold shadow-xs'
-                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span className="text-xs block font-bold">{m.label}</span>
-                    <span className="text-[10px] text-slate-400 font-mono block mt-0.5 truncate">{m.id}</span>
-                  </button>
-                ))}
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                <span className="font-bold text-slate-900 block">💎 انعكاسات بلورية حية</span>
+                <span className="text-slate-500 text-[11px] mt-1 block">تأثيرات ضوئية ديناميكية وظلال تتبع حركة زاوية الدوران.</span>
+              </div>
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                <span className="font-bold text-slate-900 block">💨 رذاذ وصوت هيدروليكي</span>
+                <span className="text-slate-500 text-[11px] mt-1 block">تفاعل تجربة الرش العطري مع مؤثرات صوتية عبر Web Audio API.</span>
               </div>
             </div>
           </div>

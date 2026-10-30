@@ -34,7 +34,7 @@ export function CartDrawer() {
       />
 
       {/* Drawer Container (RTL / LTR responsive, full width on mobile, max-w-md on desktop) */}
-      <div className={`fixed inset-y-0 ${isRtl ? 'left-0' : 'right-0'} w-full sm:w-auto max-w-full flex ${isRtl ? 'justify-start' : 'justify-end'} z-50 pointer-events-none`}>
+      <div className={`fixed inset-y-0 ${isRtl ? 'right-0' : 'right-0'} w-full max-w-full sm:max-w-md flex justify-end z-50 pointer-events-none`}>
         <div className="w-full sm:w-[440px] max-w-full bg-[#F7F5EE] border-s border-[#E7E3D6] text-[#080A0A] flex flex-col shadow-2xl relative pointer-events-auto h-full overflow-hidden">
           
           {/* Header */}
@@ -99,7 +99,7 @@ export function CartDrawer() {
                     <div>
                       <div className="flex justify-between items-start gap-2">
                         <h4 className="font-serif text-sm font-bold text-[#080A0A] line-clamp-1 truncate">
-                          {item.productName}
+                          {isRtl ? (item.productNameAr || item.productName) : item.productName}
                         </h4>
                         <button
                           onClick={() => removeItem(item.variantId)}
@@ -109,7 +109,14 @@ export function CartDrawer() {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <p className="text-xs text-[#C6A66B] font-semibold mt-0.5">{item.variantTitle}</p>
+                      {isRtl && item.productNameAr && item.productNameAr !== item.productName && (
+                        <p className="text-[10px] text-[#788784] font-mono -mt-0.5 truncate">
+                          {item.productName}
+                        </p>
+                      )}
+                      <p className="text-xs text-[#C6A66B] font-semibold mt-0.5">
+                        {isRtl ? (item.variantTitleAr || `${item.volumeMl} مل إكستري دي بارفام`) : item.variantTitle}
+                      </p>
                       <p className="text-[11px] text-[#788784] mt-0.5 font-mono truncate">SKU: {item.sku}</p>
                     </div>
 

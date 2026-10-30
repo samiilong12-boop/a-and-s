@@ -12,6 +12,7 @@ export interface ProductVariant {
   sku: string;
   volumeMl: number; // e.g. 50, 100
   titleEn?: string;
+  titleAr?: string;
   regularPriceInPiasters?: number; // e.g. 240000 = 2,400.00 EGP
   regularPriceEgp?: number; // direct EGP number
   salePriceInPiasters?: number | null;
@@ -78,7 +79,9 @@ export interface CartItem {
   variantId: string;
   productId: string;
   productName: string;
+  productNameAr?: string;
   variantTitle: string;
+  variantTitleAr?: string;
   volumeMl: number;
   sku: string;
   unitPriceInPiasters: number;

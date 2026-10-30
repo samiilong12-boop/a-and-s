@@ -79,6 +79,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         product.imageUrl ||
         '';
       const variantTitle = variant.titleEn || `${variant.volumeMl}ml Extrait de Parfum`;
+      const variantTitleAr = variant.titleAr || `${variant.volumeMl} مل إكستري دي بارفام`;
 
       if (existing) {
         const newQty = Math.min(existing.quantity + quantity, variant.stockQuantity);
@@ -92,7 +93,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             variantId: variant.id,
             productId: product.id,
             productName: product.nameEn,
+            productNameAr: product.nameAr || product.nameEn,
             variantTitle,
+            variantTitleAr,
             volumeMl: variant.volumeMl,
             sku: variant.sku,
             unitPriceInPiasters: unitPrice,

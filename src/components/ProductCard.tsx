@@ -7,6 +7,12 @@ import { Product } from '@/types';
 import { formatPrice } from '@/lib/currency';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
+import {
+  getLocalizedProductName,
+  getLocalizedFragranceFamily,
+  getLocalizedConcentration,
+  getLocalizedOlfactoryNote,
+} from '@/lib/fragrance-translations';
 
 interface ProductCardProps {
   product: Product;
@@ -93,20 +99,28 @@ export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
         <div>
           {/* Concentration & Category */}
           <div className="flex items-center justify-between text-[11px] tracking-wider uppercase mb-1.5 font-bold">
-            <span className="text-[#00bc7d] font-mono">{product.fragranceFamily}</span>
-            <span className="text-[#576563]">{product.concentration.replace(/_/g, ' ')}</span>
+            <span className="text-[#00bc7d] font-mono">{getLocalizedFragranceFamily(product.fragranceFamily, isRtl)}</span>
+            <span className="text-[#576563] text-[10px]">{getLocalizedConcentration(product.concentration, isRtl)}</span>
           </div>
 
           {/* Fragrance Title */}
           <Link href={`/product/${product.slug}`} className="block">
             <h3 className="font-serif text-base sm:text-lg font-bold text-[#080A0A] group-hover:text-[#00bc7d] transition-colors line-clamp-1">
-              {product.nameEn}
+              {getLocalizedProductName(product, isRtl)}
             </h3>
+            {isRtl && product.nameEn && product.nameAr && product.nameEn !== product.nameAr && (
+              <span className="text-[11px] text-[#788784] font-mono block -mt-0.5 line-clamp-1">
+                {product.nameEn}
+              </span>
+            )}
           </Link>
 
           {/* Key Notes Snippet */}
           <p className="text-xs text-[#576563] mt-1.5 line-clamp-1">
-            <span className="font-semibold text-[#080A0A]">{isRtl ? 'النوتات:' : 'Notes:'}</span> {product.topNotes.slice(0, 2).join(', ')}, {product.heartNotes[0]}, {product.baseNotes[0]}
+            <span className="font-semibold text-[#080A0A]">{isRtl ? 'النوتات:' : 'Notes:'}</span>{' '}
+            {product.topNotes?.[0] ? getLocalizedOlfactoryNote(product.topNotes[0], isRtl) : ''}
+            {product.heartNotes?.[0] ? `، ${getLocalizedOlfactoryNote(product.heartNotes[0], isRtl)}` : ''}
+            {product.baseNotes?.[0] ? `، ${getLocalizedOlfactoryNote(product.baseNotes[0], isRtl)}` : ''}
           </p>
 
           {/* Rating */}

@@ -109,9 +109,9 @@ export default function CheckoutPage() {
 
       const orderPayload = {
         orderNumber,
-        status: 'pending_confirmation',
-        paymentStatus: 'pending',
-        paymentMethod: 'cash_on_delivery',
+        status: 'PENDING_CONFIRMATION',
+        paymentStatus: 'PENDING_COLLECTION',
+        paymentMethod: 'CASH_ON_DELIVERY',
         currency: 'EGP',
         customerName: formData.customerName.trim(),
         customerPhone: validateEgyptianPhone(formData.customerPhone).normalizedPhone,

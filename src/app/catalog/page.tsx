@@ -8,6 +8,10 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useCustomRequest } from '@/context/CustomRequestContext';
 import { FRAGRANCE_FAMILIES, CONCENTRATIONS } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
+import {
+  getLocalizedFragranceFamily,
+  getLocalizedConcentration,
+} from '@/lib/fragrance-translations';
 
 function CatalogContent() {
   const searchParams = useSearchParams();
@@ -36,13 +40,17 @@ function CatalogContent() {
       // Search term
       if (searchTerm.trim()) {
         const term = searchTerm.toLowerCase();
-        const matchesName = product.nameEn.toLowerCase().includes(term);
+        const matchesName =
+          product.nameEn.toLowerCase().includes(term) ||
+          (product.nameAr && product.nameAr.toLowerCase().includes(term));
         const matchesBrand = product.brand?.toLowerCase().includes(term);
         const matchesSku = product.variants.some((v) => v.sku.toLowerCase().includes(term));
         const matchesNotes = [...product.topNotes, ...product.heartNotes, ...product.baseNotes].some((n) =>
           n.toLowerCase().includes(term)
         );
-        const matchesFamily = product.fragranceFamily.toLowerCase().includes(term);
+        const matchesFamily =
+          product.fragranceFamily.toLowerCase().includes(term) ||
+          getLocalizedFragranceFamily(product.fragranceFamily, true).toLowerCase().includes(term);
         if (!matchesName && !matchesBrand && !matchesSku && !matchesNotes && !matchesFamily) return false;
       }
 
@@ -188,7 +196,7 @@ function CatalogContent() {
                     : 'bg-white/80 text-[#788784] hover:text-[#080A0A] border border-[#E7E3D6]'
                 }`}
               >
-                {family}
+                {getLocalizedFragranceFamily(family, isRtl)}
               </button>
             ))}
           </div>
@@ -260,7 +268,7 @@ function CatalogContent() {
             >
               <option value="All">{isRtl ? 'جميع درجات التركيز' : 'All Concentrations'}</option>
               {CONCENTRATIONS.map((c) => (
-                <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
+                <option key={c} value={c}>{getLocalizedConcentration(c, isRtl)}</option>
               ))}
             </select>
 

@@ -21,6 +21,13 @@ import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/currency';
 import { useCart } from '@/context/CartContext';
 import { ProductCard } from '@/components/ProductCard';
+import {
+  getLocalizedProductName,
+  getLocalizedProductDescription,
+  getLocalizedFragranceFamily,
+  getLocalizedConcentration,
+  getLocalizedOlfactoryNote,
+} from '@/lib/fragrance-translations';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = use(params);
@@ -128,7 +135,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   const whatsappInquiryUrl = `https://wa.me/201131068790?text=${encodeURIComponent(
     isRtl
-      ? `مرحباً دار رَحِيقْ، أود الاستفسار وطلب عطر ${product.nameEn} حجم ${selectedVariant.volumeMl} مل بسعر ${formatPrice(currentPrice)}.`
+      ? `مرحباً دار رَحِيقْ، أود الاستفسار وطلب عطر ${getLocalizedProductName(product, isRtl)} (${product.nameEn}) حجم ${selectedVariant.volumeMl} مل بسعر ${formatPrice(currentPrice)}.`
       : `Hello Raheeq, I want to inquire about ${product.nameEn} ${selectedVariant.volumeMl}ml priced at ${formatPrice(currentPrice)}.`
   )}`;
 
@@ -143,10 +150,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           <Link href="/catalog" className="hover:text-[#080A0A] transition-colors">{t('nav.all_fragrances')}</Link>
           <span>/</span>
           <Link href={`/catalog?family=${encodeURIComponent(product.fragranceFamily)}`} className="hover:text-[#080A0A] transition-colors">
-            {product.fragranceFamily}
+            {getLocalizedFragranceFamily(product.fragranceFamily, isRtl)}
           </Link>
           <span>/</span>
-          <span className="text-[#0D9488] font-bold truncate max-w-xs">{product.nameEn}</span>
+          <span className="text-[#0D9488] font-bold truncate max-w-xs">{getLocalizedProductName(product, isRtl)}</span>
         </nav>
 
         {/* Main Product Showcase Card */}
@@ -158,7 +165,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <div className="aspect-[4/5] bg-[#FAF8F4] rounded-2xl border border-[#E6E1D5] overflow-hidden relative shadow-lg group">
                 <img
                   src={selectedImage || product.images?.[0]?.url || product.imageUrl}
-                  alt={product.nameEn}
+                  alt={getLocalizedProductName(product, isRtl)}
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
                 {product.isBestseller && (
@@ -168,7 +175,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 )}
                 <div className="absolute bottom-4 left-4 right-4 bg-[#080A0A]/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-[#2DD4BF]/40 text-[11px] text-[#F5F2EB] flex items-center justify-between">
                   <span className="font-mono text-[#C6A66B]">SKU: {selectedVariant.sku}</span>
-                  <span className="text-[#2DD4BF] font-bold">{product.concentration.replace(/_/g, ' ')}</span>
+                  <span className="text-[#2DD4BF] font-bold">{getLocalizedConcentration(product.concentration, isRtl)}</span>
                 </div>
               </div>
 
@@ -195,17 +202,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <div>
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-bold tracking-[0.2em] text-[#0D9488] uppercase">
-                    {product.fragranceFamily}
+                    {getLocalizedFragranceFamily(product.fragranceFamily, isRtl)}
                   </span>
                   <span className="text-[#A19D92]">•</span>
                   <span className="text-xs text-[#576563] tracking-wider uppercase font-semibold">
-                    {product.concentration.replace(/_/g, ' ')}
+                    {getLocalizedConcentration(product.concentration, isRtl)}
                   </span>
                 </div>
 
                 <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[#080A0A] mt-2 tracking-tight">
-                  {product.nameEn}
+                  {getLocalizedProductName(product, isRtl)}
                 </h1>
+                {isRtl && product.nameEn && product.nameAr && product.nameEn !== product.nameAr && (
+                  <p className="text-sm font-mono text-[#788784] mt-1">
+                    {product.nameEn}
+                  </p>
+                )}
 
                 {/* Ratings & Reviews */}
                 <div className="flex items-center gap-3 mt-3">
@@ -236,7 +248,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </div>
 
                 <p className="text-sm text-[#576563] mt-3 leading-relaxed">
-                  {product.descriptionEn}
+                  {getLocalizedProductDescription(product, isRtl)}
                 </p>
               </div>
 
@@ -426,7 +438,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <div className="pt-2 flex flex-wrap justify-center gap-1.5">
                 {product.topNotes.map((note) => (
                   <span key={note} className="px-3 py-1 bg-white text-xs text-[#080A0A] font-semibold rounded-lg border border-[#E6E1D5] shadow-xs">
-                    {note}
+                    {getLocalizedOlfactoryNote(note, isRtl)}
                   </span>
                 ))}
               </div>
@@ -442,7 +454,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <div className="pt-2 flex flex-wrap justify-center gap-1.5">
                 {product.heartNotes.map((note) => (
                   <span key={note} className="px-3 py-1 bg-white text-xs text-[#080A0A] font-semibold rounded-lg border border-[#E6E1D5] shadow-xs">
-                    {note}
+                    {getLocalizedOlfactoryNote(note, isRtl)}
                   </span>
                 ))}
               </div>
@@ -458,7 +470,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <div className="pt-2 flex flex-wrap justify-center gap-1.5">
                 {product.baseNotes.map((note) => (
                   <span key={note} className="px-3 py-1 bg-white text-xs text-[#080A0A] font-semibold rounded-lg border border-[#E6E1D5] shadow-xs">
-                    {note}
+                    {getLocalizedOlfactoryNote(note, isRtl)}
                   </span>
                 ))}
               </div>

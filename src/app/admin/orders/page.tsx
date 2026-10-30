@@ -453,8 +453,16 @@ function AdminOrdersContent() {
                 </tr>
               ) : (
                 filteredOrders.map((order) => {
-                  const statusMeta = getOrderStatusLabel(order.status);
-                  const payMeta = getPaymentStatusLabel(order.paymentStatus);
+                  const statusMeta = getOrderStatusLabel(order.status) || {
+                    labelEn: 'Pending Confirmation',
+                    labelAr: 'قيد التأكيد',
+                    colorClass: 'text-amber-400 bg-amber-400/10 border-amber-400/30',
+                  };
+                  const payMeta = getPaymentStatusLabel(order.paymentStatus) || {
+                    labelEn: 'Cash Pending Collection',
+                    labelAr: 'الدفع عند الاستلام (قيد التحصيل)',
+                    colorClass: 'text-amber-400 bg-amber-400/10',
+                  };
                   const isArchived = activeTab === 'archive';
 
                   return (
@@ -483,13 +491,13 @@ function AdminOrdersContent() {
                         {order.shippingAddress?.governorate || order.governorate || 'القاهرة'}
                       </td>
                       <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusMeta.colorClass}`}>
-                          {statusMeta.labelAr || statusMeta.labelEn}
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusMeta?.colorClass || 'text-amber-400 bg-amber-400/10 border-amber-400/30'}`}>
+                          {statusMeta?.labelAr || statusMeta?.labelEn || 'قيد التأكيد'}
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className={`text-[11px] font-bold ${payMeta.colorClass}`}>
-                          {payMeta.labelAr || payMeta.labelEn}
+                        <span className={`text-[11px] font-bold ${payMeta?.colorClass || 'text-amber-400 bg-amber-400/10'}`}>
+                          {payMeta?.labelAr || payMeta?.labelEn || 'الدفع عند الاستلام'}
                         </span>
                       </td>
                       <td className="p-4 text-slate-600">
