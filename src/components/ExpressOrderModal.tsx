@@ -106,11 +106,30 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
     try {
       setIsSubmitting(true);
       const cleanPhone = phoneCheck.normalizedPhone;
+      const now = new Date();
+      const orderNumber = `RHQ-EXP-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
       const orderPayload = {
+        orderNumber,
+        status: 'PENDING_CONFIRMATION',
+        paymentStatus: 'PENDING_COLLECTION',
+        paymentMethod: 'CASH_ON_DELIVERY',
+        currency: 'EGP',
         customerName: customerName.trim(),
         customerPhone: cleanPhone,
-        customerAddress: `${governorate} — ${address.trim()}`,
+        customerEmail: null,
+        shippingAddress: {
+          governorate: governorate,
+          city: governorate,
+          streetAddress: address.trim(),
+          deliveryNotes: notes ? `⚡ طلب شراء سريع: ${notes.trim()}` : '⚡ طلب شراء سريع بنظام الدفع والمعاينة عند الاستلام',
+        },
+        subtotalInPiasters: finalPriceInPiasters,
+        discountInPiasters: 0,
+        shippingInPiasters: 0,
+        totalInPiasters: finalPriceInPiasters,
+        createdAt: now.toISOString(),
+        orderNotes: notes ? `⚡ طلب شراء سريع: ${notes.trim()}` : '⚡ طلب شراء سريع (Express 1-Click Order)',
         items: [
           {
             productId: product.id,
@@ -118,13 +137,22 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
             title: `${product.nameEn} (${product.nameAr || ''}) - ${activeVariant?.titleEn || '100ml'}`,
             quantity: 1,
             unitPriceInPiasters: finalPriceInPiasters,
+            image: product.images?.[0]?.url || product.imageUrl || '',
           },
         ],
-        totalAmountInPiasters: finalPriceInPiasters,
-        paymentMethod: 'COD',
-        orderNotes: notes ? `طلب شراء سريع: ${notes.trim()}` : 'طلب شراء سريع بنظام الدفع والمعاينة عند الاستلام',
       };
 
+      // 1. Instantly persist to local orders store so admin sees it immediately
+      try {
+        const storedStr = localStorage.getItem('a_and_s_demo_orders');
+        const existing = storedStr ? JSON.parse(storedStr) : [];
+        localStorage.setItem('a_and_s_demo_orders', JSON.stringify([orderPayload, ...existing]));
+        window.dispatchEvent(new Event('storage'));
+      } catch (lsErr) {
+        console.warn('Local storage order write error:', lsErr);
+      }
+
+      // 2. Persist to server API & Cloud Database
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,9 +163,8 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
         throw new Error('حدث خطأ أثناء معالجة الطلب، يرجى المحاولة مرة أخرى.');
       }
 
-      const orderData = await res.json();
       setOrderSuccess({
-        orderNumber: orderData.orderNumber || orderData.id || `RHQ-${Date.now().toString().slice(-6)}`,
+        orderNumber,
         totalAmount: formatPrice(finalPriceInPiasters),
       });
     } catch (err: any) {

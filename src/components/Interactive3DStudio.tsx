@@ -126,7 +126,20 @@ export function Interactive3DStudio() {
   ], [siteContent]);
 
   const [viewMode, setViewMode] = useState<'interactive' | 'sketchfab'>('interactive');
+  const [flaconDisplayMode, setFlaconDisplayMode] = useState<'photo' | 'crystal'>('photo');
   const [activeTheme, setActiveTheme] = useState<PerfumeTheme>(themes[0]);
+
+  // Sync display mode with site content
+  useEffect(() => {
+    if (siteContent.studioBottleMode) {
+      setFlaconDisplayMode(siteContent.studioBottleMode === 'crystal' ? 'crystal' : 'photo');
+    }
+  }, [siteContent.studioBottleMode]);
+
+  const customBottleImg =
+    siteContent.studioCustomBottleImage ||
+    siteContent.studioBottleLabelImage ||
+    '/images/raheeq-official-logo.png';
 
   useEffect(() => {
     setActiveTheme((prev) => {
@@ -298,29 +311,48 @@ export function Interactive3DStudio() {
           </div>
         </div>
 
-        {/* View Switcher: Interactive Flacon vs Sketchfab 3D Embed */}
-        <div className="bg-[#141A19] p-1 rounded-xl border border-white/10 flex items-center gap-1">
+        {/* View Switcher: Real Photo 3D Flacon vs Crystal Flacon vs Sketchfab 3D Embed */}
+        <div className="bg-[#141A19] p-1 rounded-xl border border-white/10 flex items-center gap-1 flex-wrap">
           <button
-            onClick={() => setViewMode('interactive')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-              viewMode === 'interactive'
-                ? 'bg-gradient-to-r from-[#00bc7d] to-[#2DD4BF] text-[#080A0A] shadow-md'
+            onClick={() => {
+              setViewMode('interactive');
+              setFlaconDisplayMode('photo');
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              viewMode === 'interactive' && flaconDisplayMode === 'photo'
+                ? 'bg-gradient-to-r from-[#00bc7d] to-[#2DD4BF] text-[#080A0A] shadow-md font-extrabold'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>معمل رحيق 3D الحي</span>
+            <span>الزجاجة الواقعية 3D</span>
           </button>
+
+          <button
+            onClick={() => {
+              setViewMode('interactive');
+              setFlaconDisplayMode('crystal');
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              viewMode === 'interactive' && flaconDisplayMode === 'crystal'
+                ? 'bg-gradient-to-r from-[#00bc7d] to-[#2DD4BF] text-[#080A0A] shadow-md font-extrabold'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>الكريستال الأتيليه</span>
+          </button>
+
           <button
             onClick={() => setViewMode('sketchfab')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
               viewMode === 'sketchfab'
-                ? 'bg-[#D4AF37] text-[#080A0A] shadow-md'
+                ? 'bg-[#D4AF37] text-[#080A0A] shadow-md font-extrabold'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
             <Box className="w-3.5 h-3.5" />
-            <span>محاكي سكتش فاب (Sketchfab)</span>
+            <span>سكتش فاب (Sketchfab)</span>
           </button>
         </div>
       </div>
@@ -401,128 +433,169 @@ export function Interactive3DStudio() {
                 }}
               />
 
-              {/* 1. MAGNETIC CAP */}
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCapOpen(!capOpen);
-                }}
-                className={`relative mx-auto w-24 h-16 rounded-t-lg border-2 border-[#D4AF37] cursor-pointer transition-all duration-500 shadow-2xl flex flex-col items-center justify-center ${
-                  capOpen ? '-translate-y-16 scale-105' : 'translate-y-0'
-                }`}
-                style={{
-                  background:
-                    'linear-gradient(135deg, #FAF0D7 0%, #D4AF37 35%, #8C6207 70%, #F5E6BE 100%)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.7)',
-                }}
-                title={capOpen ? 'اضغط لتركيب الغطاء المغناطيسي' : 'اضغط لنزع الغطاء المغناطيسي'}
-              >
-                {/* Crown Gem Ring */}
-                <div className="w-8 h-2 rounded-full bg-[#162220] border border-[#2DD4BF] shadow-[0_0_8px_#2DD4BF]" />
-                <span className="text-[8px] font-mono tracking-widest text-slate-900 font-extrabold mt-1 uppercase">
-                  RAHEEQ
-                </span>
+              {/* ---------------------------------------------------- */}
+              {/* DISPLAY MODE 1: REALISTIC PHOTO-BASED 3D BOTTLE VIEW */}
+              {/* ---------------------------------------------------- */}
+              {flaconDisplayMode === 'photo' && customBottleImg ? (
+                <div className="relative w-60 sm:w-72 h-80 sm:h-96 flex flex-col items-center justify-center p-2 select-none group">
+                  {/* Floating Realistic Perfume Bottle with Volumetric Lighting */}
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <img
+                      src={customBottleImg}
+                      alt="3D Perfume Bottle"
+                      className="max-h-full max-w-full object-contain filter contrast-110 drop-shadow-[0_25px_40px_rgba(0,0,0,0.85)] pointer-events-none select-none transition-transform duration-75"
+                    />
 
-                {/* Floating Tooltip When Hovered */}
-                <span className="absolute -top-7 px-2 py-0.5 rounded bg-black/80 text-[9px] text-[#D4AF37] font-bold border border-[#D4AF37]/40 opacity-0 hover:opacity-100 transition-opacity">
-                  {capOpen ? 'تركيب الغطاء' : 'نزع الغطاء'}
-                </span>
-              </div>
+                    {/* Dynamic Specular Glass Glare Stripe across the real bottle */}
+                    <div
+                      className="absolute inset-y-2 w-28 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none mix-blend-overlay transition-transform duration-75 rounded-2xl"
+                      style={{
+                        transform: `translateX(${reflectionOffset * 1.5}px) skewX(-20deg)`,
+                      }}
+                    />
 
-              {/* 2. SPRAY NOZZLE & ATOMIZER COLLAR */}
-              <div className="relative mx-auto w-12 h-6 bg-gradient-to-r from-[#D4AF37] via-[#FDF5E2] to-[#8C6207] border-x border-[#D4AF37] flex items-center justify-center shadow-inner">
-                {/* Nozzle Orifice */}
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    triggerSpray();
-                  }}
-                  className="w-3.5 h-3.5 rounded-full bg-slate-900 border border-[#D4AF37] cursor-pointer hover:scale-125 transition-transform shadow-xs"
-                  title="اضغط هنا لرش رذاذ العطر"
-                />
-              </div>
-
-              {/* 3. HEAVY BEVELED CRYSTAL FLACON (BOTTLE BODY) */}
-              <div
-                className="relative w-56 h-80 rounded-2xl border-2 border-white/30 backdrop-blur-md overflow-hidden flex flex-col justify-between p-4 shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
-                style={{
-                  background:
-                    'linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.03) 40%, rgba(0,0,0,0.45) 100%)',
-                  boxShadow:
-                    'inset 0 0 25px rgba(255,255,255,0.2), 0 25px 60px rgba(0,0,0,0.85), inset 0 2px 2px rgba(255,255,255,0.6)',
-                }}
-              >
-                {/* Dynamic Specular Glass Glare Stripe */}
-                <div
-                  className="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 to-transparent pointer-events-none transition-transform duration-75"
-                  style={{
-                    transform: `translateX(${reflectionOffset + 90}px) skewX(-20deg)`,
-                  }}
-                />
-
-                {/* Fragrance Liquid (Interactive Depth & Meniscus) */}
-                <div
-                  className="absolute inset-x-2 bottom-2 rounded-b-xl transition-all duration-700 pointer-events-none overflow-hidden"
-                  style={{
-                    height: '84%',
-                    background: activeTheme.liquidGradient,
-                    boxShadow: `inset 0 10px 30px ${activeTheme.liquidColor}, 0 0 20px ${activeTheme.liquidGlow}`,
-                  }}
-                >
-                  {/* Internal Dip Tube (خرطوم السحب الشفاف) */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-full bg-white/25 rounded-full border-r border-white/20 shadow-xs" />
-
-                  {/* Shimmering Liquid Bubbles */}
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.25),transparent_40%)]" />
+                    {/* Interactive Spray Nozzle Hotspot at Top */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerSpray();
+                      }}
+                      className="absolute top-2 w-8 h-8 rounded-full bg-white/10 hover:bg-[#2DD4BF]/30 border border-[#2DD4BF]/50 flex items-center justify-center text-[#2DD4BF] transition-all shadow-lg cursor-pointer"
+                      title="اضغط هنا لرش رذاذ العطر من الزجاجة"
+                    >
+                      <Sparkles className="w-4 h-4 animate-pulse" />
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                /* ---------------------------------------------------- */
+                /* DISPLAY MODE 2: HEAVY BEVELED CRYSTAL ATELIER FLACON */
+                /* ---------------------------------------------------- */
+                <>
+                  {/* 1. MAGNETIC CAP */}
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCapOpen(!capOpen);
+                    }}
+                    className={`relative mx-auto w-24 h-16 rounded-t-lg border-2 border-[#D4AF37] cursor-pointer transition-all duration-500 shadow-2xl flex flex-col items-center justify-center ${
+                      capOpen ? '-translate-y-16 scale-105' : 'translate-y-0'
+                    }`}
+                    style={{
+                      background:
+                        'linear-gradient(135deg, #FAF0D7 0%, #D4AF37 35%, #8C6207 70%, #F5E6BE 100%)',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.7)',
+                    }}
+                    title={capOpen ? 'اضغط لتركيب الغطاء المغناطيسي' : 'اضغط لنزع الغطاء المغناطيسي'}
+                  >
+                    {/* Crown Gem Ring */}
+                    <div className="w-8 h-2 rounded-full bg-[#162220] border border-[#2DD4BF] shadow-[0_0_8px_#2DD4BF]" />
+                    <span className="text-[8px] font-mono tracking-widest text-slate-900 font-extrabold mt-1 uppercase">
+                      RAHEEQ
+                    </span>
 
-                {/* Beveled Luxury Front Metallic Crest & Label */}
-                <div
-                  className="relative z-10 my-auto mx-auto w-40 py-6 px-4 rounded-xl border border-[#D4AF37]/70 text-center shadow-2xl backdrop-blur-lg flex flex-col items-center justify-center space-y-1.5"
-                  style={{
-                    background:
-                      'linear-gradient(135deg, rgba(14,20,19,0.95) 0%, rgba(8,10,10,0.98) 100%)',
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.9), inset 0 0 15px rgba(212,175,55,0.15)',
-                  }}
-                >
-                  {/* Gold Royal Crest or Custom Bottle Image */}
-                  {siteContent.studioBottleLabelImage ? (
-                    <img
-                      src={siteContent.studioBottleLabelImage}
-                      alt="Bottle Label"
-                      className="w-10 h-10 rounded-full object-cover border border-[#D4AF37]/70 shadow-md mb-1"
+                    {/* Floating Tooltip When Hovered */}
+                    <span className="absolute -top-7 px-2 py-0.5 rounded bg-black/80 text-[9px] text-[#D4AF37] font-bold border border-[#D4AF37]/40 opacity-0 hover:opacity-100 transition-opacity">
+                      {capOpen ? 'تركيب الغطاء' : 'نزع الغطاء'}
+                    </span>
+                  </div>
+
+                  {/* 2. SPRAY NOZZLE & ATOMIZER COLLAR */}
+                  <div className="relative mx-auto w-12 h-6 bg-gradient-to-r from-[#D4AF37] via-[#FDF5E2] to-[#8C6207] border-x border-[#D4AF37] flex items-center justify-center shadow-inner">
+                    {/* Nozzle Orifice */}
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerSpray();
+                      }}
+                      className="w-3.5 h-3.5 rounded-full bg-slate-900 border border-[#D4AF37] cursor-pointer hover:scale-125 transition-transform shadow-xs"
+                      title="اضغط هنا لرش رذاذ العطر"
                     />
-                  ) : siteContent.brandLogoUrl ? (
-                    <img
-                      src={siteContent.brandLogoUrl}
-                      alt="Brand Logo"
-                      className="w-10 h-10 rounded-full object-cover border border-[#D4AF37]/70 shadow-md mb-1"
+                  </div>
+
+                  {/* 3. HEAVY BEVELED CRYSTAL FLACON (BOTTLE BODY) */}
+                  <div
+                    className="relative w-56 h-80 rounded-2xl border-2 border-white/30 backdrop-blur-md overflow-hidden flex flex-col justify-between p-4 shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.03) 40%, rgba(0,0,0,0.45) 100%)',
+                      boxShadow:
+                        'inset 0 0 25px rgba(255,255,255,0.2), 0 25px 60px rgba(0,0,0,0.85), inset 0 2px 2px rgba(255,255,255,0.6)',
+                    }}
+                  >
+                    {/* Dynamic Specular Glass Glare Stripe */}
+                    <div
+                      className="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/35 to-transparent pointer-events-none transition-transform duration-75"
+                      style={{
+                        transform: `translateX(${reflectionOffset + 90}px) skewX(-20deg)`,
+                      }}
                     />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full border border-[#D4AF37]/60 flex items-center justify-center text-[#D4AF37] mb-1">
-                      <span className="font-serif font-extrabold text-xs">AS</span>
+
+                    {/* Fragrance Liquid (Interactive Depth & Meniscus) */}
+                    <div
+                      className="absolute inset-x-2 bottom-2 rounded-b-xl transition-all duration-700 pointer-events-none overflow-hidden"
+                      style={{
+                        height: '84%',
+                        background: activeTheme.liquidGradient,
+                        boxShadow: `inset 0 10px 30px ${activeTheme.liquidColor}, 0 0 20px ${activeTheme.liquidGlow}`,
+                      }}
+                    >
+                      {/* Internal Dip Tube (خرطوم السحب الشفاف) */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-full bg-white/25 rounded-full border-r border-white/20 shadow-xs" />
+
+                      {/* Shimmering Liquid Bubbles */}
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.25),transparent_40%)]" />
                     </div>
-                  )}
 
-                  <span className="font-serif text-sm tracking-[0.25em] text-[#D4AF37] font-extrabold uppercase">
-                    R A H E E Q
-                  </span>
-                  <span className="text-[9px] tracking-[0.2em] text-[#FAF9F5] font-sans font-bold uppercase block">
-                    {activeTheme.nameEn}
-                  </span>
-                  <div className="w-12 h-px bg-gradient-to-r from-transparent via-[#2DD4BF] to-transparent my-1" />
-                  <span className="text-[8px] tracking-[0.28em] text-[#2DD4BF] font-mono font-extrabold uppercase block">
-                    25% EXTRAIT DE PARFUM
-                  </span>
-                </div>
+                    {/* Beveled Luxury Front Metallic Crest & Label */}
+                    <div
+                      className="relative z-10 my-auto mx-auto w-40 py-6 px-4 rounded-xl border border-[#D4AF37]/70 text-center shadow-2xl backdrop-blur-lg flex flex-col items-center justify-center space-y-1.5"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, rgba(14,20,19,0.95) 0%, rgba(8,10,10,0.98) 100%)',
+                        boxShadow: '0 8px 30px rgba(0,0,0,0.9), inset 0 0 15px rgba(212,175,55,0.15)',
+                      }}
+                    >
+                      {/* Gold Royal Crest or Custom Bottle Image */}
+                      {siteContent.studioBottleLabelImage ? (
+                        <img
+                          src={siteContent.studioBottleLabelImage}
+                          alt="Bottle Label"
+                          className="w-10 h-10 rounded-full object-cover border border-[#D4AF37]/70 shadow-md mb-1"
+                        />
+                      ) : siteContent.brandLogoUrl ? (
+                        <img
+                          src={siteContent.brandLogoUrl}
+                          alt="Brand Logo"
+                          className="w-10 h-10 rounded-full object-cover border border-[#D4AF37]/70 shadow-md mb-1"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full border border-[#D4AF37]/60 flex items-center justify-center text-[#D4AF37] mb-1">
+                          <span className="font-serif font-extrabold text-xs">AS</span>
+                        </div>
+                      )}
 
-                {/* Base Crystal Heavy Glass Bottom */}
-                <div className="relative z-10 w-full h-7 rounded-b-xl border-t border-white/20 bg-gradient-to-t from-white/10 to-transparent flex items-center justify-center">
-                  <span className="text-[8px] font-mono tracking-widest text-slate-400 font-bold uppercase">
-                    100ml • 3.4 FL. OZ • CAIRO
-                  </span>
-                </div>
-              </div>
+                      <span className="font-serif text-sm tracking-[0.25em] text-[#D4AF37] font-extrabold uppercase">
+                        R A H E E Q
+                      </span>
+                      <span className="text-[9px] tracking-[0.2em] text-[#FAF9F5] font-sans font-bold uppercase block">
+                        {activeTheme.nameEn}
+                      </span>
+                      <div className="w-12 h-px bg-gradient-to-r from-transparent via-[#2DD4BF] to-transparent my-1" />
+                      <span className="text-[8px] tracking-[0.28em] text-[#2DD4BF] font-mono font-extrabold uppercase block">
+                        25% EXTRAIT DE PARFUM
+                      </span>
+                    </div>
+
+                    {/* Base Crystal Heavy Glass Bottom */}
+                    <div className="relative z-10 w-full h-7 rounded-b-xl border-t border-white/20 bg-gradient-to-t from-white/10 to-transparent flex items-center justify-center">
+                      <span className="text-[8px] font-mono tracking-widest text-slate-400 font-bold uppercase">
+                        100ml • 3.4 FL. OZ • CAIRO
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Bottom In-Viewport Quick Action Strip */}

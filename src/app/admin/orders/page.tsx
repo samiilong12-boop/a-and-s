@@ -466,7 +466,14 @@ function AdminOrdersContent() {
                       onClick={() => openOrderDetails(order)}
                     >
                       <td className="p-4 font-mono text-teal-800 font-bold text-sm">
-                        {order.orderNumber}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {(order.orderNotes?.includes('سريع') || order.orderNumber?.includes('EXP')) && (
+                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-2xs">
+                              ⚡ سريع
+                            </span>
+                          )}
+                          <span>{order.orderNumber}</span>
+                        </div>
                       </td>
                       <td className="p-4">
                         <p className="font-bold text-slate-900">{order.customerName}</p>
@@ -494,8 +501,8 @@ function AdminOrdersContent() {
                           <span className="text-slate-400">لم يتم التعيين</span>
                         )}
                       </td>
-                      <td className="p-4 font-bold text-slate-900 text-sm font-mono">
-                        {formatPrice(order.totalInPiasters)}
+                      <td className="p-4 font-bold text-slate-900 text-sm font-mono whitespace-nowrap">
+                        {formatPrice(order.totalInPiasters || order.totalAmountInPiasters || 0)}
                       </td>
                       <td className="p-4 text-center">
                         <div className="inline-flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>

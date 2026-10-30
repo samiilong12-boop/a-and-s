@@ -128,8 +128,39 @@ export async function POST(req: NextRequest) {
 
     const orderData = await req.json();
 
-    if (!orderData || !orderData.orderNumber || !orderData.customerPhone) {
-      return NextResponse.json({ success: false, error: 'بيانات الطلب غير مكتملة' }, { status: 400 });
+    if (!orderData || !orderData.customerPhone) {
+      return NextResponse.json({ success: false, error: 'بيانات الطلب غير مكتملة (رقم الهاتف مطلوب)' }, { status: 400 });
+    }
+
+    // Auto-generate missing fields for maximum reliability across Express and Cart checkout
+    if (!orderData.orderNumber) {
+      const now = new Date();
+      orderData.orderNumber = `RHQ-EXP-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+    if (!orderData.createdAt) {
+      orderData.createdAt = new Date().toISOString();
+    }
+    if (!orderData.status) {
+      orderData.status = 'PENDING_CONFIRMATION';
+    }
+    if (!orderData.paymentStatus) {
+      orderData.paymentStatus = 'PENDING_COLLECTION';
+    }
+    if (!orderData.paymentMethod) {
+      orderData.paymentMethod = 'CASH_ON_DELIVERY';
+    }
+    if (!orderData.totalInPiasters && orderData.totalAmountInPiasters) {
+      orderData.totalInPiasters = orderData.totalAmountInPiasters;
+    }
+    if (!orderData.subtotalInPiasters && orderData.totalInPiasters) {
+      orderData.subtotalInPiasters = orderData.totalInPiasters;
+    }
+    if (!orderData.shippingAddress && orderData.customerAddress) {
+      orderData.shippingAddress = {
+        governorate: 'Cairo',
+        city: 'Cairo',
+        streetAddress: orderData.customerAddress,
+      };
     }
 
     const existing = loadPersistedOrders();

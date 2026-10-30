@@ -105,6 +105,8 @@ export interface SiteContentConfig {
   studio3DSubtitle: string;
   studio3DSketchfabModelId: string;
   studioBottleLabelImage?: string;
+  studioCustomBottleImage?: string;
+  studioBottleMode?: 'photo' | 'crystal' | 'sketchfab';
   studioTheme1NameAr: string;
   studioTheme1Notes: string;
   studioTheme2NameAr: string;
@@ -233,6 +235,8 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   studio3DSubtitle: 'استكشف أدق تفاصيل الزجاجة وتأثيرات الإضاءة وانعكاس الزيوت الفاخرة بحرية كاملة 360°',
   studio3DSketchfabModelId: 'e6b54199c0174e92822a106fcebfa945',
   studioBottleLabelImage: '',
+  studioCustomBottleImage: '/images/raheeq-official-logo.png',
+  studioBottleMode: 'photo',
   studioTheme1NameAr: 'سلطان العود الملكي (Sultan Oud)',
   studioTheme1Notes: 'دهن عود كمبودي معتق • عنبر ملكي • خشب الصندل السريلانكي',
   studioTheme2NameAr: 'ريفييرا كوت دازور (Riviera Azure)',
