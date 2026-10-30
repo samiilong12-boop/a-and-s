@@ -91,6 +91,15 @@ export default function AdminStorefrontContentPage() {
   const studioBottleFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    // 0. Check URL query params for initial tab (e.g. ?tab=studio3d)
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as TabType | null;
+      if (tabParam && ['logo', 'hero', 'studio3d', 'bespoke', 'showcase', 'riviera', 'story', 'footer'].includes(tabParam)) {
+        setActiveTab(tabParam);
+      }
+    }
+
     // 1. Instant load from localStorage
     try {
       const cached =

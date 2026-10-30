@@ -47,12 +47,17 @@ export default function HomePage() {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Ensure autoplay on mount or mode change
+  // Ensure autoplay on mount or mode change with aggressive mobile support
   useEffect(() => {
     if (videoRef.current && heroConfig.visualMode === 'video') {
-      videoRef.current.play().catch(() => {
-        // Autoplay requires mute, handled by default
-      });
+      videoRef.current.muted = true;
+      videoRef.current.playsInline = true;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay requires mute, handled by default
+        });
+      }
     }
   }, [heroConfig.visualMode, heroConfig.activeVideoUrl]);
 
@@ -111,7 +116,7 @@ export default function HomePage() {
     : products.filter((p) => p.fragranceFamily === selectedFamily).slice(0, 4);
 
   return (
-    <div className="space-y-24 sm:space-y-32 bg-[#F6F3EC]">
+    <div className="w-full max-w-full overflow-x-hidden space-y-24 sm:space-y-32 bg-[#F6F3EC]">
       
       {/* 1. CINEMATIC ROYAL HERO SECTION: MODEL SPRAYING A AND S PERFUME */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 border-b border-[#E6E1D5]">
@@ -140,9 +145,15 @@ export default function HomePage() {
             loop
             muted={isMuted}
             playsInline
+            preload="auto"
             poster={heroConfig.activePhotoUrl || '/images/campaign/as-signature-male-spray.jpg'}
             src={heroConfig.activeVideoUrl}
             onLoadedData={() => setVideoLoaded(true)}
+            onCanPlay={(e) => {
+              setVideoLoaded(true);
+              e.currentTarget.muted = true;
+              e.currentTarget.play().catch(() => {});
+            }}
             style={{
               filter: `brightness(${heroConfig.heroBrightness || 1.0}) contrast(105%)`,
             }}

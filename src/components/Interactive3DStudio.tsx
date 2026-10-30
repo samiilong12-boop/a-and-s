@@ -335,12 +335,12 @@ export function Interactive3DStudio() {
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerLeave={handlePointerUp}
-            className="lg:col-span-8 relative flex items-center justify-center p-8 select-none cursor-grab active:cursor-grabbing overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#131B19] via-[#090D0C] to-[#040606]"
+            className="lg:col-span-8 relative flex items-center justify-center p-4 sm:p-8 select-none cursor-grab active:cursor-grabbing overflow-hidden contain-paint bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#131B19] via-[#090D0C] to-[#040606]"
             style={{ perspective: '1100px', touchAction: 'none' }}
           >
             {/* Ambient Lighting Background Halos */}
             <div
-              className="absolute w-96 h-96 rounded-full blur-3xl pointer-events-none transition-all duration-700"
+              className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full blur-2xl sm:blur-3xl pointer-events-none transition-all duration-700"
               style={{
                 backgroundColor: activeTheme.liquidGlow,
                 opacity: 0.35,

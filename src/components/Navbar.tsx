@@ -78,7 +78,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 text-xs lg:text-sm font-bold tracking-wider uppercase text-[#4A5553]">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs lg:text-sm font-bold tracking-wider uppercase text-[#4A5553]">
             <Link
               href="/catalog"
               className="hover:text-[#080A0A] hover:border-b-2 hover:border-[#54d1b2] transition-all py-2"
@@ -112,7 +112,7 @@ export function Navbar() {
           </nav>
 
           {/* Action Icons */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             
             {/* AI Fragrance Finder Button */}
             <button
