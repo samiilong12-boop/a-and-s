@@ -98,6 +98,22 @@ export interface SiteContentConfig {
   youtubeUrl?: string;
   snapchatUrl?: string;
 
+  // 8. 3D Interactive Studio Customizer (استوديو تحريك الزجاجة ثلاثي الأبعاد)
+  enableStudio3D: boolean;
+  studio3DBadge: string;
+  studio3DHeadline: string;
+  studio3DSubtitle: string;
+  studio3DSketchfabModelId: string;
+  studioBottleLabelImage?: string;
+  studioTheme1NameAr: string;
+  studioTheme1Notes: string;
+  studioTheme2NameAr: string;
+  studioTheme2Notes: string;
+  studioTheme3NameAr: string;
+  studioTheme3Notes: string;
+  studioTheme4NameAr: string;
+  studioTheme4Notes: string;
+
   updatedAt?: string;
 }
 
@@ -209,4 +225,20 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   tiktokUrl: 'https://tiktok.com',
   youtubeUrl: '',
   snapchatUrl: '',
+
+  // 8. 3D Interactive Studio Customizer (استوديو تحريك الزجاجة ثلاثي الأبعاد)
+  enableStudio3D: true,
+  studio3DBadge: 'معمل رحيق 3D • عطور نيش ملكية',
+  studio3DHeadline: 'استوديو فحص وتحريك الزجاجة الملكية ثلاثي الأبعاد',
+  studio3DSubtitle: 'استكشف أدق تفاصيل الزجاجة وتأثيرات الإضاءة وانعكاس الزيوت الفاخرة بحرية كاملة 360°',
+  studio3DSketchfabModelId: 'e6b54199c0174e92822a106fcebfa945',
+  studioBottleLabelImage: '',
+  studioTheme1NameAr: 'سلطان العود الملكي (Sultan Oud)',
+  studioTheme1Notes: 'دهن عود كمبودي معتق • عنبر ملكي • خشب الصندل السريلانكي',
+  studioTheme2NameAr: 'ريفييرا كوت دازور (Riviera Azure)',
+  studioTheme2Notes: 'برغموت كالابريا • نسيم البحر الأبيض المتوسط • زهر البرتقال',
+  studioTheme3NameAr: 'الورد الطائفي المخملي (Velvet Rose)',
+  studioTheme3Notes: 'ورد طائفي ودمشقي قطفة أولى • مسك أبيض خالص • فانيليا بوربون',
+  studioTheme4NameAr: 'إكسير الليل الأسود (Obsidian Noir)',
+  studioTheme4Notes: 'لافندر عضوي مقطر • هيل غواتيمالي • توابل حارة وخشب الأرز',
 };

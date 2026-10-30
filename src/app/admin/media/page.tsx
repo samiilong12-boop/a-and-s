@@ -35,6 +35,7 @@ import {
   Facebook,
   Instagram,
   Youtube,
+  Box,
 } from 'lucide-react';
 import {
   DEFAULT_SITE_CONTENT,
@@ -44,7 +45,7 @@ import {
 } from '@/lib/siteContent';
 import { compressImageFile } from '@/lib/imageCompression';
 
-type TabType = 'logo' | 'hero' | 'bespoke' | 'showcase' | 'riviera' | 'story' | 'footer';
+type TabType = 'logo' | 'hero' | 'studio3d' | 'bespoke' | 'showcase' | 'riviera' | 'story' | 'footer';
 
 const PRESET_VIDEOS = [
   {
@@ -87,6 +88,7 @@ export default function AdminStorefrontContentPage() {
   const showcaseFileInputRef = useRef<HTMLInputElement>(null);
   const rivieraFileInputRef = useRef<HTMLInputElement>(null);
   const storyFileInputRef = useRef<HTMLInputElement>(null);
+  const studioBottleFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // 1. Instant load from localStorage
@@ -442,6 +444,18 @@ export default function AdminStorefrontContentPage() {
         </button>
 
         <button
+          onClick={() => setActiveTab('studio3d')}
+          className={`flex-1 min-w-[170px] py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+            activeTab === 'studio3d'
+              ? 'bg-teal-700 text-white shadow-md'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Box className="w-4 h-4" />
+          <span>2. استوديو الزجاجة 3D والدوران</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('bespoke')}
           className={`flex-1 min-w-[170px] py-3 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
             activeTab === 'bespoke'
@@ -450,7 +464,7 @@ export default function AdminStorefrontContentPage() {
           }`}
         >
           <FlaskConical className="w-4 h-4" />
-          <span>2. بنر الخلطة الخاصة (Bespoke)</span>
+          <span>3. بنر الخلطة الخاصة (Bespoke)</span>
         </button>
 
         <button
@@ -462,7 +476,7 @@ export default function AdminStorefrontContentPage() {
           }`}
         >
           <Sparkles className="w-4 h-4" />
-          <span>3. هندسة العطر والزجاجة (Showcase)</span>
+          <span>4. هندسة العطر والزجاجة (Showcase)</span>
         </button>
 
         <button
@@ -474,7 +488,7 @@ export default function AdminStorefrontContentPage() {
           }`}
         >
           <Palmtree className="w-4 h-4" />
-          <span>4. بنر صيف الريفييرا (Riviera)</span>
+          <span>5. بنر صيف الريفييرا (Riviera)</span>
         </button>
 
         <button
@@ -486,7 +500,7 @@ export default function AdminStorefrontContentPage() {
           }`}
         >
           <BookOpen className="w-4 h-4" />
-          <span>5. قصة الدار والمعمل (Story)</span>
+          <span>6. قصة الدار والمعمل (Story)</span>
         </button>
 
         <button
@@ -498,7 +512,7 @@ export default function AdminStorefrontContentPage() {
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>6. مميزات المتجر والسوشيال ميديا (Footer & Social)</span>
+          <span>7. مميزات المتجر والسوشيال ميديا (Footer & Social)</span>
         </button>
       </div>
 
@@ -1303,7 +1317,451 @@ export default function AdminStorefrontContentPage() {
       )}
 
       {/* ======================================================== */}
-      {/* TAB 2: BESPOKE BLEND BANNER (القسم الثاني: الخلطة الخاصة) */}
+      {/* TAB 2: 3D INTERACTIVE STUDIO & ROTATION (استوديو الزجاجة 3D) */}
+      {/* ======================================================== */}
+      {activeTab === 'studio3d' && (
+        <div className="space-y-8 animate-in fade-in duration-200">
+          {/* Hidden File Input for Bottle Label Upload */}
+          <input
+            ref={studioBottleFileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleGenericImageUpload(e, 'studioBottleLabelImage', 'شعار وملصق الزجاجة 3D')}
+          />
+
+          {/* Header Card */}
+          <div className="bg-gradient-to-r from-[#070A09] via-[#0E1514] to-[#070A09] p-6 rounded-2xl border border-[#2DD4BF]/40 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Box className="w-5 h-5 text-[#2DD4BF] animate-pulse" />
+                <span className="text-xs font-bold text-[#2DD4BF] uppercase tracking-wider">
+                  استوديو تحريك الزجاجة الملكية 360°
+                </span>
+                <span className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  تحكم كامل في الصور والنصوص
+                </span>
+              </div>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold mt-1 text-white">
+                إدارة قسم الزجاجة ثلاثية الأبعاد (3D Studio)
+              </h2>
+              <p className="text-xs text-slate-300 mt-1 max-w-xl">
+                هنا يمكنك تعديل العناوين، والشعار الملصق على واجهة الزجاجة، وأسماء ومكونات العطور الأربعة الدوارة، وموديل Sketchfab أو إخفاء القسم بالكامل بنقرة زر.
+              </p>
+            </div>
+
+            {/* Enable/Disable Toggle */}
+            <div className="flex items-center gap-3 bg-[#141A19] px-4 py-2.5 rounded-xl border border-white/10 flex-shrink-0">
+              <span className="text-xs font-bold text-slate-300">عرض القسم بالمتجر:</span>
+              <button
+                type="button"
+                onClick={() => handleSaveConfig({ enableStudio3D: !(config.enableStudio3D ?? true) })}
+                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                  (config.enableStudio3D ?? true)
+                    ? 'bg-emerald-500 text-slate-950 shadow-md'
+                    : 'bg-rose-500/80 text-white'
+                }`}
+              >
+                {(config.enableStudio3D ?? true) ? '✓ مـفـعّـل ومـعـروض' : '✕ مـخـفـي حـالـيـاً'}
+              </button>
+            </div>
+          </div>
+
+          {/* Live Preview Box of the 3D Studio Setup */}
+          <div className="bg-[#050707] rounded-2xl border border-[#D4AF37]/40 p-6 text-white space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
+              <span className="text-xs font-bold text-[#D4AF37] flex items-center gap-2">
+                <Eye className="w-4 h-4 text-[#2DD4BF]" />
+                <span>معاينة حية لشكل الزجاجة والشعار والعناوين الحالية:</span>
+              </span>
+              <Link
+                href="/#3d-studio"
+                target="_blank"
+                className="text-[11px] text-[#2DD4BF] hover:underline flex items-center gap-1 font-bold"
+              >
+                <span>معاينة الاستوديو التفاعلي مباشرة في المتجر ↗</span>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+              {/* Bottle Preview */}
+              <div className="md:col-span-4 flex flex-col items-center justify-center p-6 bg-radial from-[#15201E] to-[#070A09] rounded-2xl border border-[#2DD4BF]/20">
+                <div className="w-24 h-36 rounded-xl border border-white/30 bg-gradient-to-b from-white/10 to-transparent flex flex-col items-center justify-center relative shadow-2xl overflow-hidden p-2">
+                  <div className="w-10 h-10 rounded-full border border-[#D4AF37] overflow-hidden bg-black/80 flex items-center justify-center mb-1 shadow-lg">
+                    {config.studioBottleLabelImage ? (
+                      <img
+                        src={config.studioBottleLabelImage}
+                        alt="Bottle Custom Label"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : config.brandLogoUrl ? (
+                      <img
+                        src={config.brandLogoUrl}
+                        alt="Brand Logo"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="font-serif text-[#D4AF37] text-xs font-extrabold">AS</span>
+                    )}
+                  </div>
+                  <span className="text-[7px] text-[#D4AF37] font-bold tracking-widest uppercase">RAHEEQ</span>
+                  <span className="text-[6px] text-[#2DD4BF] font-mono mt-0.5">25% EXTRAIT</span>
+                </div>
+                <span className="text-[11px] text-slate-400 mt-3 font-semibold">شعار واجهة الزجاجة</span>
+              </div>
+
+              {/* Text Preview */}
+              <div className="md:col-span-8 space-y-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#2DD4BF]/40 bg-[#141F1D] text-[#54d1b2] text-[10px] font-bold tracking-widest uppercase">
+                  <span>{config.studio3DBadge || 'معمل رحيق 3D • عطور نيش ملكية'}</span>
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                  {config.studio3DHeadline || 'استوديو فحص وتحريك الزجاجة الملكية ثلاثي الأبعاد'}
+                </h3>
+                <p className="text-xs text-[#D5D1C7] leading-relaxed max-w-xl">
+                  {config.studio3DSubtitle || 'استكشف أدق تفاصيل الزجاجة وتأثيرات الإضاءة وانعكاس الزيوت الفاخرة بحرية كاملة 360°'}
+                </p>
+                <div className="pt-2 flex items-center gap-2 text-xs text-[#2DD4BF]">
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>دوران تفاعلي كامل 360° + محاكي Sketchfab</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 1: Bottle Front Crest & Label Customizer */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+            <h3 className="font-serif font-bold text-slate-900 text-base flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-teal-700" />
+              <span>تغيير صورة الشعار أو الملصق على واجهة الزجاجة الدوارة:</span>
+            </h3>
+            <p className="text-xs text-slate-500">
+              يمكنك رفع أي صورة مخصصة أو لوغو خاص ليتم وضعه كملصق ملكي على صدر الزجاجة ثلاثية الأبعاد التي يدورها العميل:
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="w-16 h-16 rounded-full border-2 border-[#D4AF37] overflow-hidden bg-black/90 flex items-center justify-center shadow-md flex-shrink-0">
+                {config.studioBottleLabelImage ? (
+                  <img
+                    src={config.studioBottleLabelImage}
+                    alt="Custom Bottle Label"
+                    className="w-full h-full object-cover"
+                  />
+                ) : config.brandLogoUrl ? (
+                  <img
+                    src={config.brandLogoUrl}
+                    alt="Brand Logo"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="font-serif text-[#D4AF37] text-sm font-extrabold">AS</span>
+                )}
+              </div>
+
+              <div className="flex-1 space-y-1 text-right">
+                <h4 className="font-bold text-xs text-slate-800">
+                  {config.studioBottleLabelImage ? 'صورة ملصق مخصصة للزجاجة 3D' : 'الشعار الرسمي للمتجر هو المستخدم حالياً'}
+                </h4>
+                <p className="text-[11px] text-slate-500">
+                  يتم ضغط الصورة تلقائياً لسرعة التحميل وتظهر فوراً على الزجاجة الدوارة.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => studioBottleFileInputRef.current?.click()}
+                  className="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow transition-all cursor-pointer"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>رفع صورة مخصصة</span>
+                </button>
+
+                {config.studioBottleLabelImage && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSaveConfig({ studioBottleLabelImage: '' });
+                      showNotification('تمت استعادة شعار المتجر الرسمي للزجاجة.');
+                    }}
+                    className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2.5 px-3 rounded-xl text-xs transition-all cursor-pointer"
+                  >
+                    استعادة الشعار الرسمي
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Headings & Text Controls */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+            <h3 className="font-serif font-bold text-slate-900 text-base flex items-center gap-2">
+              <Type className="w-5 h-5 text-teal-700" />
+              <span>تعديل نصوص وعناوين استوديو الـ 3D:</span>
+            </h3>
+
+            <div className="space-y-4 pt-1">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">
+                  1. الشارة العلوية (Studio Badge):
+                </label>
+                <input
+                  type="text"
+                  value={config.studio3DBadge || ''}
+                  onChange={(e) => setConfig({ ...config, studio3DBadge: e.target.value })}
+                  onBlur={() => handleSaveConfig({ studio3DBadge: config.studio3DBadge })}
+                  placeholder="معمل رحيق 3D • عطور نيش ملكية"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600 font-semibold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">
+                  2. العنوان العريض الرئيسي (Main Headline):
+                </label>
+                <input
+                  type="text"
+                  value={config.studio3DHeadline || ''}
+                  onChange={(e) => setConfig({ ...config, studio3DHeadline: e.target.value })}
+                  onBlur={() => handleSaveConfig({ studio3DHeadline: config.studio3DHeadline })}
+                  placeholder="استوديو فحص وتحريك الزجاجة الملكية ثلاثي الأبعاد"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600 font-serif font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">
+                  3. النص الوصفي والشرح (Subtitle):
+                </label>
+                <textarea
+                  rows={2}
+                  value={config.studio3DSubtitle || ''}
+                  onChange={(e) => setConfig({ ...config, studio3DSubtitle: e.target.value })}
+                  onBlur={() => handleSaveConfig({ studio3DSubtitle: config.studio3DSubtitle })}
+                  placeholder="استكشف أدق تفاصيل الزجاجة وتأثيرات الإضاءة وانعكاس الزيوت الفاخرة بحرية كاملة 360°"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600 leading-relaxed"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: The 4 Fragrance Themes & Ingredients */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+            <h3 className="font-serif font-bold text-slate-900 text-base flex items-center gap-2">
+              <Sliders className="w-5 h-5 text-teal-700" />
+              <span>تعديل أسماء ومكونات العطور الأربعة الدوارة (Scent Themes):</span>
+            </h3>
+            <p className="text-xs text-slate-500">
+              هذه هي الخلطات الأربعة التي يستطيع العميل التبديل بينها أثناء تدوير الزجاجة ليرى تغير لون السائل وكثافته:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              {/* Theme 1 */}
+              <div className="p-4 bg-amber-50/50 rounded-xl border border-amber-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-amber-500 shadow-xs" />
+                    <span>العطر الأول (الذهب الملكي - Oud Gold):</span>
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 block">اسم العطر:</label>
+                  <input
+                    type="text"
+                    value={config.studioTheme1NameAr || ''}
+                    onChange={(e) => setConfig({ ...config, studioTheme1NameAr: e.target.value })}
+                    onBlur={() => handleSaveConfig({ studioTheme1NameAr: config.studioTheme1NameAr })}
+                    placeholder="سلطان العود الملكي (Sultan Oud)"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-900"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 block">مكونات الخلطة والنوتات العطرية:</label>
+                  <input
+                    type="text"
+                    value={config.studioTheme1Notes || ''}
+                    onChange={(e) => setConfig({ ...config, studioTheme1Notes: e.target.value })}
+                    onBlur={() => handleSaveConfig({ studioTheme1Notes: config.studioTheme1Notes })}
+                    placeholder="دهن عود كمبودي معتق • عنبر ملكي • خشب الصندل السريلانكي"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-[11px] text-slate-700"
+                  />
+                </div>
+              </div>
+
+              {/* Theme 2 */}
+              <div className="p-4 bg-teal-50/50 rounded-xl border border-teal-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-teal-900 flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-[#2DD4BF] shadow-xs" />
+                    <span>العطر الثاني (الفيروزي المنعش - Azure Mist):</span>
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 block">اسم العطر:</label>
+                  <input
+                    type="text"
+                    value={config.studioTheme2NameAr || ''}
+                    onChange={(e) => setConfig({ ...config, studioTheme2NameAr: e.target.value })}
+                    onBlur={() => handleSaveConfig({ studioTheme2NameAr: config.studioTheme2NameAr })}
+                    placeholder="ريفييرا كوت دازور (Riviera Azure)"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-900"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 block">مكونات الخلطة والنوتات العطرية:</label>
+                  <input
+                    type="text"
+                    value={config.studioTheme2Notes || ''}
+                    onChange={(e) => setConfig({ ...config, studioTheme2Notes: e.target.value })}
+                    onBlur={() => handleSaveConfig({ studioTheme2Notes: config.studioTheme2Notes })}
+                    placeholder="برغموت كالابريا • نسيم البحر الأبيض المتوسط • زهر البرتقال"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-[11px] text-slate-700"
+                  />
+                </div>
+              </div>
+
+              {/* Theme 3 */}
+              <div className="p-4 bg-rose-50/50 rounded-xl border border-rose-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-rose-900 flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-rose-500 shadow-xs" />
+                    <span>العطر الثالث (الورد الطائفي - Velvet Rose):</span>
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 block">اسم العطر:</label>
+                  <input
+                    type="text"
+                    value={config.studioTheme3NameAr || ''}
+                    onChange={(e) => setConfig({ ...config, studioTheme3NameAr: e.target.value })}
+                    onBlur={() => handleSaveConfig({ studioTheme3NameAr: config.studioTheme3NameAr })}
+                    placeholder="الورد الطائفي المخملي (Velvet Rose)"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-900"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 block">مكونات الخلطة والنوتات العطرية:</label>
+                  <input
+                    type="text"
+                    value={config.studioTheme3Notes || ''}
+                    onChange={(e) => setConfig({ ...config, studioTheme3Notes: e.target.value })}
+                    onBlur={() => handleSaveConfig({ studioTheme3Notes: config.studioTheme3Notes })}
+                    placeholder="ورد طائفي ودمشقي قطفة أولى • مسك أبيض خالص • فانيليا بوربون"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-[11px] text-slate-700"
+                  />
+                </div>
+              </div>
+
+              {/* Theme 4 */}
+              <div className="p-4 bg-slate-100 rounded-xl border border-slate-300 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-slate-900 shadow-xs" />
+                    <span>العطر الرابع (الأسود الليلي - Obsidian Noir):</span>
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 block">اسم العطر:</label>
+                  <input
+                    type="text"
+                    value={config.studioTheme4NameAr || ''}
+                    onChange={(e) => setConfig({ ...config, studioTheme4NameAr: e.target.value })}
+                    onBlur={() => handleSaveConfig({ studioTheme4NameAr: config.studioTheme4NameAr })}
+                    placeholder="إكسير الليل الأسود (Obsidian Noir)"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-900"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 block">مكونات الخلطة والنوتات العطرية:</label>
+                  <input
+                    type="text"
+                    value={config.studioTheme4Notes || ''}
+                    onChange={(e) => setConfig({ ...config, studioTheme4Notes: e.target.value })}
+                    onBlur={() => handleSaveConfig({ studioTheme4Notes: config.studioTheme4Notes })}
+                    placeholder="لافندر عضوي مقطر • هيل غواتيمالي • توابل حارة وخشب الأرز"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-[11px] text-slate-700"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Sketchfab 3D Model Settings */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+            <h3 className="font-serif font-bold text-slate-900 text-base flex items-center gap-2">
+              <ExternalLink className="w-5 h-5 text-teal-700" />
+              <span>تعديل موديل محاكي سكتش فاب (Sketchfab 3D Embed):</span>
+            </h3>
+            <p className="text-xs text-slate-500">
+              يمكنك وضع كود أي زجاجة عطر 3D من موقع Sketchfab أو اختيار أحد الموديلات الفاخرة المجهزة مسبقاً:
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 block">
+                كود الموديل أو رابط صفحة Sketchfab (32-character Model ID or URL):
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  value={config.studio3DSketchfabModelId || ''}
+                  onChange={(e) => {
+                    let val = e.target.value.trim();
+                    const urlMatch = val.match(/\/([a-zA-Z0-9]{32})/);
+                    if (urlMatch && urlMatch[1]) val = urlMatch[1];
+                    setConfig({ ...config, studio3DSketchfabModelId: val });
+                  }}
+                  onBlur={() => handleSaveConfig({ studio3DSketchfabModelId: config.studio3DSketchfabModelId })}
+                  placeholder="e6b54199c0174e92822a106fcebfa945"
+                  className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 font-mono focus:outline-none focus:border-teal-600"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSaveConfig({ studio3DSketchfabModelId: config.studio3DSketchfabModelId });
+                    showNotification('تم حفظ موديل Sketchfab الجديد بنجاح!');
+                  }}
+                  className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow transition-all cursor-pointer whitespace-nowrap"
+                >
+                  حفظ الموديل
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Preset Models */}
+            <div className="pt-2">
+              <span className="text-[11px] font-bold text-slate-700 block mb-2">موديلات 3D فاخرة جاهزة للاختيار السريع:</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {[
+                  { id: 'e6b54199c0174e92822a106fcebfa945', label: 'زجاجة كريستال فاخرة (Crystal Flacon)' },
+                  { id: '7b7ad9a4e8d3433fa6f20220cb95c808', label: 'زجاجة نيش باريسية (Parisian Bottle)' },
+                  { id: '433146e29780447385ceb52b2dfbe97e', label: 'زجاجة عود ملكية (Royal Oud Flacon)' },
+                ].map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      setConfig({ ...config, studio3DSketchfabModelId: m.id });
+                      handleSaveConfig({ studio3DSketchfabModelId: m.id });
+                      showNotification(`تم تفعيل (${m.label}) بنجاح!`);
+                    }}
+                    className={`p-3 rounded-xl border text-right transition-all cursor-pointer ${
+                      (config.studio3DSketchfabModelId || 'e6b54199c0174e92822a106fcebfa945') === m.id
+                        ? 'border-teal-600 bg-teal-50 text-teal-900 font-bold shadow-xs'
+                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="text-xs block font-bold">{m.label}</span>
+                    <span className="text-[10px] text-slate-400 font-mono block mt-0.5 truncate">{m.id}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 3: BESPOKE BLEND BANNER (القسم الثالث: الخلطة الخاصة) */}
       {/* ======================================================== */}
       {activeTab === 'bespoke' && (
         <div className="space-y-6 animate-in fade-in duration-200">

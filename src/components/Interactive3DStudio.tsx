@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   RotateCcw,
   Sparkles,
@@ -20,6 +20,7 @@ import {
   Droplets,
   Share2,
 } from 'lucide-react';
+import { useSiteContent } from '@/context/SiteContentContext';
 
 interface PerfumeTheme {
   id: string;
@@ -99,8 +100,40 @@ const SKETCHFAB_PRESETS = [
 ];
 
 export function Interactive3DStudio() {
+  const { siteContent } = useSiteContent();
+
+  const themes: PerfumeTheme[] = useMemo(() => [
+    {
+      ...PERFUME_THEMES[0],
+      nameAr: siteContent.studioTheme1NameAr || PERFUME_THEMES[0].nameAr,
+      notes: siteContent.studioTheme1Notes || PERFUME_THEMES[0].notes,
+    },
+    {
+      ...PERFUME_THEMES[1],
+      nameAr: siteContent.studioTheme2NameAr || PERFUME_THEMES[1].nameAr,
+      notes: siteContent.studioTheme2Notes || PERFUME_THEMES[1].notes,
+    },
+    {
+      ...PERFUME_THEMES[2],
+      nameAr: siteContent.studioTheme3NameAr || PERFUME_THEMES[2].nameAr,
+      notes: siteContent.studioTheme3Notes || PERFUME_THEMES[2].notes,
+    },
+    {
+      ...PERFUME_THEMES[3],
+      nameAr: siteContent.studioTheme4NameAr || PERFUME_THEMES[3].nameAr,
+      notes: siteContent.studioTheme4Notes || PERFUME_THEMES[3].notes,
+    },
+  ], [siteContent]);
+
   const [viewMode, setViewMode] = useState<'interactive' | 'sketchfab'>('interactive');
-  const [activeTheme, setActiveTheme] = useState<PerfumeTheme>(PERFUME_THEMES[0]);
+  const [activeTheme, setActiveTheme] = useState<PerfumeTheme>(themes[0]);
+
+  useEffect(() => {
+    setActiveTheme((prev) => {
+      const found = themes.find((t) => t.id === prev.id);
+      return found || themes[0];
+    });
+  }, [themes]);
 
   // 3D Rotation State
   const [rotationX, setRotationX] = useState<number>(-5);
@@ -113,8 +146,20 @@ export function Interactive3DStudio() {
   const [sprayedCount, setSprayedCount] = useState<number>(0);
 
   // Sketchfab State
-  const [sketchfabModelId, setSketchfabModelId] = useState<string>(SKETCHFAB_PRESETS[0].id);
+  const [sketchfabModelId, setSketchfabModelId] = useState<string>(
+    siteContent.studio3DSketchfabModelId || SKETCHFAB_PRESETS[0].id
+  );
   const [customModelInput, setCustomModelInput] = useState<string>('');
+
+  useEffect(() => {
+    if (siteContent.studio3DSketchfabModelId) {
+      setSketchfabModelId(siteContent.studio3DSketchfabModelId);
+    }
+  }, [siteContent.studio3DSketchfabModelId]);
+
+  if (siteContent.enableStudio3D === false) {
+    return null;
+  }
 
   const lastMousePos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -238,13 +283,18 @@ export function Interactive3DStudio() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] tracking-widest uppercase bg-[#2DD4BF]/15 text-[#54d1b2] px-2.5 py-0.5 rounded-full font-mono font-bold border border-[#2DD4BF]/30">
-                Staging Preview • مختبر العطور 3D
+                {siteContent.studio3DBadge || 'معمل رحيق 3D • عطور نيش ملكية'}
               </span>
               <span className="text-[10px] text-[#D4AF37] font-bold">360° Real-time WebGL</span>
             </div>
             <h3 className="font-serif text-lg sm:text-xl font-bold text-white mt-0.5">
-              استوديو فحص وتحريك الزجاجة الملكية ثلاثي الأبعاد
+              {siteContent.studio3DHeadline || 'استوديو فحص وتحريك الزجاجة الملكية ثلاثي الأبعاد'}
             </h3>
+            {siteContent.studio3DSubtitle && (
+              <p className="text-xs text-slate-300 mt-1 max-w-xl">
+                {siteContent.studio3DSubtitle}
+              </p>
+            )}
           </div>
         </div>
 
@@ -435,10 +485,24 @@ export function Interactive3DStudio() {
                     boxShadow: '0 8px 30px rgba(0,0,0,0.9), inset 0 0 15px rgba(212,175,55,0.15)',
                   }}
                 >
-                  {/* Gold Royal Crest */}
-                  <div className="w-8 h-8 rounded-full border border-[#D4AF37]/60 flex items-center justify-center text-[#D4AF37] mb-1">
-                    <span className="font-serif font-extrabold text-xs">AS</span>
-                  </div>
+                  {/* Gold Royal Crest or Custom Bottle Image */}
+                  {siteContent.studioBottleLabelImage ? (
+                    <img
+                      src={siteContent.studioBottleLabelImage}
+                      alt="Bottle Label"
+                      className="w-10 h-10 rounded-full object-cover border border-[#D4AF37]/70 shadow-md mb-1"
+                    />
+                  ) : siteContent.brandLogoUrl ? (
+                    <img
+                      src={siteContent.brandLogoUrl}
+                      alt="Brand Logo"
+                      className="w-10 h-10 rounded-full object-cover border border-[#D4AF37]/70 shadow-md mb-1"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full border border-[#D4AF37]/60 flex items-center justify-center text-[#D4AF37] mb-1">
+                      <span className="font-serif font-extrabold text-xs">AS</span>
+                    </div>
+                  )}
 
                   <span className="font-serif text-sm tracking-[0.25em] text-[#D4AF37] font-extrabold uppercase">
                     R A H E E Q
@@ -528,7 +592,7 @@ export function Interactive3DStudio() {
 
               {/* Theme Selector Cards */}
               <div className="space-y-2.5">
-                {PERFUME_THEMES.map((theme) => (
+                {themes.map((theme) => (
                   <button
                     key={theme.id}
                     onClick={() => setActiveTheme(theme)}
