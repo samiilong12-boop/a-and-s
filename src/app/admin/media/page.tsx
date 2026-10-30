@@ -76,6 +76,7 @@ export default function AdminStorefrontContentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [customVideoUrl, setCustomVideoUrl] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -166,10 +167,16 @@ export default function AdminStorefrontContentPage() {
       });
 
       if (res.ok) {
-        showNotification('تم حفظ وتثبيت الصور والنصوص في قاعدة البيانات السحابية بنجاح! ✓');
+        showNotification('تم حفظ وتثبيت التعديلات في قاعدة البيانات السحابية بنجاح! ✓');
       } else {
         const errJson = await res.json().catch(() => ({}));
-        showNotification(`تنبيه السيرفر: ${errJson.error || 'تم الحفظ في المتصفح، تأكد من جلسة الإدارة'}`, 'error');
+        if (res.status === 413) {
+          showNotification('حجم ملف الفيديو أو البيانات يتجاوز الحد الأقصى لسيرفر Vercel (4.5MB). يرجى ضغط الفيديو أو استخدام رابط مباشر للفيديو ليتم حفظه بالسيرفر.', 'error');
+        } else if (res.status === 401) {
+          showNotification('انتهت جلسة تسجيل الدخول الإدارية (لحماية المتجر). يرجى تسجيل الدخول مجدداً لتثبيت التعديل في السيرفر.', 'error');
+        } else {
+          showNotification(`تنبيه السيرفر: ${errJson.error || 'تم الحفظ في المتصفح، تعذر المزامنة السحابية'}`, 'error');
+        }
       }
     } catch (err: any) {
       showNotification('تم الحفظ محلياً في المتصفح (خطأ اتصال بالشبكة)', 'error');
@@ -185,41 +192,35 @@ export default function AdminStorefrontContentPage() {
     }
   };
 
-  // Video Upload Handler
+  // Video Upload Handler with Vercel Serverless Size Safeguard
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check size limit for direct base64 encoding (Vercel payload limit ~4.5MB)
+    if (file.size > 3.5 * 1024 * 1024) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      showNotification(`⚠️ حجم الفيديو (${sizeMb} MB) كبير لسيرفر Vercel السحابي (الحد الأقصى 3.5MB). يرجى ضغط الفيديو أو استخدام خانة "رابط فيديو خارجي" أدناه.`, 'error');
+      if (videoFileInputRef.current) videoFileInputRef.current.value = '';
+      return;
+    }
+
     try {
       setUploadingVideo(true);
-      if (file.size <= 12 * 1024 * 1024) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          if (event.target?.result) {
-            handleSaveConfig({
-              activeVideoUrl: event.target.result as string,
-              visualMode: 'video',
-              videoTitle: `فيديو مرفوع (${file.name})`,
-            });
-            showNotification(`تم رفع الفيديو (${file.name}) كخلفية رئيسية بنجاح!`);
-          }
-        };
-        reader.readAsDataURL(file);
-      } else {
-        const formData = new FormData();
-        formData.append('video', file);
-        const res = await fetch('/api/admin/upload-video', {
-          method: 'POST',
-          body: formData,
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          handleSaveConfig(data.config);
-          showNotification(`تم رفع الفيديو (${file.name}) بنجاح!`);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          handleSaveConfig({
+            activeVideoUrl: event.target.result as string,
+            visualMode: 'video',
+            videoTitle: `فيديو مرفوع (${file.name})`,
+          });
+          showNotification(`تم رفع ومعالجة الفيديو (${file.name}) بنجاح!`);
         }
-      }
+      };
+      reader.readAsDataURL(file);
     } catch (err: any) {
-      showNotification('خطأ أثناء رفع الفيديو', 'error');
+      showNotification('خطأ أثناء رفع ومعالجة الفيديو', 'error');
     } finally {
       setUploadingVideo(false);
       if (videoFileInputRef.current) videoFileInputRef.current.value = '';
@@ -1148,6 +1149,68 @@ export default function AdminStorefrontContentPage() {
             </div>
           </div>
 
+          {/* Preset Luxury Videos */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+            <h3 className="font-serif font-bold text-slate-900 text-base flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Film className="w-5 h-5 text-teal-700" />
+                <span>مكتبة الفيديوهات السينمائية الجاهزة للواجهة (سريعة وخفيفة):</span>
+              </span>
+              <span className="text-xs text-slate-500 font-normal">اختر فيديو لتطبيقه فوراً</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {PRESET_VIDEOS.map((preset) => {
+                const isActive = config.activeVideoUrl === preset.url;
+                return (
+                  <div
+                    key={preset.id}
+                    className={`p-4 rounded-xl border-2 transition-all flex flex-col justify-between ${
+                      isActive
+                        ? 'border-teal-500 bg-teal-50/50 shadow-sm'
+                        : 'border-slate-200 bg-slate-50 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800">
+                          {preset.badge}
+                        </span>
+                        {isActive && (
+                          <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>مفعل حالياً</span>
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="font-bold text-xs text-slate-900">{preset.title}</h4>
+                      <p className="text-[11px] text-slate-500 leading-snug">{preset.subtitle}</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSaveConfig({
+                          activeVideoUrl: preset.url,
+                          visualMode: 'video',
+                          videoTitle: preset.title,
+                        });
+                        showNotification(`تم تفعيل (${preset.title}) بنجاح!`);
+                      }}
+                      className={`mt-4 w-full py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-teal-700 text-white'
+                          : 'bg-white border border-slate-300 text-slate-700 hover:bg-teal-600 hover:text-white'
+                      }`}
+                    >
+                      {isActive ? '✓ الفيديو الحالي' : 'اختيار وتفعيل هذا الفيديو'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Upload New Video/Photo Section */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
             <h3 className="font-serif font-bold text-slate-900 text-base flex items-center gap-2">
@@ -1160,6 +1223,7 @@ export default function AdminStorefrontContentPage() {
               <div className="border-2 border-dashed border-teal-200 rounded-2xl p-6 text-center bg-teal-50/20 space-y-3">
                 <FileVideo className="w-8 h-8 text-teal-700 mx-auto" />
                 <h4 className="font-bold text-slate-900 text-xs sm:text-sm">رفع فيديو من جهازك (MP4 / WebM)</h4>
+                <p className="text-[11px] text-slate-500">الحد الأقصى للرفع السحابي: 3.5 ميجابايت لضمان سرعة التحميل</p>
                 <input
                   type="file"
                   ref={videoFileInputRef}
@@ -1181,6 +1245,7 @@ export default function AdminStorefrontContentPage() {
               <div className="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center bg-slate-50 space-y-3">
                 <ImageIcon className="w-8 h-8 text-slate-700 mx-auto" />
                 <h4 className="font-bold text-slate-900 text-xs sm:text-sm">رفع صورة ثابتة من جهازك</h4>
+                <p className="text-[11px] text-slate-500">يتم ضغط الصورة تلقائياً لتناسب شاشات الموبايل</p>
                 <input
                   type="file"
                   ref={photoFileInputRef}
@@ -1197,6 +1262,41 @@ export default function AdminStorefrontContentPage() {
                   <span>اختر ملف صورة</span>
                 </label>
               </div>
+            </div>
+
+            {/* Direct Video URL Input */}
+            <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
+              <label className="text-xs font-bold text-slate-800 block flex items-center gap-2">
+                <ExternalLink className="w-4 h-4 text-teal-700" />
+                <span>أو ضع رابط فيديو خارجي مباشر (Direct MP4 / CDN Link):</span>
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="url"
+                  value={customVideoUrl}
+                  onChange={(e) => setCustomVideoUrl(e.target.value)}
+                  placeholder="https://example.com/perfume-video.mp4"
+                  className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!customVideoUrl.trim()) return;
+                    handleSaveConfig({
+                      activeVideoUrl: customVideoUrl.trim(),
+                      visualMode: 'video',
+                      videoTitle: 'فيديو خارجي مباشر',
+                    });
+                    showNotification('تم تطبيق وتثبيت رابط الفيديو الجديد بالسيرفر بنجاح!');
+                  }}
+                  className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow transition-all cursor-pointer whitespace-nowrap"
+                >
+                  تطبيق الرابط وحفظ
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-500">
+                💡 نصيحة احترافية: يمكنك رفع الفيديو على Cloudinary أو Google Drive أو أي استضافة سحابية ووضع الرابط المباشر هنا ليعمل بجودة عالية وسرعة فائقة دون استهلاك مساحة السيرفر.
+              </p>
             </div>
           </div>
         </div>
