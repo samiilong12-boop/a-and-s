@@ -460,7 +460,7 @@ export default function AdminCustomRequestsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] text-slate-400 font-mono">
-                      {new Date(req.createdAt).toLocaleDateString('ar-EG', {
+                      {new Date(req.createdAt).toLocaleString('ar-EG', {
                         month: 'short',
                         day: 'numeric',
                         hour: '2-digit',

@@ -48,6 +48,24 @@ function getAdminAuthHeaders(): Record<string, string> {
   return headers;
 }
 
+function formatOrderDate(dateInput: any): string {
+  if (!dateInput) return 'تاريخ غير مسجل';
+  try {
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return String(dateInput);
+    return d.toLocaleString('ar-EG', {
+      dateStyle: 'long',
+      timeStyle: 'short',
+    });
+  } catch {
+    try {
+      return new Date(dateInput).toLocaleDateString('ar-EG');
+    } catch {
+      return String(dateInput);
+    }
+  }
+}
+
 function AdminOrdersContent() {
   const searchParams = useSearchParams();
   const highlightedOrder = searchParams.get('highlight');
@@ -266,7 +284,7 @@ function AdminOrdersContent() {
     const headers = ['Order Ref', 'Date', 'Customer Name', 'Phone', 'Governorate', 'City', 'Status', 'Total EGP'];
     const rows = listToExport.map((o) => [
       o.orderNumber,
-      new Date(o.createdAt).toLocaleDateString('en-GB'),
+      o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-GB') : '',
       `"${o.customerName || ''}"`,
       o.customerPhone || '',
       o.shippingAddress?.governorate || o.governorate || '',
@@ -578,7 +596,7 @@ function AdminOrdersContent() {
                   </div>
                   <h2 className="font-mono text-2xl font-bold text-teal-800">{selectedOrder.orderNumber}</h2>
                   <p className="text-xs text-slate-500">
-                    تاريخ الطلب: {new Date(selectedOrder.createdAt).toLocaleDateString('ar-EG', { dateStyle: 'long', timeStyle: 'short' })}
+                    تاريخ الطلب: {formatOrderDate(selectedOrder.createdAt)}
                   </p>
                 </div>
                 <button

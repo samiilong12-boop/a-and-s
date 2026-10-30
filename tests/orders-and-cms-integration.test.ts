@@ -101,6 +101,18 @@ describe('Express 1-Click Order Flow & Schema Integration', () => {
     const p3 = getPaymentStatusLabel(null as any);
     expect(p3.colorClass).toBeTruthy();
   });
+
+  it('safely formats order createdAt timestamp without throwing Invalid option : timeStyle', () => {
+    const validIso = new Date().toISOString();
+    expect(() => {
+      new Date(validIso).toLocaleString('ar-EG', { dateStyle: 'long', timeStyle: 'short' });
+    }).not.toThrow();
+
+    // Verify toLocaleDateString with timeStyle indeed throws so we never use it
+    expect(() => {
+      new Date(validIso).toLocaleDateString('ar-EG', { dateStyle: 'long', timeStyle: 'short' } as any);
+    }).toThrow();
+  });
 });
 
 describe('CMS Site Content & 3D Studio Configuration Integrity', () => {
