@@ -54,7 +54,7 @@ export function Footer() {
               </div>
               <div>
                 <h4 className="font-serif font-bold text-sm text-[#FFFFFF]">
-                  {isRtl ? (content.footerConcentrationTitle || 'تركيز زيوت نقية 25% Extrait') : 'Pure 25% Extrait de Parfum'}
+                  {isRtl ? (content.footerConcentrationTitle || 'تركيز زيوت نقية 30% Extrait') : 'Pure 30% Extrait de Parfum'}
                 </h4>
                 <p className="text-xs text-[#9EABA7] mt-0.5">
                   {isRtl ? (content.footerConcentrationDesc || 'ثبات استثنائي يتجاوز 14 ساعة وفوحان يملأ الأرجاء.') : 'Unmatched persistent sillage lasting over 14 hours.'}
@@ -200,23 +200,33 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-[#9EABA7]">
               <li>
-                <Link href="/catalog?family=Oriental+Woody" className="hover:text-[#2DD4BF] transition-colors">
-                  {isRtl ? 'أخشاب شرقية وعود' : 'Oriental Woody'}
+                <Link href="/category/oriental" className="hover:text-[#2DD4BF] transition-colors">
+                  {isRtl ? 'العطور الشرقية النادرة' : 'Oriental Perfumes'}
                 </Link>
               </li>
               <li>
-                <Link href="/catalog?family=Floral+Amber" className="hover:text-[#2DD4BF] transition-colors">
-                  {isRtl ? 'عنبر وزهور نقية' : 'Floral Amber'}
+                <Link href="/category/woody" className="hover:text-[#2DD4BF] transition-colors">
+                  {isRtl ? 'أخشاب العود والصندل' : 'Woody & Oud'}
                 </Link>
               </li>
               <li>
-                <Link href="/catalog?family=Fresh+Citrus" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/category/fresh-citrus" className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'حمضيات برغموت منعشة' : 'Fresh Citrus'}
                 </Link>
               </li>
               <li>
-                <Link href="/catalog?family=Leather+Spice" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/category/floral" className="hover:text-[#2DD4BF] transition-colors">
+                  {isRtl ? 'عنبر وزهور نقية' : 'Floral & Amber'}
+                </Link>
+              </li>
+              <li>
+                <Link href="/category/leather-spice" className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'جلود وتوابل ملكية' : 'Leather & Spice'}
+                </Link>
+              </li>
+              <li>
+                <Link href="/fragrance-guide" className="hover:text-[#2DD4BF] text-teal-400 font-semibold transition-colors flex items-center gap-1">
+                  <span>{isRtl ? 'دليل تركيز العطور والأهرام الشمية ←' : 'Fragrance Guide & Science ←'}</span>
                 </Link>
               </li>
             </ul>

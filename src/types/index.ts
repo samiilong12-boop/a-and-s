@@ -38,6 +38,9 @@ export interface Product {
   nameEn: string;
   nameAr?: string;
   brand?: string;
+  inspiredBy?: string;
+  inspirationNoteAr?: string;
+  inspirationNoteEn?: string;
   gender?: 'MEN' | 'WOMEN' | 'UNISEX';
   headlineEn?: string;
   descriptionEn: string;

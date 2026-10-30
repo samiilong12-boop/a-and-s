@@ -24,11 +24,26 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useCustomRequest } from '@/context/CustomRequestContext';
 import { useFragranceFinder } from '@/context/FragranceFinderContext';
 import { useSiteContent } from '@/context/SiteContentContext';
+import dynamic from 'next/dynamic';
 import { FRAGRANCE_FAMILIES } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
-import { Interactive3DStudio } from '@/components/Interactive3DStudio';
 import { ExpressOrderModal } from '@/components/ExpressOrderModal';
 import { Product } from '@/types';
+
+const Interactive3DStudio = dynamic(
+  () => import('@/components/Interactive3DStudio').then((m) => m.Interactive3DStudio),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-80 flex items-center justify-center bg-[#080A0A] rounded-3xl border border-[#2DD4BF]/20 text-[#A2ADA9]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[#2DD4BF] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-mono tracking-widest uppercase">جاري تحميل استوديو التجسيم ثلاثي الأبعاد...</p>
+        </div>
+      </div>
+    ),
+  }
+);
 
 export default function HomePage() {
   const { products } = useProducts();
@@ -250,7 +265,7 @@ export default function HomePage() {
             <span className="hidden sm:inline text-white/30">•</span>
             <span className="flex items-center gap-1.5 text-teal-300 font-bold">
               <Sparkles className="w-4 h-4 text-teal-300" />
-              <span>{isRtl ? 'تركيز 25% Extrait ثبات +14 ساعة' : '25% Extrait (+14h Sillage)'}</span>
+              <span>{isRtl ? 'تركيز 30% Extrait ثبات +14 ساعة' : '30% Extrait (+14h Sillage)'}</span>
             </span>
             <span className="hidden sm:inline text-white/30">•</span>
             <span className="flex items-center gap-1.5 text-amber-300 font-bold">
@@ -271,7 +286,7 @@ export default function HomePage() {
             </div>
             <div>
               <p className="font-serif text-2xl sm:text-3xl font-bold text-[#2DD4BF]">
-                {siteContent.stat2Value || '25%'}
+                {siteContent.stat2Value || '30%'}
               </p>
               <p className="text-[11px] tracking-wider text-[#D5D1C7] uppercase mt-0.5">
                 {isRtl ? (siteContent.stat2Label || t('stats.oil_ratio')) : t('stats.oil_ratio')}
@@ -309,8 +324,8 @@ export default function HomePage() {
             </h2>
             <p className="text-xs sm:text-sm text-[#576563] mt-1 max-w-xl leading-relaxed">
               {isRtl
-                ? 'توليفات فرنسية نقية بتركيز 25% Extrait خالص وثبات يدوم طويلاً، مع ميزة فتح الطرد وفحص الزجاجة قبل الدفع كاش.'
-                : 'French oil extraits at 25% pure concentration lasting +14 hours with full doorstep cash inspection.'}
+                ? 'توليفات فرنسية نقية بتركيز 30% Extrait خالص وثبات يدوم طويلاً، مع ميزة فتح الطرد وفحص الزجاجة قبل الدفع كاش.'
+                : 'French oil extraits at 30% pure concentration lasting +14 hours with full doorstep cash inspection.'}
             </p>
           </div>
           <Link
@@ -375,6 +390,31 @@ export default function HomePage() {
           </button>
         </div>
 
+        {/* Category Landing Pages & Educational Fragrance Guide Quick Bar */}
+        <div className="mb-6 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 border border-teal-200/70 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-teal-900 font-bold">
+            <Compass className="w-4 h-4 text-teal-600" />
+            <span>{isRtl ? 'استكشف تصنيفات العطور المستقلة لدار رحيق:' : 'Explore RAHEEQ Independent Fragrance Families:'}</span>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link href="/category/oriental" className="px-2.5 py-1 rounded-lg bg-white/90 border border-teal-200 text-teal-900 font-medium hover:bg-teal-600 hover:text-white transition-colors">
+              {isRtl ? 'العطور الشرقية' : 'Oriental'}
+            </Link>
+            <Link href="/category/woody" className="px-2.5 py-1 rounded-lg bg-white/90 border border-teal-200 text-teal-900 font-medium hover:bg-teal-600 hover:text-white transition-colors">
+              {isRtl ? 'الأخشاب الملكية' : 'Woody'}
+            </Link>
+            <Link href="/category/fresh-citrus" className="px-2.5 py-1 rounded-lg bg-white/90 border border-teal-200 text-teal-900 font-medium hover:bg-teal-600 hover:text-white transition-colors">
+              {isRtl ? 'الانتعاش والحمضيات' : 'Fresh Citrus'}
+            </Link>
+            <Link href="/category/leather-spice" className="px-2.5 py-1 rounded-lg bg-white/90 border border-teal-200 text-teal-900 font-medium hover:bg-teal-600 hover:text-white transition-colors">
+              {isRtl ? 'الجلود والتوابل' : 'Leather & Spice'}
+            </Link>
+            <Link href="/fragrance-guide" className="px-3 py-1 rounded-lg bg-[#080A0A] text-[#2DD4BF] font-bold hover:bg-black transition-colors flex items-center gap-1">
+              <span>{isRtl ? 'دليل تركيز العطور والأهرام الشمية 📖' : 'Fragrance Guide 📖'}</span>
+            </Link>
+          </div>
+        </div>
+
         {/* Product Cards Grid with 1-Click Fast Order Modal */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {displayedCatalogProducts.map((product) => (
@@ -408,7 +448,7 @@ export default function HomePage() {
             </div>
             <div>
               <h4 className="font-serif font-bold text-sm text-slate-900">
-                {isRtl ? 'تركيز 25% Extrait ثبات +14 ساعة' : 'Pure 25% Extrait Sillage'}
+                {isRtl ? 'تركيز 30% Extrait ثبات +14 ساعة' : 'Pure 30% Extrait Sillage'}
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
                 {isRtl ? 'زيوت نقية معتقة Extrait de Parfum تضاهي الدور الفرنسية الكبرى.' : 'Unadulterated rare oils lasting +14 hours on garments.'}
@@ -491,7 +531,7 @@ export default function HomePage() {
 
             <p className="text-sm sm:text-base text-[#D5D1C7] max-w-2xl mx-auto font-light leading-relaxed">
               {isRtl
-                ? (siteContent.bespokeSubtitle || 'مهما كان العطر نادراً أو عالمياً، خبراؤنا يركبونه لك بتركيز 25% Extrait de Parfum مع ضمان ثبات وفوحان يتجاوز 24 ساعة.')
+                ? (siteContent.bespokeSubtitle || 'مهما كان العطر نادراً أو عالمياً، خبراؤنا يركبونه لك بتركيز 30% Extrait de Parfum مع ضمان ثبات وفوحان يتجاوز 24 ساعة.')
                 : 'From rare vintage flacons to personal signature accords, tell us your desired perfume name and bottle volume. Our master perfumers craft and deliver it across Egypt.'}
             </p>
 
@@ -536,7 +576,7 @@ export default function HomePage() {
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="text-[#54d1b2]">✓</span>
-                <span>{isRtl ? (siteContent.bespokeFeature2 || 'تركيز نيش Extrait de Parfum 25%') : '25% Pure Extrait Sillage'}</span>
+                <span>{isRtl ? (siteContent.bespokeFeature2 || 'تركيز نيش Extrait de Parfum 30%') : '30% Pure Extrait Sillage'}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="text-[#54d1b2]">✓</span>
@@ -569,8 +609,8 @@ export default function HomePage() {
 
               <p className="text-sm sm:text-base text-[#C5CECB] leading-relaxed">
                 {isRtl
-                  ? (siteContent.showcaseDescription || 'تم تصميم كل قطرة في معملنا بالقاهرة وفق أعلى معايير الدور العالمية كـ Dior و Creed، بتركيز Extrait de Parfum يصل إلى 25% من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً لأكثر من 14 ساعة.')
-                  : 'Engineered with rare natural absolutes and a 25% Extrait de Parfum concentration, mirroring the artisanal rigor of world-class Parisian perfume houses.'}
+                  ? (siteContent.showcaseDescription || 'تم تصميم كل توليفة في معمل دار رحيق بتركيز Extrait de Parfum خالص 30% من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً لأكثر من 14 ساعة مع نقاء شمي استثنائي.')
+                  : 'Engineered with rare natural absolutes and a 30% Extrait de Parfum concentration, crafted in RAHEEQ private atelier for persistent sillage and supreme olfactory clarity.'}
               </p>
 
               {/* Dior Sauvage Style Intensity & Radar Meters */}
@@ -600,7 +640,7 @@ export default function HomePage() {
                 <div className="p-4 rounded-xl bg-[#141A19] border border-[#C6A66B]/30">
                   <div className="flex items-center justify-between text-xs font-bold text-[#C6A66B] mb-1">
                     <span>{isRtl ? (siteContent.showcaseMeter3Title || 'نسبة الزيوت') : 'Concentration'}</span>
-                    <span>{siteContent.showcaseMeter3Val || '25%'}</span>
+                    <span>{siteContent.showcaseMeter3Val || '30%'}</span>
                   </div>
                   <div className="w-full bg-[#080A0A] rounded-full h-2 overflow-hidden border border-[#1A2624]">
                     <div className="bg-gradient-to-r from-[#C6A66B] to-[#D4AF37] h-full w-[100%]" />
@@ -615,7 +655,7 @@ export default function HomePage() {
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#54d1b2]">
                     ✓
                   </div>
-                  <span className="text-[#D5D1C7]">{isRtl ? (siteContent.showcasePill1 || 'زيوت فرنسية نقية 25% Extrait') : 'Pure 25% Extrait French oils'}</span>
+                  <span className="text-[#D5D1C7]">{isRtl ? (siteContent.showcasePill1 || 'زيوت فرنسية نقية 30% Extrait') : 'Pure 30% Extrait French oils'}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#54d1b2]">
@@ -802,10 +842,10 @@ export default function HomePage() {
               <div className="p-4 bg-white border border-[#E6E1D5] rounded-2xl shadow-sm hover:border-[#2DD4BF] transition-colors">
                 <Droplets className="w-5 h-5 text-[#0D9488] mb-2" />
                 <h4 className="font-serif font-bold text-sm text-[#080A0A]">
-                  {isRtl ? (siteContent.storyBenefit1Title || 'تركيز إكستري خالص 25%') : 'Pure 25% Extrait Concentration'}
+                  {isRtl ? (siteContent.storyBenefit1Title || 'تركيز إكستري خالص 30%') : 'Pure 30% Extrait Concentration'}
                 </h4>
                 <p className="text-xs text-[#576563] mt-1">
-                  {isRtl ? (siteContent.storyBenefit1Desc || 'تركيز زيوت عطرية يصل إلى 25% لثبات يتجاوز 14 ساعة.') : 'Up to 25% concentration offering over 14 hours of persistent trail.'}
+                  {isRtl ? (siteContent.storyBenefit1Desc || 'تركيز زيوت عطرية يصل إلى 30% لثبات يتجاوز 14 ساعة.') : 'Up to 30% concentration offering over 14 hours of persistent trail.'}
                 </p>
               </div>
 

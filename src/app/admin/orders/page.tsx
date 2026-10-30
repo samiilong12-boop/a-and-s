@@ -54,16 +54,14 @@ function formatOrderDate(dateInput: any): string {
   try {
     const d = new Date(dateInput);
     if (isNaN(d.getTime())) return String(dateInput);
-    return d.toLocaleString('ar-EG', {
-      dateStyle: 'long',
-      timeStyle: 'short',
-    });
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    return `${year}/${month}/${day} ${hours}:${minutes}`;
   } catch {
-    try {
-      return new Date(dateInput).toLocaleDateString('ar-EG');
-    } catch {
-      return String(dateInput);
-    }
+    return String(dateInput);
   }
 }
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Eye, Star } from 'lucide-react';
+import { ShoppingBag, Eye, Star, Sparkles } from 'lucide-react';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/currency';
 import { useCart } from '@/context/CartContext';
@@ -123,13 +123,15 @@ export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
             {product.baseNotes?.[0] ? `، ${getLocalizedOlfactoryNote(product.baseNotes[0], isRtl)}` : ''}
           </p>
 
-          {/* Rating */}
+          {/* Quality & Longevity Trust Badge */}
           <div className="flex items-center gap-1.5 mt-2">
-            <div className="flex text-[#C6A66B]">
-              <Star className="w-3.5 h-3.5 fill-[#C6A66B]" />
-            </div>
-            <span className="text-xs font-bold text-[#080A0A]">{(product.rating || 5.0).toFixed(1)}</span>
-            <span className="text-[11px] text-[#788784]">({product.reviewCount || 1})</span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0D9488] bg-[#2DD4BF]/10 px-2 py-0.5 rounded">
+              <Sparkles className="w-3 h-3 text-[#0D9488]" />
+              <span>{isRtl ? 'تركيز 30% Extrait' : '30% Extrait de Parfum'}</span>
+            </span>
+            <span className="text-[11px] text-[#788784] font-medium">
+              {isRtl ? '• معاينة عند الباب' : '• Doorstep COD'}
+            </span>
           </div>
         </div>
 
@@ -140,12 +142,14 @@ export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
               <span className="text-base font-extrabold text-[#080A0A]">
                 {formatPrice(salePrice || regularPrice)}
               </span>
-              <span className="text-xs text-[#788784] line-through font-mono">
-                {formatPrice((salePrice || regularPrice) * 3.5)}
-              </span>
+              {salePrice && salePrice < regularPrice && (
+                <span className="text-xs text-[#788784] line-through font-mono">
+                  {formatPrice(regularPrice)}
+                </span>
+              )}
             </div>
             <span className="text-[10px] text-[#00bc7d] font-bold tracking-wider block">
-              {isRtl ? 'معاينة عند الاستلام • تركيز 25%' : 'Inspection on COD • 25% Extrait'}
+              {isRtl ? 'ثبات +14 ساعة • دفع بعد الفحص' : '+14h Sillage • Cash on Inspection'}
             </span>
           </div>
 
