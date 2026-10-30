@@ -12,6 +12,7 @@ import {
   Clock,
   MapPin,
   Lock,
+  AlertCircle,
 } from 'lucide-react';
 import { Product, ProductVariant } from '@/types';
 import { formatPrice } from '@/lib/currency';
@@ -229,7 +230,7 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                   تهانينا! رقم طلبك: #{orderSuccess.orderNumber}
                 </h4>
                 <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
-                  سيصلك مندوبنا خلال <strong className="text-slate-900">24 إلى 48 ساعة</strong>. يحق لك فتح الطرد ومعاينة الزجاجة وسلامتها بالكامل عند بابك قبل الدفع كاش ({orderSuccess.totalAmount}).
+                  سيصلك مندوبنا خلال <strong className="text-slate-900">24 إلى 48 ساعة</strong>. يحق لك فتح الطرد ومعاينة الزجاجة وسلامتها بالكامل عند بابك قبل الدفع كاش ({orderSuccess.totalAmount}). (وفي حال الإلغاء أو الرفض عند الباب تُسدد مصاريف الشحن فقط للمندوب).
                 </p>
               </div>
 
@@ -378,15 +379,19 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                 </div>
               </div>
 
-              {/* Guarantees Box */}
-              <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-xl space-y-1 text-emerald-950 text-[11px] leading-relaxed">
-                <div className="flex items-center gap-1.5 font-bold text-emerald-900">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  <span>حق المعاينة الكامل عند الباب قبل السداد:</span>
+              {/* Guarantees & Cancellation Delivery Fee Box */}
+              <div className="p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl space-y-1.5 text-amber-950 text-[11px] leading-relaxed">
+                <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                  <ShieldCheck className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>حق المعاينة الكامل وسياسة التوصيل:</span>
                 </div>
-                <p className="text-emerald-800">
-                  لا تدفع أي مليم إلا بعد استلام الطرد وفحص الزجاجة من الكسر أو التسريب بحضور المندوب.
+                <p className="text-amber-900">
+                  لك كامل الحق في فتح كرتونة الشحن وفحص الزجاجة عند بابك قبل الدفع.
                 </p>
+                <div className="flex items-start gap-1.5 text-amber-900 font-bold bg-white/80 p-2 rounded-lg border border-amber-200/60">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-700 mt-0.5 shrink-0" />
+                  <span>تنبيه: في حال رفض استلام الطلب أو الإلغاء بعد وصول مندوب الشحن، يتحمل العميل فقط قيمة مصاريف الشحن والتوصيل للمندوب.</span>
+                </div>
               </div>
 
               {/* Error Message */}

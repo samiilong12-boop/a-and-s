@@ -14,6 +14,7 @@ import {
   Building,
   User,
   AlertCircle,
+  AlertTriangle,
   Sparkles,
   MessageSquare,
   Gift,
@@ -43,6 +44,7 @@ export default function CheckoutPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agreedToDeliveryFee, setAgreedToDeliveryFee] = useState(true);
 
   // Selected Shipping Zone
   const selectedZone = SHIPPING_ZONES.find((z) => z.governorateEn === formData.governorate) || SHIPPING_ZONES[0];
@@ -83,6 +85,12 @@ export default function CheckoutPage() {
 
     if (!formData.streetAddress.trim() || formData.streetAddress.trim().length < 5) {
       newErrors.streetAddress = isRtl ? 'يرجى إدخال اسم الشارع وتفاصيل العنوان' : 'Please enter your detailed street address';
+    }
+
+    if (!agreedToDeliveryFee) {
+      newErrors.deliveryFeeAgreement = isRtl
+        ? 'يرجى الموافقة على شرط سداد رسوم التوصيل في حال الإلغاء عند الباب'
+        : 'Please acknowledge the delivery fee condition upon door cancellation';
     }
 
     setErrors(newErrors);
@@ -403,6 +411,19 @@ export default function CheckoutPage() {
                 <p className="text-xs text-[#4A5553] pr-6">
                   {t('checkout.cod_desc')}
                 </p>
+
+                {/* Doorstep Inspection & Delivery Fee Policy Box */}
+                <div className="mt-3 p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1.5 text-xs">
+                  <div className="flex items-center gap-2 font-bold text-amber-950">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>{isRtl ? 'سياسة المعاينة ورسوم الشحن عند الإلغاء:' : 'Doorstep Inspection & Delivery Fee Policy:'}</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-amber-900">
+                    {isRtl
+                      ? 'لك كامل الحق في فتح كرتونة الشحن وفحص الزجاجة والتأكد من سلامتها قبل الدفع. في حال تم فحص الطرد ورفض الاستلام أو الإلغاء بعد وصول مندوب الشحن، يلتزم العميل بسداد قيمة مصاريف الشحن والتوصيل المقررة فقط للمندوب نظير مشوار الانتقال.'
+                      : 'You have full right to open and inspect the package before payment. If the order is refused or cancelled upon courier arrival, the customer is responsible only for paying the courier delivery fee.'}
+                  </p>
+                </div>
               </div>
 
               <div className="pt-2 flex items-center gap-2 text-xs text-[#788784]">
@@ -475,12 +496,49 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Inspection & COD Guarantee Badge */}
-              <div className="p-3 bg-[#FAF9F5] rounded-2xl border border-[#E7E3D6] flex items-center gap-2.5 text-xs text-[#4A5553]">
-                <ShieldCheck className="w-5 h-5 text-[#00bc7d] flex-shrink-0" />
-                <span className="text-[11px] leading-relaxed">
-                  {isRtl ? 'معاينة الطرد والتأكد من سلامة الزجاجة عند بابك قبل سداد المبلغ كاش للمندوب.' : 'Visual inspection of package upon delivery before handing cash payment.'}
-                </span>
+              {/* Inspection & Cancellation Shipping Fee Notice */}
+              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/90 space-y-1.5 text-xs text-amber-950">
+                <div className="flex items-center gap-2 font-bold text-amber-900 text-xs">
+                  <Truck className="w-4 h-4 text-amber-700 shrink-0" />
+                  <span>{isRtl ? 'حق المعاينة والتوصيل:' : 'Doorstep Guarantee:'}</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-amber-900">
+                  {isRtl
+                    ? 'المعاينة مكفولة عند الباب. في حال رفض الاستلام أو إلغاء الطلب بعد وصول مندوب الشحن، يتحمل العميل فقط قيمة مصاريف التوصيل للمندوب.'
+                    : 'Inspection is guaranteed. In case of refusal or cancellation upon arrival, the customer pays only the courier delivery fee.'}
+                </p>
+              </div>
+
+              {/* Explicit Customer Agreement Checkbox */}
+              <div className="space-y-1">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#080A0A] select-none p-1">
+                  <input
+                    type="checkbox"
+                    checked={agreedToDeliveryFee}
+                    onChange={(e) => {
+                      setAgreedToDeliveryFee(e.target.checked);
+                      if (errors.deliveryFeeAgreement) {
+                        setErrors((prev) => {
+                          const n = { ...prev };
+                          delete n.deliveryFeeAgreement;
+                          return n;
+                        });
+                      }
+                    }}
+                    className="mt-0.5 rounded border-[#E7E3D6] text-[#00bc7d] focus:ring-[#00bc7d] w-4 h-4 cursor-pointer"
+                  />
+                  <span className="text-[11px] leading-relaxed font-semibold">
+                    {isRtl
+                      ? 'أقر بأنني عاينت شروط الطلب، وأوافق على سداد مصاريف الشحن والتوصيل للمندوب في حالة الرفض أو الإلغاء عند الباب.'
+                      : 'I acknowledge the terms and agree to pay the delivery fee to the courier in case of refusal or cancellation at the door.'}
+                  </span>
+                </label>
+                {errors.deliveryFeeAgreement && (
+                  <p className="text-[11px] text-rose-600 flex items-center gap-1 pr-6 font-bold">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>{errors.deliveryFeeAgreement}</span>
+                  </p>
+                )}
               </div>
 
               {/* Submit Button */}

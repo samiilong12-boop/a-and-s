@@ -409,6 +409,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   <span>{isRtl ? 'تركيز نقي 35% Extrait' : 'Pure 35% Extrait Sillage'}</span>
                 </div>
               </div>
+
+              {/* Doorstep Inspection & Delivery Fee Transparency Note */}
+              <p className="text-[10px] text-amber-900 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/30 text-center font-semibold leading-relaxed">
+                {isRtl
+                  ? '⚠️ تنبيه: يحق للعميل معاينة الطرد والتأكد من سلامته عند الباب. في حال رفض الاستلام أو الإلغاء بعد وصول المندوب، يتحمل العميل مصاريف الشحن والتوصيل المقررة للمندوب فقط.'
+                  : 'Notice: Doorstep inspection guaranteed. In case of refusal or cancellation upon arrival, customer pays only the courier delivery fee.'}
+              </p>
             </div>
           </div>
         </div>

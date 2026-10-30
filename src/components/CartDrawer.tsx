@@ -185,9 +185,16 @@ export function CartDrawer() {
                 <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
               </Link>
 
-              <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#788784] pt-0.5 font-medium">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#00bc7d] shrink-0" />
-                <span>{isRtl ? 'ادفع نقداً بعد المعاينة عند استلام الطرد' : 'Pay in Cash Upon Inspection & Delivery'}</span>
+              <div className="space-y-1 text-center pt-0.5">
+                <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#4A5553] font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#00bc7d] shrink-0" />
+                  <span>{isRtl ? 'المعاينة مكفولة عند الباب قبل السداد كاش' : 'Inspection Guaranteed Before Cash Payment'}</span>
+                </div>
+                <p className="text-[10px] text-amber-800 font-semibold leading-tight">
+                  {isRtl
+                    ? '⚠️ في حالة رفض الاستلام أو الإلغاء عند الباب، يتحمل العميل مصاريف الشحن والتوصيل للمندوب فقط.'
+                    : 'In case of refusal/cancellation at the door, the customer pays only the courier delivery fee.'}
+                </p>
               </div>
             </div>
           )}

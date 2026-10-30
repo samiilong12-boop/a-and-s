@@ -225,15 +225,15 @@ export default function TermsAndPoliciesPage() {
                 </p>
               </div>
 
-              <div className="p-4 bg-indigo-50/70 border border-indigo-200 rounded-2xl space-y-2">
-                <div className="flex items-center gap-2 text-indigo-900 font-bold text-sm">
-                  <Eye className="w-4 h-4 text-indigo-600" />
-                  <span>{isRtl ? 'رفض الاستلام المجاني الفوري' : 'Zero-Fee Immediate Refusal'}</span>
+              <div className="p-4 bg-amber-50/80 border border-amber-300 rounded-2xl space-y-2">
+                <div className="flex items-center gap-2 text-amber-950 font-bold text-sm">
+                  <Eye className="w-4 h-4 text-amber-700" />
+                  <span>{isRtl ? 'سياسة الرفض أو الإلغاء عند الباب ورسوم الشحن' : 'Refusal & Delivery Fee Policy'}</span>
                 </div>
-                <p className="text-xs text-indigo-800 leading-relaxed">
+                <p className="text-xs text-amber-900 leading-relaxed font-medium">
                   {isRtl
-                    ? 'في حال وصلت الشحنة تالفة أو غير مطابقة للطلب، يحق للعميل رفض استلام الطرد فوراً مع المندوب دون دفع أي مليم أو أتعاب نقل.'
-                    : 'If damaged or mismatched upon arrival, you may refuse acceptance on the spot with zero courier charges.'}
+                    ? 'يحق للعميل فتح كرتونة الشحن ومعاينة الزجاجة والتأكد من سلامتها. وفي حال رغبة العميل في رفض الاستلام أو إلغاء الطلب بعد وصول مندوب شركة التوصيل، يلتزم العميل بسداد قيمة مصاريف الشحن والتوصيل المقررة للمندوب فقط نظير مشوار الانتقال وتكاليف شركة الشحن.'
+                    : 'Customers are entitled to inspect the parcel for integrity. If the customer elects to refuse acceptance or cancel the order after courier arrival, the customer is strictly obligated to pay the courier delivery fee.'}
                 </p>
               </div>
             </div>
