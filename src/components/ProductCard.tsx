@@ -10,9 +10,10 @@ import { useLanguage } from '@/context/LanguageContext';
 
 interface ProductCardProps {
   product: Product;
+  onExpressOrder?: (product: Product) => void;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
   const { addItem } = useCart();
   const { isRtl } = useLanguage();
   const primaryImage =
@@ -119,20 +120,18 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Price & Size Selector Footer */}
-        <div className="mt-4 pt-3 border-t border-[#E6E1D5] flex items-center justify-between">
+        <div className="mt-3 pt-3 border-t border-[#E6E1D5] flex items-center justify-between">
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="text-base font-bold text-[#080A0A]">
+              <span className="text-base font-extrabold text-[#080A0A]">
                 {formatPrice(salePrice || regularPrice)}
               </span>
-              {hasSale && (
-                <span className="text-xs text-[#788784] line-through">
-                  {formatPrice(regularPrice)}
-                </span>
-              )}
+              <span className="text-xs text-[#788784] line-through font-mono">
+                {formatPrice((salePrice || regularPrice) * 3.5)}
+              </span>
             </div>
-            <span className="text-[10px] text-[#788784] font-medium tracking-wider">
-              {defaultVariant?.titleEn || '100ml'}
+            <span className="text-[10px] text-[#00bc7d] font-bold tracking-wider block">
+              {isRtl ? 'معاينة عند الاستلام • تركيز 25%' : 'Inspection on COD • 25% Extrait'}
             </span>
           </div>
 
@@ -140,9 +139,35 @@ export function ProductCard({ product }: ProductCardProps) {
             href={`/product/${product.slug}`}
             className="text-xs tracking-wider uppercase text-[#080A0A] group-hover:text-[#00bc7d] transition-colors flex items-center gap-1 font-bold group-hover:translate-x-1 duration-200"
           >
-            <span>{isRtl ? 'اكتشف' : 'Explore'}</span>
+            <span>{isRtl ? 'تفاصيل' : 'Details'}</span>
             <span>{isRtl ? '←' : '→'}</span>
           </Link>
+        </div>
+
+        {/* Commercial Fast Purchase Action Bar */}
+        <div className="mt-2.5 flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (onExpressOrder) {
+                onExpressOrder(product);
+              } else if (defaultVariant) {
+                addItem(product, defaultVariant, 1);
+              }
+            }}
+            className="flex-1 bg-[#080A0A] hover:bg-[#00bc7d] text-white hover:text-[#080A0A] font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition-all hover:scale-[1.02] cursor-pointer"
+          >
+            <span>⚡ {isRtl ? 'طلب سريع كاش' : 'Quick Order'}</span>
+          </button>
+
+          <button
+            onClick={handleQuickAdd}
+            className="p-2.5 rounded-xl border border-slate-300 hover:border-[#00bc7d] hover:bg-teal-50 text-slate-700 hover:text-teal-800 transition-colors cursor-pointer"
+            title="أضف إلى سلة التسوق"
+          >
+            <ShoppingBag className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>

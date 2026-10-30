@@ -17,6 +17,7 @@ import {
   VolumeX,
   FlaskConical,
   Send,
+  Truck,
 } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -26,6 +27,8 @@ import { useSiteContent } from '@/context/SiteContentContext';
 import { FRAGRANCE_FAMILIES } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
 import { Interactive3DStudio } from '@/components/Interactive3DStudio';
+import { ExpressOrderModal } from '@/components/ExpressOrderModal';
+import { Product } from '@/types';
 
 export default function HomePage() {
   const { products } = useProducts();
@@ -71,7 +74,34 @@ export default function HomePage() {
     }
   };
 
-  // Featured & Bestsellers
+  // Express 1-Click Fast Checkout Modal State
+  const [expressProduct, setExpressProduct] = useState<Product | null>(null);
+  const [catalogCategory, setCatalogCategory] = useState<'ALL' | 'MEN' | 'WOMEN' | 'ORIENTAL' | 'FRESH'>('ALL');
+
+  // Featured & Bestsellers Direct Commercial Catalog
+  const displayedCatalogProducts = React.useMemo(() => {
+    let list = products;
+    if (catalogCategory === 'MEN') {
+      list = list.filter((p) => p.gender === 'MEN' || p.gender === 'UNISEX');
+    } else if (catalogCategory === 'WOMEN') {
+      list = list.filter((p) => p.gender === 'WOMEN' || p.gender === 'UNISEX');
+    } else if (catalogCategory === 'ORIENTAL') {
+      list = list.filter(
+        (p) =>
+          (p.fragranceFamily || '').toLowerCase().includes('oriental') ||
+          (p.fragranceFamily || '').toLowerCase().includes('woody')
+      );
+    } else if (catalogCategory === 'FRESH') {
+      list = list.filter(
+        (p) =>
+          (p.fragranceFamily || '').toLowerCase().includes('citrus') ||
+          (p.fragranceFamily || '').toLowerCase().includes('fresh') ||
+          (p.fragranceFamily || '').toLowerCase().includes('aromatic')
+      );
+    }
+    return list.slice(0, 12);
+  }, [products, catalogCategory]);
+
   const bestsellers = products.filter((p) => p.isBestseller).slice(0, 4);
   const newArrivals = products.filter((p) => p.isNewArrival).slice(0, 4);
 
@@ -181,31 +211,41 @@ export default function HomePage() {
             {isRtl ? (heroConfig.heroSubtitle || t('hero.subtitle')) : t('hero.subtitle')}
           </p>
 
-          {/* Hero Action Buttons */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/catalog"
-              className="w-full sm:w-auto bg-gradient-to-r from-[#2DD4BF] to-[#14B8A6] hover:from-[#5EEAD4] hover:to-[#2DD4BF] text-[#080A0A] font-extrabold py-4 px-8 rounded-lg text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-3 shadow-[0_0_25px_rgba(45,212,191,0.4)] transition-all duration-300 hover:scale-105 active:scale-95"
+          {/* Hero Action Buttons - Commercial Direct Sales Focus */}
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="#bestsellers"
+              className="w-full sm:w-auto bg-gradient-to-r from-[#00bc7d] to-[#2DD4BF] hover:from-[#2DD4BF] hover:to-[#5EEAD4] text-[#080A0A] font-extrabold py-4 px-8 rounded-2xl text-xs tracking-wider uppercase flex items-center justify-center gap-2.5 shadow-[0_0_30px_rgba(45,212,191,0.5)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
             >
-              <span>{t('hero.cta_explore')}</span>
+              <span>🔥 {isRtl ? 'تسوق العطور الأكثر طلباً الآن (شحن ومعاينة كاش)' : 'Shop Bestsellers (COD)'}</span>
               <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
-            </Link>
+            </a>
 
             <button
               onClick={() => openModal()}
-              className="w-full sm:w-auto bg-gradient-to-r from-[#00bc7d] to-[#54d1b2] hover:brightness-110 text-[#080A0A] font-extrabold py-4 px-8 rounded-lg text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(84,209,178,0.4)] transition-all duration-300 hover:scale-105 active:scale-95"
+              className="w-full sm:w-auto bg-[#080A0A]/90 hover:bg-[#141A19] text-[#FFFFFF] border border-[#2DD4BF]/50 py-4 px-8 rounded-2xl text-xs tracking-wider uppercase font-bold flex items-center justify-center gap-2 backdrop-blur-md transition-all duration-300 hover:border-[#2DD4BF] cursor-pointer"
             >
-              <FlaskConical className="w-4 h-4 text-[#080A0A]" />
-              <span>{isRtl ? 'عايز عطر معين أو خلطة خاصة؟' : 'Bespoke Scent Request'}</span>
+              <FlaskConical className="w-4 h-4 text-[#2DD4BF]" />
+              <span>{isRtl ? 'اطلب خلطتك أو عطرك الخاص (تفصيل) 🧪' : 'Bespoke Scent Request'}</span>
             </button>
+          </div>
 
-            <Link
-              href="/#fragrance-families"
-              className="w-full sm:w-auto bg-[#080A0A]/85 hover:bg-[#141A19] text-[#FFFFFF] border border-[#2DD4BF]/40 py-4 px-8 rounded-lg text-xs tracking-[0.2em] uppercase font-semibold flex items-center justify-center gap-2 backdrop-blur-md transition-all duration-300 hover:border-[#2DD4BF]"
-            >
-              <Compass className="w-4 h-4 text-[#2DD4BF]" />
-              <span>{t('hero.cta_guide')}</span>
-            </Link>
+          {/* Direct Commercial Trust Proof Badges */}
+          <div className="pt-1 flex items-center justify-center flex-wrap gap-x-6 gap-y-2 text-[11px] text-[#D5D1C7] font-medium">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>{isRtl ? 'معاينة الطرد عند الباب قبل دفع أي مليم' : 'Doorstep Inspection Before Payment'}</span>
+            </span>
+            <span className="hidden sm:inline text-white/30">•</span>
+            <span className="flex items-center gap-1.5 text-teal-300 font-bold">
+              <Sparkles className="w-4 h-4 text-teal-300" />
+              <span>{isRtl ? 'تركيز 25% Extrait ثبات +14 ساعة' : '25% Extrait (+14h Sillage)'}</span>
+            </span>
+            <span className="hidden sm:inline text-white/30">•</span>
+            <span className="flex items-center gap-1.5 text-amber-300 font-bold">
+              <Truck className="w-4 h-4 text-amber-300" />
+              <span>{isRtl ? 'توصيل سريع 24–48h لجميع محافظات مصر' : 'Fast Delivery Across Egypt'}</span>
+            </span>
           </div>
 
           {/* Quick Metrics Bar (Fully Editable via Admin) */}
@@ -246,33 +286,138 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. BESTSELLERS (White Luxury Cards on Warm Cashmere Beige Canvas) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+      {/* 2. BESTSELLERS & DIRECT SALES CATALOG (Commercial Core Section) */}
+      <section id="bestsellers" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
-            <span className="badge-emerald px-3 py-1 rounded-sm">
-              {t('section.bestsellers_tag')}
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#080A0A] mt-2">
-              {t('section.bestsellers_title')}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold font-mono">
+              <span>🔥 {isRtl ? 'الأكثر طلباً ومبيعاً في مصر' : 'Most Popular in Egypt'}</span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#080A0A] mt-2">
+              {isRtl ? 'قائمة عطور النيش الأكثر طلباً (الدفع عند الاستلام)' : 'Curated Masterpiece Fragrances'}
             </h2>
-            <p className="text-sm text-[#576563] mt-1 max-w-xl">
-              {t('section.bestsellers_desc')}
+            <p className="text-xs sm:text-sm text-[#576563] mt-1 max-w-xl leading-relaxed">
+              {isRtl
+                ? 'توليفات فرنسية نقية بتركيز 25% Extrait خالص وثبات يدوم طويلاً، مع ميزة فتح الطرد وفحص الزجاجة قبل الدفع كاش.'
+                : 'French oil extraits at 25% pure concentration lasting +14 hours with full doorstep cash inspection.'}
             </p>
           </div>
           <Link
-            href="/catalog?sort=bestselling"
-            className="text-xs font-bold tracking-widest text-[#0D9488] hover:text-[#080A0A] uppercase flex items-center gap-1.5 transition-colors"
+            href="/catalog"
+            className="text-xs font-extrabold tracking-wider text-[#00bc7d] hover:text-[#080A0A] uppercase flex items-center gap-1.5 transition-colors self-start md:self-auto bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-2 rounded-xl shadow-xs"
           >
-            <span>{isRtl ? 'عرض جميع العطور الأكثر طلباً' : 'View All Bestsellers'}</span>
-            <ArrowRight className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
+            <span>{isRtl ? 'عرض الكتالوج الكامل (50+ عطر) ←' : 'View Full Catalog (50+) ←'}</span>
           </Link>
         </div>
 
+        {/* Commercial Category Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 no-scrollbar">
+          <button
+            onClick={() => setCatalogCategory('ALL')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              catalogCategory === 'ALL'
+                ? 'bg-[#080A0A] text-[#2DD4BF] shadow-lg border border-[#2DD4BF]/40'
+                : 'bg-white border border-[#E6E1D5] text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            🔥 {isRtl ? 'جميع العطور الأكثر طلباً' : 'All Bestsellers'} ({products.length})
+          </button>
+          <button
+            onClick={() => setCatalogCategory('MEN')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              catalogCategory === 'MEN'
+                ? 'bg-[#080A0A] text-[#2DD4BF] shadow-lg border border-[#2DD4BF]/40'
+                : 'bg-white border border-[#E6E1D5] text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            👔 {isRtl ? 'عطور رجالية فخمة (Men)' : 'Men Collection'}
+          </button>
+          <button
+            onClick={() => setCatalogCategory('WOMEN')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              catalogCategory === 'WOMEN'
+                ? 'bg-[#080A0A] text-[#2DD4BF] shadow-lg border border-[#2DD4BF]/40'
+                : 'bg-white border border-[#E6E1D5] text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            🌸 {isRtl ? 'عطور نسائية ساحرة (Women)' : 'Women Collection'}
+          </button>
+          <button
+            onClick={() => setCatalogCategory('ORIENTAL')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              catalogCategory === 'ORIENTAL'
+                ? 'bg-[#080A0A] text-[#2DD4BF] shadow-lg border border-[#2DD4BF]/40'
+                : 'bg-white border border-[#E6E1D5] text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            🪵 {isRtl ? 'عود وأخشاب شرقية' : 'Oud & Woods'}
+          </button>
+          <button
+            onClick={() => setCatalogCategory('FRESH')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              catalogCategory === 'FRESH'
+                ? 'bg-[#080A0A] text-[#2DD4BF] shadow-lg border border-[#2DD4BF]/40'
+                : 'bg-white border border-[#E6E1D5] text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            🍋 {isRtl ? 'حمضيات وانتعاش صيفي' : 'Fresh & Citrus'}
+          </button>
+        </div>
+
+        {/* Product Cards Grid with 1-Click Fast Order Modal */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {bestsellers.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {displayedCatalogProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onExpressOrder={(p) => setExpressProduct(p)}
+            />
           ))}
+        </div>
+
+        {/* Commercial Trust & Zero-Risk COD Bar */}
+        <div className="mt-12 p-6 bg-white rounded-3xl border border-[#E6E1D5] shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6 text-right">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 flex-shrink-0">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-serif font-bold text-sm text-slate-900">
+                {isRtl ? 'المعاينة عند الباب مجاناً قبل الدفع' : 'Free Doorstep Inspection'}
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {isRtl ? 'افتح الكرتونة وتأكد من الزجاجة مع المندوب قبل دفع أي مليم كاش.' : 'Open and verify packaging with the courier prior to cash payment.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 flex-shrink-0">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-serif font-bold text-sm text-slate-900">
+                {isRtl ? 'تركيز 25% Extrait ثبات +14 ساعة' : 'Pure 25% Extrait Sillage'}
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {isRtl ? 'زيوت نقية معتقة Extrait de Parfum تضاهي الدور الفرنسية الكبرى.' : 'Unadulterated rare oils lasting +14 hours on garments.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 flex-shrink-0">
+              <Truck className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-serif font-bold text-sm text-slate-900">
+                {isRtl ? 'توصيل سريع 24–48h لكل مصر' : 'Fast 24-48h Delivery'}
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {isRtl ? 'شحن مباشر لباب بيتك في القاهرة والجيزة وجميع محافظات مصر.' : 'Direct courier to your doorstep across all Egyptian governorates.'}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -717,10 +862,21 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {newArrivals.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onExpressOrder={(p) => setExpressProduct(p)}
+            />
           ))}
         </div>
       </section>
+
+      {/* Express Fast 1-Click Cash Order Modal */}
+      <ExpressOrderModal
+        isOpen={!!expressProduct}
+        onClose={() => setExpressProduct(null)}
+        product={expressProduct}
+      />
     </div>
   );
 }
