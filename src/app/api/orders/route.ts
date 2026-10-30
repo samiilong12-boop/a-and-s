@@ -118,14 +118,31 @@ export async function GET(req: NextRequest) {
       take: 200,
     });
     if (Array.isArray(dbOrders) && dbOrders.length > 0) {
+      let archivedSet = new Set<string>();
+      try {
+        const archSetting = await prisma.storeSetting.findUnique({ where: { key: 'archived_order_numbers' } });
+        if (archSetting && archSetting.value) {
+          const parsed = JSON.parse(archSetting.value);
+          if (Array.isArray(parsed)) archivedSet = new Set(parsed);
+        }
+      } catch {}
+
       const map = new Map<string, any>();
       orders.forEach((o) => map.set(o.orderNumber, o));
       dbOrders.forEach((dbo) => {
         if (!map.has(dbo.orderNumber)) {
-          map.set(dbo.orderNumber, dbo);
+          map.set(dbo.orderNumber, {
+            ...dbo,
+            isArchived: archivedSet.has(dbo.orderNumber),
+          });
         }
       });
-      const mergedList = Array.from(map.values());
+      const mergedList = Array.from(map.values()).map((o) => {
+        if (archivedSet.has(o.orderNumber)) {
+          return { ...o, isArchived: true };
+        }
+        return o;
+      });
       return NextResponse.json(mergedList, {
         headers: {
           'Cache-Control': 'no-store, no-cache, must-revalidate',
@@ -252,6 +269,26 @@ export async function PATCH(req: NextRequest) {
           ...(updates.paymentStatus ? { paymentStatus: updates.paymentStatus } : {}),
         },
       });
+
+      // Synchronize archived status in StoreSetting
+      if (updates && updates.isArchived !== undefined && orderNumber) {
+        const archSetting = await prisma.storeSetting.findUnique({ where: { key: 'archived_order_numbers' } }).catch(() => null);
+        let currentArchived: string[] = [];
+        if (archSetting && archSetting.value) {
+          try { currentArchived = JSON.parse(archSetting.value); } catch {}
+        }
+        let updatedArchived: string[];
+        if (updates.isArchived) {
+          updatedArchived = Array.from(new Set([...currentArchived, orderNumber]));
+        } else {
+          updatedArchived = currentArchived.filter((id) => id !== orderNumber);
+        }
+        await prisma.storeSetting.upsert({
+          where: { key: 'archived_order_numbers' },
+          create: { key: 'archived_order_numbers', value: JSON.stringify(updatedArchived) },
+          update: { value: JSON.stringify(updatedArchived) },
+        }).catch(() => {});
+      }
     } catch {}
 
     return NextResponse.json({ success: true, orders: updated });
@@ -277,7 +314,20 @@ export async function DELETE(req: NextRequest) {
     try {
       const { prisma } = await import('@/lib/prisma');
       if (orderNumber) {
-        await prisma.order.deleteMany({ where: { orderNumber } });
+        await prisma.order.deleteMany({ where: { orderNumber } }).catch(() => {});
+
+        // Also clean from archived list if present
+        const archSetting = await prisma.storeSetting.findUnique({ where: { key: 'archived_order_numbers' } }).catch(() => null);
+        if (archSetting && archSetting.value) {
+          try {
+            const currentArchived: string[] = JSON.parse(archSetting.value);
+            const filtered = currentArchived.filter((id) => id !== orderNumber);
+            await prisma.storeSetting.update({
+              where: { key: 'archived_order_numbers' },
+              data: { value: JSON.stringify(filtered) },
+            }).catch(() => {});
+          } catch {}
+        }
       }
     } catch {}
 

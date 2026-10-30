@@ -33,6 +33,7 @@ import {
   generateOrderConfirmationWhatsapp,
   generateDispatchAlertWhatsapp,
   generateFulfilledReceiptWhatsapp,
+  formatPhoneForWhatsApp,
 } from '@/lib/whatsappNotifications';
 
 const ACTIVE_ORDERS_KEY = 'a_and_s_demo_orders';
@@ -93,27 +94,29 @@ function AdminOrdersContent() {
 
   const loadOrders = async () => {
     let localActive: any[] = [];
+    let localArchive: any[] = [];
     try {
       const storedActive = localStorage.getItem(ACTIVE_ORDERS_KEY);
       if (storedActive) {
         localActive = JSON.parse(storedActive);
-        setOrders(localActive);
-        if (highlightedOrder) {
-          const found = localActive.find((o: any) => o.orderNumber === highlightedOrder);
-          if (found) openOrderDetails(found);
-        }
-      } else {
-        setOrders([]);
       }
-
       const storedArchive = localStorage.getItem(ARCHIVE_ORDERS_KEY);
       if (storedArchive) {
-        setArchivedOrders(JSON.parse(storedArchive));
-      } else {
-        setArchivedOrders([]);
+        localArchive = JSON.parse(storedArchive);
       }
     } catch (e) {
       console.error('Error loading orders from localStorage:', e);
+    }
+
+    // Set initial display immediately from local cache
+    setOrders(localActive);
+    setArchivedOrders(localArchive);
+
+    if (highlightedOrder) {
+      const found =
+        localActive.find((o: any) => o.orderNumber === highlightedOrder) ||
+        localArchive.find((o: any) => o.orderNumber === highlightedOrder);
+      if (found) openOrderDetails(found);
     }
 
     // Server-side sync: Fetch all orders across Egypt
@@ -124,23 +127,43 @@ function AdminOrdersContent() {
       });
       if (res.ok) {
         const remoteOrders: any[] = await res.json();
-        const storedArchiveRaw = localStorage.getItem(ARCHIVE_ORDERS_KEY);
-        const archiveIds = new Set(
-          storedArchiveRaw ? (JSON.parse(storedArchiveRaw) as any[]).map((o) => o.orderNumber) : []
-        );
+        if (Array.isArray(remoteOrders)) {
+          const activeMap = new Map<string, any>();
+          const archiveMap = new Map<string, any>();
 
-        const map = new Map<string, any>();
-        localActive.forEach((o) => map.set(o.orderNumber, o));
-        remoteOrders.forEach((o) => {
-          if (!archiveIds.has(o.orderNumber)) {
-            map.set(o.orderNumber, o);
-          }
-        });
-        const merged = Array.from(map.values()).sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        setOrders(merged);
-        localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(merged));
+          localActive.forEach((o) => {
+            if (o && o.orderNumber) activeMap.set(o.orderNumber, o);
+          });
+          localArchive.forEach((o) => {
+            if (o && o.orderNumber) archiveMap.set(o.orderNumber, o);
+          });
+
+          remoteOrders.forEach((ro) => {
+            if (!ro || !ro.orderNumber) return;
+
+            // If the order is archived on the server OR already archived locally:
+            if (ro.isArchived || archiveMap.has(ro.orderNumber)) {
+              const existing = archiveMap.get(ro.orderNumber) || {};
+              archiveMap.set(ro.orderNumber, { ...ro, ...existing, isArchived: true });
+              activeMap.delete(ro.orderNumber); // Never let it stay in active!
+            } else {
+              const existing = activeMap.get(ro.orderNumber) || {};
+              activeMap.set(ro.orderNumber, { ...ro, ...existing, isArchived: false });
+            }
+          });
+
+          const mergedActive = Array.from(activeMap.values()).sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          const mergedArchive = Array.from(archiveMap.values()).sort(
+            (a, b) => new Date(b.archivedAt || b.createdAt).getTime() - new Date(a.archivedAt || a.createdAt).getTime()
+          );
+
+          setOrders(mergedActive);
+          setArchivedOrders(mergedArchive);
+          localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(mergedActive));
+          localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(mergedArchive));
+        }
       }
     } catch (netErr) {
       // Gracefully continue with local orders
@@ -222,17 +245,21 @@ function AdminOrdersContent() {
     setTimeout(() => setSaveSuccess(false), 2500);
   };
 
-  // Archive an active order
-  const handleArchiveOrder = (orderToArchive: any, e?: React.MouseEvent) => {
+  // Archive an active order (Moves order to Archive so it NEVER returns to Active)
+  const handleArchiveOrder = async (orderToArchive: any, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!confirm(`هل تريد نقل الطلب #${orderToArchive.orderNumber} إلى سجل الأرشيف المحفوظ؟`)) return;
+    if (!confirm(`هل تريد حذف الطلب #${orderToArchive.orderNumber} من الطلبات النشطة ونقله إلى سجل الأرشيف المحفوظ؟`)) return;
 
     const remainingActive = orders.filter((o) => o.orderNumber !== orderToArchive.orderNumber);
     const orderWithArchiveTag = {
       ...orderToArchive,
+      isArchived: true,
       archivedAt: new Date().toISOString(),
     };
-    const updatedArchive = [orderWithArchiveTag, ...archivedOrders.filter((o) => o.orderNumber !== orderToArchive.orderNumber)];
+    const updatedArchive = [
+      orderWithArchiveTag,
+      ...archivedOrders.filter((o) => o.orderNumber !== orderToArchive.orderNumber),
+    ];
 
     setOrders(remainingActive);
     setArchivedOrders(updatedArchive);
@@ -242,15 +269,40 @@ function AdminOrdersContent() {
     if (selectedOrder?.orderNumber === orderToArchive.orderNumber) {
       setSelectedOrder(null);
     }
-    showNotice(`تم نقل الطلب #${orderToArchive.orderNumber} إلى سجل الأرشيف بنجاح.`);
+
+    // Persist archive flag to cloud server
+    try {
+      await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAdminAuthHeaders(),
+        },
+        body: JSON.stringify({
+          orderNumber: orderToArchive.orderNumber,
+          updates: {
+            isArchived: true,
+            archivedAt: new Date().toISOString(),
+          },
+        }),
+      });
+    } catch {}
+
+    showNotice(`تم حذف الطلب #${orderToArchive.orderNumber} من الطلبات النشطة ونقله إلى سجل الأرشيف بنجاح.`);
   };
 
   // Restore order from archive back to active
-  const handleRestoreOrder = (orderToRestore: any, e?: React.MouseEvent) => {
+  const handleRestoreOrder = async (orderToRestore: any, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    if (!confirm(`هل تريد استعادة الطلب #${orderToRestore.orderNumber} إلى قائمة الطلبات النشطة؟`)) return;
 
     const remainingArchive = archivedOrders.filter((o) => o.orderNumber !== orderToRestore.orderNumber);
-    const updatedActive = [orderToRestore, ...orders.filter((o) => o.orderNumber !== orderToRestore.orderNumber)];
+    const restoredOrder = {
+      ...orderToRestore,
+      isArchived: false,
+      archivedAt: null,
+    };
+    const updatedActive = [restoredOrder, ...orders.filter((o) => o.orderNumber !== orderToRestore.orderNumber)];
 
     setArchivedOrders(remainingArchive);
     setOrders(updatedActive);
@@ -260,34 +312,55 @@ function AdminOrdersContent() {
     if (selectedOrder?.orderNumber === orderToRestore.orderNumber) {
       setSelectedOrder(null);
     }
+
+    // Sync restored status to server
+    try {
+      await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAdminAuthHeaders(),
+        },
+        body: JSON.stringify({
+          orderNumber: orderToRestore.orderNumber,
+          updates: {
+            isArchived: false,
+            archivedAt: null,
+          },
+        }),
+      });
+    } catch {}
+
     showNotice(`تمت استعادة الطلب #${orderToRestore.orderNumber} إلى قائمة الطلبات النشطة.`);
   };
 
-  // Permanently delete order
-  const handleDeletePermanently = (orderNumber: string, isFromArchive = false, e?: React.MouseEvent) => {
+  // Delete Order: If in Active tab, moves to Archive. If in Archive, permanently deletes.
+  const handleDeleteOrder = (order: any, isFromArchive = false, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!confirm(`تحذير: هل أنت متأكد من حذف الطلب #${orderNumber} نهائياً؟ لن يمكن التراجع عن هذا الإجراء.`)) return;
 
-    if (isFromArchive) {
-      const updated = archivedOrders.filter((o) => o.orderNumber !== orderNumber);
-      setArchivedOrders(updated);
-      localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updated));
-    } else {
-      const updated = orders.filter((o) => o.orderNumber !== orderNumber);
-      setOrders(updated);
-      localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updated));
+    if (!isFromArchive) {
+      // In Active Orders tab: "حذف" moves the order to Archive!
+      handleArchiveOrder(order);
+      return;
     }
 
+    // In Archive tab: permanent delete
+    if (!confirm(`تحذير: هل أنت متأكد من مسح الطلب #${order.orderNumber} نهائياً من سجل الأرشيف والسيرفر؟ لن يمكن استرجاعه.`)) return;
+
+    const updated = archivedOrders.filter((o) => o.orderNumber !== order.orderNumber);
+    setArchivedOrders(updated);
+    localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updated));
+
     // Delete from server so it never returns on reload
-    fetch(`/api/orders?orderNumber=${encodeURIComponent(orderNumber)}`, {
+    fetch(`/api/orders?orderNumber=${encodeURIComponent(order.orderNumber)}`, {
       method: 'DELETE',
       headers: getAdminAuthHeaders(),
     }).catch(() => {});
 
-    if (selectedOrder?.orderNumber === orderNumber) {
+    if (selectedOrder?.orderNumber === order.orderNumber) {
       setSelectedOrder(null);
     }
-    showNotice(`تم حذف الطلب #${orderNumber} نهائياً.`);
+    showNotice(`تم مسح الطلب #${order.orderNumber} نهائياً من الأرشيف والسيرفر.`);
   };
 
   // Clear entire archive
@@ -568,7 +641,7 @@ function AdminOrdersContent() {
                         <div className="inline-flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => openOrderDetails(order)}
-                            className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg font-bold text-xs border border-teal-200 transition-colors"
+                            className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg font-bold text-xs border border-teal-200 transition-colors cursor-pointer"
                             title="عرض وتعديل التفاصيل"
                           >
                             عرض
@@ -577,7 +650,7 @@ function AdminOrdersContent() {
                           {isArchived ? (
                             <button
                               onClick={(e) => handleRestoreOrder(order, e)}
-                              className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors border border-blue-200"
+                              className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors border border-blue-200 cursor-pointer"
                               title="استعادة إلى الطلبات النشطة"
                             >
                               <RotateCcw className="w-3.5 h-3.5" />
@@ -585,7 +658,7 @@ function AdminOrdersContent() {
                           ) : (
                             <button
                               onClick={(e) => handleArchiveOrder(order, e)}
-                              className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors border border-amber-200"
+                              className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors border border-amber-200 cursor-pointer"
                               title="نقل إلى سجل الأرشيف"
                             >
                               <Archive className="w-3.5 h-3.5" />
@@ -593,9 +666,9 @@ function AdminOrdersContent() {
                           )}
 
                           <button
-                            onClick={(e) => handleDeletePermanently(order.orderNumber, isArchived, e)}
-                            className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200"
-                            title="حذف نهائي"
+                            onClick={(e) => handleDeleteOrder(order, isArchived, e)}
+                            className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200 cursor-pointer"
+                            title={isArchived ? 'حذف نهائي من الأرشيف والسيرفر' : 'حذف ونقل للأرشيف'}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -664,7 +737,7 @@ function AdminOrdersContent() {
                     </a>
 
                     <a
-                      href={`https://wa.me/${(selectedOrder.customerPhone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                      href={`https://wa.me/${formatPhoneForWhatsApp(selectedOrder.customerPhone)}?text=${encodeURIComponent(
                         `مرحباً أستاذ ${selectedOrder.customerName || 'عميل المتجر'}، معك دار رَحِيقْ للعطور الفاخرة 💎 بخصوص طلبكم رقم ${selectedOrder.orderNumber || ''}.`
                       )}`}
                       target="_blank"
@@ -795,18 +868,42 @@ function AdminOrdersContent() {
               <div className="space-y-2 text-xs">
                 <h4 className="font-bold text-slate-700">العطور المطلوبة:</h4>
                 <div className="space-y-2">
-                  {selectedOrder.items?.map((item: any, idx: number) => (
-                    <div key={idx} className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
-                      <div>
-                        <p className="font-bold text-slate-900">{item.productNameEn || item.productNameSnapshot || 'عطر فاخر'}</p>
-                        <p className="text-[11px] text-teal-800 font-mono">{item.variantTitleEn || item.variantTitleSnapshot || ''} {item.volumeMl ? `• ${item.volumeMl}ml` : ''}</p>
+                  {selectedOrder.items?.map((item: any, idx: number) => {
+                    const itemName =
+                      item.productNameAr ||
+                      item.productNameEn ||
+                      item.title ||
+                      item.productNameSnapshot ||
+                      'عطر فاخر';
+                    const itemVariant =
+                      item.variantTitleAr ||
+                      item.variantTitleEn ||
+                      item.variantTitleSnapshot ||
+                      '';
+                    const itemPrice =
+                      item.subtotalInPiasters ??
+                      (item.unitPriceInPiasters
+                        ? item.unitPriceInPiasters * (item.quantity || 1)
+                        : selectedOrder.totalInPiasters || 0);
+
+                    return (
+                      <div
+                        key={idx}
+                        className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center"
+                      >
+                        <div>
+                          <p className="font-bold text-slate-900">{itemName}</p>
+                          <p className="text-[11px] text-teal-800 font-mono">
+                            {itemVariant} {item.volumeMl ? `• ${item.volumeMl}ml` : ''}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-slate-900">{formatPrice(itemPrice)}</p>
+                          <p className="text-slate-500 text-[10px]">الكمية: {item.quantity || 1}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-slate-900">{formatPrice(item.subtotalInPiasters)}</p>
-                        <p className="text-slate-500 text-[10px]">الكمية: {item.quantity}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -814,17 +911,23 @@ function AdminOrdersContent() {
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
                 <div className="flex justify-between text-slate-600">
                   <span>مجموع العطور:</span>
-                  <span className="font-semibold text-slate-900">{formatPrice(selectedOrder.subtotalInPiasters)}</span>
+                  <span className="font-semibold text-slate-900">
+                    {formatPrice(selectedOrder.subtotalInPiasters || selectedOrder.totalInPiasters || 0)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>تكلفة الشحن والتوصيل:</span>
                   <span className="text-teal-700 font-bold">
-                    {selectedOrder.shippingInPiasters === 0 ? 'مجاني' : formatPrice(selectedOrder.shippingInPiasters)}
+                    {(selectedOrder.shippingInPiasters || 0) === 0
+                      ? 'مجاني'
+                      : formatPrice(selectedOrder.shippingInPiasters)}
                   </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-slate-200 font-bold text-sm">
                   <span>إجمالي المبلغ المطلوب نقداً عند الباب:</span>
-                  <span className="text-teal-800 text-base">{formatPrice(selectedOrder.totalInPiasters)}</span>
+                  <span className="text-teal-800 text-base">
+                    {formatPrice(selectedOrder.totalInPiasters || selectedOrder.totalAmountInPiasters || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -832,7 +935,7 @@ function AdminOrdersContent() {
               <div className="pt-2 space-y-2.5">
                 <button
                   onClick={handleSaveChanges}
-                  className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3.5 px-4 rounded-xl text-xs tracking-wider uppercase font-bold flex items-center justify-center gap-2 shadow-lg transition-all"
+                  className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3.5 px-4 rounded-xl text-xs tracking-wider uppercase font-bold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
                 >
                   <PackageCheck className="w-4 h-4" />
                   <span>{saveSuccess ? 'تم حفظ التعديلات بنجاح!' : 'حفظ التغييرات على الطلب'}</span>
@@ -840,30 +943,40 @@ function AdminOrdersContent() {
 
                 <div className="flex gap-2">
                   {archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber) ? (
-                    <button
-                      onClick={() => handleRestoreOrder(selectedOrder)}
-                      className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                      <span>استعادة إلى الطلبات النشطة</span>
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleRestoreOrder(selectedOrder)}
+                        className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        <span>استعادة إلى الطلبات النشطة</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteOrder(selectedOrder, true)}
+                        className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>مسح نهائي من الأرشيف</span>
+                      </button>
+                    </>
                   ) : (
-                    <button
-                      onClick={() => handleArchiveOrder(selectedOrder)}
-                      className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                    >
-                      <Archive className="w-4 h-4" />
-                      <span>نقل إلى سجل الأرشيف</span>
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleArchiveOrder(selectedOrder)}
+                        className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Archive className="w-4 h-4" />
+                        <span>نقل إلى سجل الأرشيف</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteOrder(selectedOrder, false)}
+                        className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>حذف ونقل للأرشيف</span>
+                      </button>
+                    </>
                   )}
-
-                  <button
-                    onClick={() => handleDeletePermanently(selectedOrder.orderNumber, archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber))}
-                    className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>حذف الطلب نهائياً</span>
-                  </button>
                 </div>
               </div>
             </div>
