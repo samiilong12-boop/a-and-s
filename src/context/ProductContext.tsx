@@ -10,20 +10,30 @@ interface ProductContextType {
     nameEn: string;
     nameAr?: string;
     brand?: string;
+    inspiredBy?: string;
     gender?: 'MEN' | 'WOMEN' | 'UNISEX';
     fragranceFamily: string;
     concentration: any;
-    descriptionEn: string;
+    descriptionEn?: string;
     descriptionAr?: string;
     topNotes: string[];
     heartNotes: string[];
     baseNotes: string[];
     imageUrl: string;
-    regularPriceEgp: number;
+    regularPriceEgp?: number;
     salePriceEgp?: number;
     costPriceEgp?: number;
-    stockQuantity: number;
+    stockQuantity?: number;
     volumeMl?: number;
+    regularPrice50Egp?: number;
+    salePrice50Egp?: number;
+    stock50?: number;
+    regularPrice100Egp?: number;
+    salePrice100Egp?: number;
+    stock100?: number;
+    seoTitle?: string;
+    seoDescription?: string;
+    seoKeywords?: string[] | string;
   }) => Promise<Product>;
   editProduct: (
     id: string,
@@ -33,6 +43,12 @@ interface ProductContextType {
       costPriceEgp?: number;
       stockQuantity?: number;
       imageUrl?: string;
+      regularPrice50Egp?: number;
+      salePrice50Egp?: number;
+      stock50?: number;
+      regularPrice100Egp?: number;
+      salePrice100Egp?: number;
+      stock100?: number;
     }
   ) => Promise<{ success: boolean; error?: string }>;
   deleteProduct: (productId: string) => Promise<void>;
@@ -128,6 +144,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       costPriceEgp?: number;
       stockQuantity?: number;
       imageUrl?: string;
+      regularPrice50Egp?: number;
+      salePrice50Egp?: number;
+      stock50?: number;
+      regularPrice100Egp?: number;
+      salePrice100Egp?: number;
+      stock100?: number;
     }
   ) => {
     const updated = products.map((p) => {
@@ -152,29 +174,98 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         updatedFields.regularPriceEgp !== undefined ||
         updatedFields.salePriceEgp !== undefined ||
         updatedFields.costPriceEgp !== undefined ||
-        updatedFields.stockQuantity !== undefined
+        updatedFields.stockQuantity !== undefined ||
+        updatedFields.regularPrice50Egp !== undefined ||
+        updatedFields.regularPrice100Egp !== undefined
       ) {
         const variants = merged.variants && merged.variants.length > 0 ? [...merged.variants] : [];
-        if (variants.length > 0) {
-          const v0 = { ...variants[0] };
-          if (updatedFields.regularPriceEgp !== undefined) {
-            v0.regularPriceEgp = updatedFields.regularPriceEgp;
-            v0.regularPriceInPiasters = Math.round(updatedFields.regularPriceEgp * 100);
-          }
-          if (updatedFields.salePriceEgp !== undefined) {
-            v0.salePriceEgp = updatedFields.salePriceEgp;
-            v0.salePriceInPiasters = updatedFields.salePriceEgp ? Math.round(updatedFields.salePriceEgp * 100) : null;
-          }
-          if (updatedFields.costPriceEgp !== undefined) {
-            v0.costPriceEgp = updatedFields.costPriceEgp;
-            v0.costPriceInPiasters = updatedFields.costPriceEgp ? Math.round(updatedFields.costPriceEgp * 100) : undefined;
-          }
-          if (updatedFields.stockQuantity !== undefined) {
-            v0.stockQuantity = updatedFields.stockQuantity;
-          }
-          variants[0] = v0;
+        
+        // Find or create 50ml and 100ml variants
+        const p50 = updatedFields.regularPrice50Egp ?? (variants.find((v) => v.volumeMl === 50)?.regularPriceEgp || Math.round((updatedFields.regularPriceEgp || 2500) * 0.65));
+        const p100 = updatedFields.regularPrice100Egp ?? updatedFields.regularPriceEgp ?? (variants.find((v) => v.volumeMl === 100)?.regularPriceEgp || 2500);
+
+        if (variants.length >= 2) {
+          variants.forEach((v) => {
+            if (v.volumeMl === 50) {
+              if (updatedFields.regularPrice50Egp !== undefined) {
+                v.regularPriceEgp = updatedFields.regularPrice50Egp;
+                v.regularPriceInPiasters = Math.round(updatedFields.regularPrice50Egp * 100);
+              }
+              if (updatedFields.salePrice50Egp !== undefined) {
+                v.salePriceEgp = updatedFields.salePrice50Egp;
+                v.salePriceInPiasters = updatedFields.salePrice50Egp ? Math.round(updatedFields.salePrice50Egp * 100) : null;
+              }
+              if (updatedFields.stock50 !== undefined) {
+                v.stockQuantity = updatedFields.stock50;
+              }
+            } else if (v.volumeMl === 100) {
+              if (p100 !== undefined) {
+                v.regularPriceEgp = p100;
+                v.regularPriceInPiasters = Math.round(p100 * 100);
+              }
+              if (updatedFields.salePrice100Egp !== undefined || updatedFields.salePriceEgp !== undefined) {
+                const s = updatedFields.salePrice100Egp ?? updatedFields.salePriceEgp;
+                v.salePriceEgp = s;
+                v.salePriceInPiasters = s ? Math.round(s * 100) : null;
+              }
+              if (updatedFields.stock100 !== undefined || updatedFields.stockQuantity !== undefined) {
+                v.stockQuantity = updatedFields.stock100 ?? updatedFields.stockQuantity!;
+              }
+            }
+          });
           merged.variants = variants;
+        } else if (variants.length === 1) {
+          // Upgrade single-variant product to both 50ml and 100ml
+          const v0 = variants[0];
+          merged.variants = [
+            {
+              id: `${merged.id}-var-50`,
+              productId: merged.id,
+              sku: `${v0.sku || 'RHQ'}-50ML`,
+              volumeMl: 50,
+              titleEn: `50ml ${String(merged.concentration || 'EXTRAIT DE PARFUM').replace(/_/g, ' ')}`,
+              titleAr: `50 مل إكستري دو بارفان`,
+              regularPriceInPiasters: Math.round(p50 * 100),
+              regularPriceEgp: p50,
+              salePriceInPiasters: updatedFields.salePrice50Egp ? Math.round(updatedFields.salePrice50Egp * 100) : null,
+              salePriceEgp: updatedFields.salePrice50Egp || null,
+              costPriceInPiasters: Math.round(p50 * 0.35 * 100),
+              costPriceEgp: Math.round(p50 * 0.35),
+              stockQuantity: updatedFields.stock50 ?? 30,
+              lowStockThreshold: 5,
+              isActive: true,
+            },
+            {
+              id: `${merged.id}-var-100`,
+              productId: merged.id,
+              sku: `${v0.sku || 'RHQ'}-100ML`,
+              volumeMl: 100,
+              titleEn: `100ml ${String(merged.concentration || 'EXTRAIT DE PARFUM').replace(/_/g, ' ')}`,
+              titleAr: `100 مل إكستري دو بارفان`,
+              regularPriceInPiasters: Math.round(p100 * 100),
+              regularPriceEgp: p100,
+              salePriceInPiasters: (updatedFields.salePrice100Egp ?? updatedFields.salePriceEgp) ? Math.round((updatedFields.salePrice100Egp ?? updatedFields.salePriceEgp!) * 100) : null,
+              salePriceEgp: updatedFields.salePrice100Egp ?? updatedFields.salePriceEgp ?? null,
+              costPriceInPiasters: updatedFields.costPriceEgp ? Math.round(updatedFields.costPriceEgp * 100) : Math.round(p100 * 0.35 * 100),
+              costPriceEgp: updatedFields.costPriceEgp || Math.round(p100 * 0.35),
+              stockQuantity: updatedFields.stock100 ?? updatedFields.stockQuantity ?? 25,
+              lowStockThreshold: 5,
+              isActive: true,
+            },
+          ];
         }
+      }
+
+      if (updatedFields.inspiredBy !== undefined) {
+        merged.inspiredBy = updatedFields.inspiredBy.trim() || undefined;
+        if (merged.inspiredBy) {
+          merged.inspirationNoteAr = `توليفة عطرية خاصة ومستقلة تصنعها دار رَحِيقْ (RAHEEQ) بتركيز نيش فاخر، مستوحاة من الهرم العطري لـ ${merged.inspiredBy}. هذا العطر منتج مستقل تماماً ولا يمثل العلامة التجارية الأصلية أو يدعي أي تبعية لها.`;
+        }
+      }
+      if (updatedFields.seoTitle !== undefined) merged.seoTitle = updatedFields.seoTitle.trim() || undefined;
+      if (updatedFields.seoDescription !== undefined) merged.seoDescription = updatedFields.seoDescription.trim() || undefined;
+      if (updatedFields.seoKeywords !== undefined) {
+        merged.seoKeywords = typeof updatedFields.seoKeywords === 'string' ? (updatedFields.seoKeywords.trim() || undefined) : updatedFields.seoKeywords;
       }
 
       return merged;
@@ -207,20 +298,30 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     nameEn: string;
     nameAr?: string;
     brand?: string;
+    inspiredBy?: string;
     gender?: 'MEN' | 'WOMEN' | 'UNISEX';
     fragranceFamily: string;
     concentration: any;
-    descriptionEn: string;
+    descriptionEn?: string;
     descriptionAr?: string;
     topNotes: string[];
     heartNotes: string[];
     baseNotes: string[];
     imageUrl: string;
-    regularPriceEgp: number;
+    regularPriceEgp?: number;
     salePriceEgp?: number;
     costPriceEgp?: number;
-    stockQuantity: number;
+    stockQuantity?: number;
     volumeMl?: number;
+    regularPrice50Egp?: number;
+    salePrice50Egp?: number;
+    stock50?: number;
+    regularPrice100Egp?: number;
+    salePrice100Egp?: number;
+    stock100?: number;
+    seoTitle?: string;
+    seoDescription?: string;
+    seoKeywords?: string[] | string;
   }): Promise<Product> => {
     const nextIndex = products.length + 1;
     const id = `raheeq-fragrance-${Date.now()}`;
@@ -229,28 +330,60 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       slug = `raheeq-${nextIndex}-${Date.now().toString().slice(-4)}`;
     }
 
-    const regularPriceInPiasters = Math.round(data.regularPriceEgp * 100);
-    const salePriceInPiasters = data.salePriceEgp ? Math.round(data.salePriceEgp * 100) : null;
-    const costPriceInPiasters = data.costPriceEgp ? Math.round(data.costPriceEgp * 100) : Math.round(regularPriceInPiasters * 0.35);
+    const p50 = data.regularPrice50Egp || Math.round((data.regularPriceEgp || 2500) * 0.65);
+    const p100 = data.regularPrice100Egp || data.regularPriceEgp || 2500;
+    const concentrationName = data.concentration || 'EXTRAIT_DE_PARFUM';
 
-    const volume = data.volumeMl || 100;
+    const variants: ProductVariant[] = [
+      {
+        id: `${id}-var-50`,
+        productId: id,
+        sku: `RHQ-${String(nextIndex).padStart(3, '0')}-50ML`,
+        volumeMl: 50,
+        titleEn: `50ml ${String(concentrationName).replace(/_/g, ' ')}`,
+        titleAr: `50 مل إكستري دو بارفان`,
+        regularPriceInPiasters: Math.round(p50 * 100),
+        regularPriceEgp: p50,
+        salePriceInPiasters: data.salePrice50Egp ? Math.round(data.salePrice50Egp * 100) : null,
+        salePriceEgp: data.salePrice50Egp || null,
+        costPriceInPiasters: Math.round(p50 * 0.35 * 100),
+        costPriceEgp: Math.round(p50 * 0.35),
+        stockQuantity: data.stock50 ?? 30,
+        lowStockThreshold: 5,
+        isActive: true,
+      },
+      {
+        id: `${id}-var-100`,
+        productId: id,
+        sku: `RHQ-${String(nextIndex).padStart(3, '0')}-100ML`,
+        volumeMl: 100,
+        titleEn: `100ml ${String(concentrationName).replace(/_/g, ' ')}`,
+        titleAr: `100 مل إكستري دو بارفان`,
+        regularPriceInPiasters: Math.round(p100 * 100),
+        regularPriceEgp: p100,
+        salePriceInPiasters: (data.salePrice100Egp ?? data.salePriceEgp) ? Math.round((data.salePrice100Egp ?? data.salePriceEgp!) * 100) : null,
+        salePriceEgp: data.salePrice100Egp ?? data.salePriceEgp ?? null,
+        costPriceInPiasters: data.costPriceEgp ? Math.round(data.costPriceEgp * 100) : Math.round(p100 * 0.35 * 100),
+        costPriceEgp: data.costPriceEgp || Math.round(p100 * 0.35),
+        stockQuantity: data.stock100 ?? data.stockQuantity ?? 25,
+        lowStockThreshold: 5,
+        isActive: true,
+      },
+    ];
 
-    const newVariant: ProductVariant = {
-      id: `${id}-var-${volume}`,
-      productId: id,
-      sku: `RHQ-${String(nextIndex).padStart(3, '0')}-${volume}ML`,
-      volumeMl: volume,
-      titleEn: `${volume}ml ${data.concentration.replace(/_/g, ' ')}`,
-      regularPriceInPiasters,
-      regularPriceEgp: data.regularPriceEgp,
-      salePriceInPiasters,
-      salePriceEgp: data.salePriceEgp,
-      costPriceInPiasters,
-      costPriceEgp: data.costPriceEgp,
-      stockQuantity: data.stockQuantity || 20,
-      lowStockThreshold: 5,
-      isActive: true,
-    };
+    const inspiredBy = data.inspiredBy?.trim() || undefined;
+    const inspirationNoteAr = inspiredBy
+      ? `توليفة عطرية خاصة ومستقلة تصنعها دار رَحِيقْ (RAHEEQ) بتركيز نيش فاخر، مستوحاة من الهرم العطري لـ ${inspiredBy}. هذا العطر منتج مستقل تماماً ولا يمثل العلامة التجارية الأصلية أو يدعي أي تبعية لها.`
+      : undefined;
+
+    const seoTitle = data.seoTitle?.trim() || `${data.nameAr || data.nameEn} | دار رَحِيقْ للعطور الملكية`;
+    const seoDescription = data.seoDescription?.trim() || (
+      data.descriptionAr ||
+      `عطر ${data.nameAr || data.nameEn} الفاخر من دار رَحِيقْ بتركيز نيش إكستري دو بارفان. تسوق مع ضمان المعاينة قبل الدفع عند الاستلام بجميع محافظات مصر.`
+    );
+    const seoKeywords = typeof data.seoKeywords === 'string'
+      ? data.seoKeywords.trim()
+      : (data.seoKeywords || `عطر ${data.nameAr || data.nameEn}, عطور رحيق, ${inspiredBy ? `بديل ${inspiredBy}` : ''}`);
 
     const newProduct: Product = {
       id,
@@ -258,11 +391,13 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       nameEn: data.nameEn,
       nameAr: data.nameAr || data.nameEn,
       brand: data.brand || 'رحيق (Raheeq)',
+      inspiredBy,
+      inspirationNoteAr,
       gender: data.gender || 'UNISEX',
       headlineEn: 'Exclusive bespoke formulation crafted by Raheeq.',
       descriptionEn: data.descriptionEn || `An opulent masterpiece by Raheeq Haute Parfumerie, blending ${data.topNotes.join(', ')} with a rich heart of ${data.heartNotes.join(', ')}.`,
       descriptionAr: data.descriptionAr || `تحفة عطرية استثنائية من دار رحيق للعطور الفاخرة، تمزج أرقى الخلاصات العطرية لثبات وفوحان يدوم طويلاً.`,
-      concentration: data.concentration,
+      concentration: concentrationName,
       fragranceFamily: data.fragranceFamily,
       topNotes: data.topNotes.length > 0 ? data.topNotes : ['Bergamot', 'Saffron'],
       heartNotes: data.heartNotes.length > 0 ? data.heartNotes : ['Damask Rose', 'Oud'],
@@ -274,6 +409,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       isNewArrival: true,
       isBestseller: false,
       isPublished: true,
+      seoTitle,
+      seoDescription,
+      seoKeywords,
       images: [
         {
           id: `${id}-img-1`,
@@ -284,7 +422,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         },
       ],
       imageUrl: data.imageUrl,
-      variants: [newVariant],
+      variants,
       createdAt: new Date().toISOString(),
     };
 

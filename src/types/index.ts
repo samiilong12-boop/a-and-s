@@ -28,6 +28,7 @@ export interface ProductImage {
   id: string;
   url: string;
   altTextEn: string;
+  altTextAr?: string;
   isPrimary: boolean;
   sortOrder: number;
 }
@@ -57,13 +58,14 @@ export interface Product {
   isNewArrival?: boolean;
   isBestseller?: boolean;
   isPublished?: boolean;
+  isArchived?: boolean;
   rating?: number;
   reviewCount?: number;
   images?: ProductImage[];
   imageUrl?: string;
   seoTitle?: string;
   seoDescription?: string;
-  seoKeywords?: string[];
+  seoKeywords?: string[] | string;
   ogImageUrl?: string;
   variants: ProductVariant[];
   createdAt: string;

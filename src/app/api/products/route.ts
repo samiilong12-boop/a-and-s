@@ -187,9 +187,27 @@ export async function GET(req: NextRequest) {
       // Prisma offline, continue with JSON persistence
     }
 
+    const isAdmin = await verifyAdminSession(req);
+
+    // Sanitize for public: exclude unpublished drafts and confidential COGS
+    let returnList = products;
+    if (!isAdmin) {
+      returnList = returnList
+        .filter((p) => p.isPublished !== false && !p.isArchived)
+        .map((p) => ({
+          ...p,
+          variants: (p.variants || []).map((v) => {
+            const safeVariant = { ...v };
+            delete safeVariant.costPriceEgp;
+            delete safeVariant.costPriceInPiasters;
+            return safeVariant;
+          }),
+        }));
+    }
+
     // Single item query
     if (slug || id) {
-      const found = products.find(
+      const found = returnList.find(
         (p) =>
           (slug && p.slug?.toLowerCase() === slug.toLowerCase()) ||
           (id && p.id === id)
@@ -200,9 +218,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
     }
 
-    return NextResponse.json(products, {
+    return NextResponse.json(returnList, {
       headers: {
-        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=59',
+        'Cache-Control': isAdmin ? 'no-store' : 'public, s-maxage=10, stale-while-revalidate=59',
       },
     });
   } catch (err: any) {

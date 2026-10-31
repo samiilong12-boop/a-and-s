@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'كتالوج عطور دار رَحِيقْ الملكية الفاخرة',
     description:
-      'تصفح عطور دار رحيق الشرقية والخشبية والزهرية والحمضية بتركيز 30% Extrait وثبات عالي مع المعاينة عند الاستلام.',
+      'تصفح عطور دار رحيق الشرقية والخشبية والزهرية والحمضية بتركيز إكستري دو بارفان نيش فاخر وثبات عالي مع المعاينة عند الاستلام.',
     url: `${SITE_URL}/catalog`,
     siteName: 'دار رَحِيقْ للعطور الملكية',
     images: [{ url: '/images/raheeq-official-logo.png', width: 1200, height: 630 }],
@@ -25,13 +25,13 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'كتالوج عطور دار رَحِيقْ الملكية الفاخرة',
-    description: 'تصفح تشكيلة العطور الكاملة بتركيز 30% Extrait de Parfum مع المعاينة عند الباب.',
+    description: 'تصفح تشكيلة العطور الكاملة بتركيز Extrait de Parfum الفاخر مع المعاينة عند الباب.',
     images: ['/images/raheeq-official-logo.png'],
   },
 };
 
 export default function CatalogPage() {
-  const initialProducts = loadCatalogProducts();
+  const initialProducts = loadCatalogProducts().filter((p) => p.isPublished !== false && !p.isArchived);
 
   const collectionJsonLd = {
     '@context': 'https://schema.org',

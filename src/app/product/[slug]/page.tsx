@@ -22,7 +22,7 @@ export async function generateMetadata(
   const { slug } = await params;
   const product = getProductBySlug(slug);
 
-  if (!product) {
+  if (!product || product.isPublished === false) {
     return {
       title: 'عطر غير متوفر | دار رَحِيقْ للعطور',
       description: 'هذا العطر غير متوفر حالياً في كتالوج دار رحيق للعطور الملكية.',
@@ -30,11 +30,12 @@ export async function generateMetadata(
     };
   }
 
-  const title = `${product.nameAr || product.nameEn} | دار رَحِيقْ للعطور الملكية`;
+  const title = product.seoTitle || `${product.nameAr || product.nameEn} | دار رَحِيقْ للعطور الملكية`;
   const description =
+    product.seoDescription ||
     product.descriptionAr ||
     product.descriptionEn ||
-    `عطر فاخر ومستقل من دار رحيق (RAHEEQ) بتركيز 30% Extrait de Parfum. شحن سريع وضمان فحص ومعاينة الطرد عند الاستلام في مصر.`;
+    `عطر فاخر ومستقل من دار رحيق (RAHEEQ) بتركيز نيش فاخر (Extrait de Parfum). شحن سريع وضمان فحص ومعاينة الطرد عند الاستلام في مصر.`;
 
   const canonicalUrl = `${SITE_URL}/product/${product.slug || product.id}`;
   const imageUrl = product.images?.[0]?.url || product.imageUrl || `${SITE_URL}/images/raheeq-official-logo.png`;
@@ -74,7 +75,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const product = getProductBySlug(slug);
 
-  if (!product) {
+  if (!product || product.isPublished === false) {
     notFound();
   }
 

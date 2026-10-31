@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Search,
   Plus,
@@ -18,6 +19,7 @@ import {
   Download,
   RefreshCw,
   HardDrive,
+  Globe,
 } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 import { Product } from '@/types';
@@ -26,6 +28,7 @@ import { formatPrice } from '@/lib/currency';
 import { compressImageFile } from '@/lib/imageCompression';
 
 export default function AdminProductsPage() {
+  const router = useRouter();
   const {
     products,
     addProduct,
@@ -151,13 +154,17 @@ export default function AdminProductsPage() {
     nameEn: '',
     nameAr: '',
     brand: 'رحيق (Raheeq)',
+    inspiredBy: '',
     gender: 'UNISEX' as 'MEN' | 'WOMEN' | 'UNISEX',
     fragranceFamily: FRAGRANCE_FAMILIES[0] as string,
-    concentration: 'EAU_DE_PARFUM' as string,
-    regularPriceEgp: 2500,
-    salePriceEgp: '',
+    concentration: 'EXTRAIT_DE_PARFUM' as string,
+    regularPrice50Egp: 1850,
+    salePrice50Egp: '',
+    stock50: 30,
+    regularPrice100Egp: 2750,
+    salePrice100Egp: '',
+    stock100: 25,
     costPriceEgp: 850,
-    stockQuantity: 25,
     volumeMl: 100,
     topNotes: 'Bergamot, Saffron, Pink Pepper',
     heartNotes: 'Damask Rose, Oud Wood, Cinnamon',
@@ -165,6 +172,9 @@ export default function AdminProductsPage() {
     imageUrl: '',
     descriptionEn: '',
     descriptionAr: '',
+    seoTitle: '',
+    seoDescription: '',
+    seoKeywords: '',
   });
 
   // Form State for Editing Existing Fragrance
@@ -173,13 +183,17 @@ export default function AdminProductsPage() {
     nameEn: '',
     nameAr: '',
     brand: 'رحيق (Raheeq)',
+    inspiredBy: '',
     gender: 'UNISEX' as 'MEN' | 'WOMEN' | 'UNISEX',
     fragranceFamily: FRAGRANCE_FAMILIES[0] as string,
-    concentration: 'EAU_DE_PARFUM' as string,
-    regularPriceEgp: 2500,
-    salePriceEgp: '',
+    concentration: 'EXTRAIT_DE_PARFUM' as string,
+    regularPrice50Egp: 1850,
+    salePrice50Egp: '',
+    stock50: 30,
+    regularPrice100Egp: 2750,
+    salePrice100Egp: '',
+    stock100: 25,
     costPriceEgp: 850,
-    stockQuantity: 25,
     volumeMl: 100,
     topNotes: '',
     heartNotes: '',
@@ -187,7 +201,35 @@ export default function AdminProductsPage() {
     imageUrl: '',
     descriptionEn: '',
     descriptionAr: '',
+    seoTitle: '',
+    seoDescription: '',
+    seoKeywords: '',
   });
+
+  const autoGenerateSeo = (mode: 'add' | 'edit') => {
+    const data = mode === 'add' ? formData : editFormData;
+    const name = data.nameAr || data.nameEn || 'عطر فاخر';
+    const inspirationText = data.inspiredBy ? `مستوحى من طابع ${data.inspiredBy}` : 'توليفة نيش ملكية مستقلة';
+    const title = `عطر ${name} | ${inspirationText} | دار رَحِيقْ`;
+    const desc = `اكتشف عطر ${name} الفاخر من دار رَحِيقْ بتركيز إكستري دو بارفان نيش يدوم طويلاً. تسوق حجم 50 مل و100 مل مع ضمان الفحص والمعاينة قبل الدفع عند الباب في مصر.`;
+    const keywords = `عطر ${name}, ${data.nameEn}, عطور رحيق, ${data.inspiredBy ? `بديل ${data.inspiredBy}, ` : ''}عطور نيش مصر, شراء عطور أونلاين`;
+
+    if (mode === 'add') {
+      setFormData((prev) => ({
+        ...prev,
+        seoTitle: title,
+        seoDescription: desc,
+        seoKeywords: keywords,
+      }));
+    } else {
+      setEditFormData((prev) => ({
+        ...prev,
+        seoTitle: title,
+        seoDescription: desc,
+        seoKeywords: keywords,
+      }));
+    }
+  };
 
   const safeProducts = Array.isArray(products) ? products.filter(Boolean) : [];
 
@@ -205,6 +247,43 @@ export default function AdminProductsPage() {
     return true;
   });
 
+  const handleQuickAdd = async (openStudio: boolean) => {
+    if (!formData.nameEn.trim()) {
+      alert('يرجى إدخال اسم العطر بالإنجليزية');
+      return;
+    }
+    const finalImage = formData.imageUrl.trim() || getDemoBottleSvg(formData.nameEn, '#66D9C5');
+
+    const created = await addProduct({
+      nameEn: formData.nameEn.trim(),
+      nameAr: formData.nameAr.trim() || formData.nameEn.trim(),
+      brand: formData.brand.trim() || 'RAHEEQ',
+      gender: formData.gender,
+      fragranceFamily: formData.fragranceFamily,
+      concentration: 'EXTRAIT_DE_PARFUM',
+      regularPrice50Egp: Number(formData.regularPrice50Egp) || 1850,
+      stock50: Number(formData.stock50) || 30,
+      regularPrice100Egp: Number(formData.regularPrice100Egp) || 2750,
+      stock100: Number(formData.stock100) || 25,
+      costPriceEgp: Number(formData.costPriceEgp) || 850,
+      topNotes: ['Bergamot', 'Saffron'],
+      heartNotes: ['Damask Rose', 'Oud'],
+      baseNotes: ['Ambergris', 'Sandalwood'],
+      imageUrl: finalImage,
+    });
+
+    // Created as draft by default
+    await editProduct(created.id, { isPublished: false });
+
+    setIsAddModalOpen(false);
+    setToastMessage(`تم إنشاء مسودة العطر بنجاح: ${created.nameEn} ✓`);
+    setTimeout(() => setToastMessage(''), 3500);
+
+    if (openStudio) {
+      router.push(`/admin/products/${created.id}/edit`);
+    }
+  };
+
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -219,20 +298,26 @@ export default function AdminProductsPage() {
       nameEn: formData.nameEn.trim(),
       nameAr: formData.nameAr.trim() || formData.nameEn.trim(),
       brand: formData.brand.trim() || 'رحيق (Raheeq)',
+      inspiredBy: formData.inspiredBy.trim() || undefined,
       gender: formData.gender,
       fragranceFamily: formData.fragranceFamily,
       concentration: formData.concentration as any,
       descriptionEn: formData.descriptionEn.trim(),
       descriptionAr: formData.descriptionAr.trim(),
-      regularPriceEgp: Number(formData.regularPriceEgp),
-      salePriceEgp: formData.salePriceEgp ? Number(formData.salePriceEgp) : undefined,
-      costPriceEgp: Number(formData.costPriceEgp),
-      stockQuantity: Number(formData.stockQuantity),
-      volumeMl: Number(formData.volumeMl),
+      regularPrice50Egp: Number(formData.regularPrice50Egp) || 1850,
+      salePrice50Egp: formData.salePrice50Egp ? Number(formData.salePrice50Egp) : undefined,
+      stock50: Number(formData.stock50) || 30,
+      regularPrice100Egp: Number(formData.regularPrice100Egp) || 2750,
+      salePrice100Egp: formData.salePrice100Egp ? Number(formData.salePrice100Egp) : undefined,
+      stock100: Number(formData.stock100) || 25,
+      costPriceEgp: Number(formData.costPriceEgp) || 850,
       topNotes: formData.topNotes.split(',').map((s) => s.trim()).filter(Boolean),
       heartNotes: formData.heartNotes.split(',').map((s) => s.trim()).filter(Boolean),
       baseNotes: formData.baseNotes.split(',').map((s) => s.trim()).filter(Boolean),
       imageUrl: finalImage,
+      seoTitle: formData.seoTitle.trim() || undefined,
+      seoDescription: formData.seoDescription.trim() || undefined,
+      seoKeywords: formData.seoKeywords.trim() || undefined,
     });
 
     setIsAddModalOpen(false);
@@ -244,13 +329,17 @@ export default function AdminProductsPage() {
       nameEn: '',
       nameAr: '',
       brand: 'رحيق (Raheeq)',
+      inspiredBy: '',
       gender: 'UNISEX',
       fragranceFamily: FRAGRANCE_FAMILIES[0],
-      concentration: 'EAU_DE_PARFUM',
-      regularPriceEgp: 2500,
-      salePriceEgp: '',
+      concentration: 'EXTRAIT_DE_PARFUM',
+      regularPrice50Egp: 1850,
+      salePrice50Egp: '',
+      stock50: 30,
+      regularPrice100Egp: 2750,
+      salePrice100Egp: '',
+      stock100: 25,
       costPriceEgp: 850,
-      stockQuantity: 25,
       volumeMl: 100,
       topNotes: 'Bergamot, Saffron, Pink Pepper',
       heartNotes: 'Damask Rose, Oud Wood, Cinnamon',
@@ -258,41 +347,54 @@ export default function AdminProductsPage() {
       imageUrl: '',
       descriptionEn: '',
       descriptionAr: '',
+      seoTitle: '',
+      seoDescription: '',
+      seoKeywords: '',
     });
   };
 
   const handleOpenEditModal = (product: Product) => {
-    const defaultVariant = product.variants[0];
-    const regularPrice =
-      defaultVariant?.regularPriceEgp ??
-      (defaultVariant?.regularPriceInPiasters ? Math.round(defaultVariant.regularPriceInPiasters / 100) : 2500);
-    const salePrice =
-      defaultVariant?.salePriceEgp ??
-      (defaultVariant?.salePriceInPiasters ? String(Math.round(defaultVariant.salePriceInPiasters / 100)) : '');
+    const v50 = product.variants?.find((v) => v.volumeMl === 50) || product.variants?.[0];
+    const v100 = product.variants?.find((v) => v.volumeMl === 100) || product.variants?.[1] || product.variants?.[0];
+
+    const p50 = v50?.regularPriceEgp ?? (v50?.regularPriceInPiasters ? Math.round(v50.regularPriceInPiasters / 100) : 1850);
+    const sale50 = v50?.salePriceEgp ? String(v50.salePriceEgp) : (v50?.salePriceInPiasters ? String(Math.round(v50.salePriceInPiasters / 100)) : '');
+    const stock50 = v50?.stockQuantity || 30;
+
+    const p100 = v100?.regularPriceEgp ?? (v100?.regularPriceInPiasters ? Math.round(v100.regularPriceInPiasters / 100) : 2750);
+    const sale100 = v100?.salePriceEgp ? String(v100.salePriceEgp) : (v100?.salePriceInPiasters ? String(Math.round(v100.salePriceInPiasters / 100)) : '');
+    const stock100 = v100?.stockQuantity || 25;
+
     const costPrice =
-      defaultVariant?.costPriceEgp ??
-      (defaultVariant?.costPriceInPiasters ? Math.round(defaultVariant.costPriceInPiasters / 100) : 850);
-    const totalStock = product.variants.reduce((sum, v) => sum + v.stockQuantity, 0);
+      v100?.costPriceEgp ??
+      (v100?.costPriceInPiasters ? Math.round(v100.costPriceInPiasters / 100) : 850);
 
     setEditingId(product.id);
     setEditFormData({
       nameEn: product.nameEn,
       nameAr: product.nameAr || product.nameEn,
       brand: product.brand || 'رحيق (Raheeq)',
+      inspiredBy: product.inspiredBy || '',
       gender: product.gender || 'UNISEX',
       fragranceFamily: product.fragranceFamily || FRAGRANCE_FAMILIES[0],
-      concentration: product.concentration || 'EAU_DE_PARFUM',
-      regularPriceEgp: regularPrice,
-      salePriceEgp: salePrice ? String(salePrice) : '',
+      concentration: product.concentration || 'EXTRAIT_DE_PARFUM',
+      regularPrice50Egp: p50,
+      salePrice50Egp: sale50,
+      stock50: stock50,
+      regularPrice100Egp: p100,
+      salePrice100Egp: sale100,
+      stock100: stock100,
       costPriceEgp: costPrice,
-      stockQuantity: totalStock,
-      volumeMl: defaultVariant?.volumeMl || 100,
+      volumeMl: v100?.volumeMl || 100,
       topNotes: product.topNotes ? product.topNotes.join(', ') : '',
       heartNotes: product.heartNotes ? product.heartNotes.join(', ') : '',
       baseNotes: product.baseNotes ? product.baseNotes.join(', ') : '',
       imageUrl: product.images?.[0]?.url || product.imageUrl || '',
       descriptionEn: product.descriptionEn || '',
       descriptionAr: product.descriptionAr || '',
+      seoTitle: product.seoTitle || '',
+      seoDescription: product.seoDescription || '',
+      seoKeywords: Array.isArray(product.seoKeywords) ? product.seoKeywords.join(', ') : (product.seoKeywords || ''),
     });
     setIsEditModalOpen(true);
   };
@@ -310,19 +412,26 @@ export default function AdminProductsPage() {
       nameEn: editFormData.nameEn.trim(),
       nameAr: editFormData.nameAr.trim() || editFormData.nameEn.trim(),
       brand: editFormData.brand.trim() || 'رحيق (Raheeq)',
+      inspiredBy: editFormData.inspiredBy.trim() || undefined,
       gender: editFormData.gender,
       fragranceFamily: editFormData.fragranceFamily,
       concentration: editFormData.concentration as any,
-      regularPriceEgp: Number(editFormData.regularPriceEgp),
-      salePriceEgp: editFormData.salePriceEgp ? Number(editFormData.salePriceEgp) : undefined,
+      regularPrice50Egp: Number(editFormData.regularPrice50Egp),
+      salePrice50Egp: editFormData.salePrice50Egp ? Number(editFormData.salePrice50Egp) : undefined,
+      stock50: Number(editFormData.stock50),
+      regularPrice100Egp: Number(editFormData.regularPrice100Egp),
+      salePrice100Egp: editFormData.salePrice100Egp ? Number(editFormData.salePrice100Egp) : undefined,
+      stock100: Number(editFormData.stock100),
       costPriceEgp: Number(editFormData.costPriceEgp),
-      stockQuantity: Number(editFormData.stockQuantity),
       imageUrl: editFormData.imageUrl.trim() || undefined,
       topNotes: editFormData.topNotes.split(',').map((s) => s.trim()).filter(Boolean),
       heartNotes: editFormData.heartNotes.split(',').map((s) => s.trim()).filter(Boolean),
       baseNotes: editFormData.baseNotes.split(',').map((s) => s.trim()).filter(Boolean),
       descriptionEn: editFormData.descriptionEn.trim(),
       descriptionAr: editFormData.descriptionAr.trim(),
+      seoTitle: editFormData.seoTitle.trim() || undefined,
+      seoDescription: editFormData.seoDescription.trim() || undefined,
+      seoKeywords: editFormData.seoKeywords.trim() || undefined,
     });
 
     setIsEditModalOpen(false);
@@ -421,11 +530,21 @@ export default function AdminProductsPage() {
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-4 py-2 rounded-lg text-xs tracking-wider uppercase flex items-center gap-2 shadow-md transition-all cursor-pointer"
+            className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-3.5 py-2 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            title="إضافة عطر بشكل سريع كمسودة أولية"
           >
-            <Plus className="w-4 h-4" />
-            <span>إضافة عطر جديد (Add Fragrance)</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>إضافة سريعة (Quick Add)</span>
           </button>
+
+          <Link
+            href="/admin/products/new"
+            className="bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white font-bold px-4 py-2 rounded-lg text-xs tracking-wider flex items-center gap-2 shadow-md transition-all cursor-pointer"
+            title="فتح استوديو تفصيل العطور المتقدم مع المعاينة الحية وإدارة الـ SEO والأحجام"
+          >
+            <Sparkles className="w-4 h-4 text-teal-300" />
+            <span>استوديو العطور المتقدم (Product Studio)</span>
+          </Link>
         </div>
       </div>
 
@@ -551,15 +670,15 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        {/* 1. Edit Button (تعديل العطر) */}
-                        <button
-                          onClick={() => handleOpenEditModal(product)}
-                          className="p-1.5 text-teal-700 hover:text-white bg-teal-50 hover:bg-teal-700 rounded-md transition-colors flex items-center gap-1 font-bold text-[11px]"
-                          title="تعديل بيانات وسعر وصورة العطر"
+                        {/* 1. Edit in Studio Button (تعديل العطر بالاستوديو المتقدم) */}
+                        <Link
+                          href={`/admin/products/${encodeURIComponent(product.id)}/edit`}
+                          className="p-1.5 text-teal-800 hover:text-white bg-teal-50 hover:bg-teal-700 rounded-md transition-colors flex items-center gap-1 font-bold text-[11px]"
+                          title="فتح استوديو التعديل المتقدم مع المعاينة الحية"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
-                          <span>تعديل</span>
-                        </button>
+                          <span>الاستوديو المتقدم</span>
+                        </Link>
 
                         {/* 2. View on Storefront */}
                         <Link
@@ -669,6 +788,26 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
+              {/* Inspired By Field */}
+              <div className="space-y-1 p-3.5 bg-amber-50/70 rounded-xl border border-amber-200">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-amber-900 block text-xs">
+                    العطر العالمي المستوحى منه (Inspired By — اختياري للشفافية القانونية)
+                  </label>
+                  <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-mono">طابع الإلهام</span>
+                </div>
+                <input
+                  type="text"
+                  value={editFormData.inspiredBy}
+                  onChange={(e) => setEditFormData({ ...editFormData, inspiredBy: e.target.value })}
+                  placeholder="مثال: Emporio Armani Stronger With You Intensely أو Creed Aventus"
+                  className="w-full bg-white border border-amber-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-600 font-medium"
+                />
+                <p className="text-[10px] text-amber-800">
+                  سيتم إظهار إخلاء مسؤولية فوري في صفحة العطر يوضح أن العطر إنتاج مستقل لدار رَحِيقْ مستوحى من هذا الطابع الشمّي دون أي انتهاك للعلامات الأصلية.
+                </p>
+              </div>
+
               {/* Brand & Gender */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -677,7 +816,7 @@ export default function AdminProductsPage() {
                     type="text"
                     value={editFormData.brand}
                     onChange={(e) => setEditFormData({ ...editFormData, brand: e.target.value })}
-                    placeholder="مثال: رحيق، Dior، Chanel، Creed"
+                    placeholder="مثال: رحيق (Raheeq)"
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
                   />
                 </div>
@@ -728,57 +867,168 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Pricing, Cost & Stock */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 block">سعر البيع (EGP) *</label>
-                  <input
-                    type="number"
-                    required
-                    min={50}
-                    value={editFormData.regularPriceEgp}
-                    onChange={(e) => setEditFormData({ ...editFormData, regularPriceEgp: Number(e.target.value) })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
-                  />
-                  <span className="text-[10px] text-slate-500">السعر الأساسي</span>
+              {/* Dual Volume Pricing & Stock (50ml and 100ml) */}
+              <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-serif font-bold text-slate-900 text-xs">
+                    تسعير ومخزون الأحجام (50 مل و 100 مل) المعروضة للجمهور:
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const p100 = Number(editFormData.regularPrice100Egp) || 2750;
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        regularPrice50Egp: Math.round(p100 * 0.65),
+                      }));
+                    }}
+                    className="text-[10px] text-teal-700 hover:text-teal-900 font-bold underline cursor-pointer"
+                  >
+                    حساب سعر 50 مل تلقائياً (65%)
+                  </button>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-rose-700 block">سعر الخصم (Sale EGP)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={editFormData.salePriceEgp}
-                    onChange={(e) => setEditFormData({ ...editFormData, salePriceEgp: e.target.value })}
-                    placeholder="اختياري"
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-rose-700 font-bold focus:outline-none focus:border-teal-600"
-                  />
-                  <span className="text-[10px] text-slate-500">اتركه فارغ إذا لا يوجد</span>
+                {/* 50ml Box */}
+                <div className="p-3 bg-white rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 block text-[11px]">سعر بيع حجم 50 مل (EGP) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={50}
+                      value={editFormData.regularPrice50Egp}
+                      onChange={(e) => setEditFormData({ ...editFormData, regularPrice50Egp: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-rose-700 block text-[11px]">سعر الخصم 50 مل (اختياري)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={editFormData.salePrice50Egp}
+                      onChange={(e) => setEditFormData({ ...editFormData, salePrice50Egp: e.target.value })}
+                      placeholder="اختياري"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-rose-700 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block text-[11px]">مخزون 50 مل (Bottles) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={editFormData.stock50}
+                      onChange={(e) => setEditFormData({ ...editFormData, stock50: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-amber-900 block">التكلفة COGS (سري)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={editFormData.costPriceEgp}
-                    onChange={(e) => setEditFormData({ ...editFormData, costPriceEgp: Number(e.target.value) })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
-                  />
-                  <span className="text-[10px] text-amber-800">حساب صافي الأرباح</span>
+                {/* 100ml Box */}
+                <div className="p-3 bg-white rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 block text-[11px]">سعر بيع حجم 100 مل (EGP) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={50}
+                      value={editFormData.regularPrice100Egp}
+                      onChange={(e) => setEditFormData({ ...editFormData, regularPrice100Egp: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-rose-700 block text-[11px]">سعر الخصم 100 مل (اختياري)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={editFormData.salePrice100Egp}
+                      onChange={(e) => setEditFormData({ ...editFormData, salePrice100Egp: e.target.value })}
+                      placeholder="اختياري"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-rose-700 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-amber-900 block text-[11px]">التكلفة COGS (سري)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={editFormData.costPriceEgp}
+                      onChange={(e) => setEditFormData({ ...editFormData, costPriceEgp: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block text-[11px]">مخزون 100 مل (Bottles) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={editFormData.stock100}
+                      onChange={(e) => setEditFormData({ ...editFormData, stock100: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SEO & Search Engines Section */}
+              <div className="space-y-3 p-4 bg-teal-50/60 rounded-xl border border-teal-200">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-1.5">
+                    <Globe className="w-4 h-4 text-teal-800" />
+                    <h4 className="font-serif font-bold text-teal-950 text-xs">
+                      إعدادات محركات البحث وجوجل (SEO & Google Search):
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => autoGenerateSeo('edit')}
+                    className="inline-flex items-center gap-1 text-[11px] bg-teal-600 hover:bg-teal-700 text-white font-bold px-2.5 py-1 rounded-md shadow-xs cursor-pointer transition-colors"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>توليد تلقائي احترافي للـ SEO ⚡</span>
+                  </button>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 block">المخزون (Bottles) *</label>
-                  <input
-                    type="number"
-                    required
-                    min={0}
-                    value={editFormData.stockQuantity}
-                    onChange={(e) => setEditFormData({ ...editFormData, stockQuantity: Number(e.target.value) })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
-                  />
-                  <span className="text-[10px] text-slate-500">الكمية المتوفرة</span>
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      عنوان العطر في نتائج بحث جوجل (SEO Title)
+                    </label>
+                    <input
+                      type="text"
+                      value={editFormData.seoTitle}
+                      onChange={(e) => setEditFormData({ ...editFormData, seoTitle: e.target.value })}
+                      placeholder="مثال: عطر رحيق سترونجر ويذ يو | مستوحى من طابع أرماني | دار رَحِيقْ"
+                      className="w-full bg-white border border-teal-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      وصف الميتا في جوجل (Meta Description)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={editFormData.seoDescription}
+                      onChange={(e) => setEditFormData({ ...editFormData, seoDescription: e.target.value })}
+                      placeholder="الوصف التسويقي الجذاب الذي يظهر أسفل الرابط في جوجل..."
+                      className="w-full bg-white border border-teal-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      الكلمات المفتاحية المستهدفة (SEO Keywords)
+                    </label>
+                    <input
+                      type="text"
+                      value={editFormData.seoKeywords}
+                      onChange={(e) => setEditFormData({ ...editFormData, seoKeywords: e.target.value })}
+                      placeholder="مثال: عطر رجالي فخم, بديل سترونجر ويذ يو, عطور رحيق نيش"
+                      className="w-full bg-white border border-teal-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -919,11 +1169,14 @@ export default function AdminProductsPage() {
             <div className="flex justify-between items-center pb-4 border-b border-slate-200">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-wider text-teal-800">
-                  New Fragrance Creator
+                  Quick Add Fragrance Draft
                 </span>
                 <h2 className="font-serif text-xl sm:text-2xl font-bold text-slate-900">
-                  إضافة عطر جديد إلى دار رحيق (RAHEEQ)
+                  الإضافة السريعة لعطر جديد (Quick Add)
                 </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  أدخل البيانات الأساسية وسينشئ النظام مسودة حقيقية فورية يمكنك استكمال كافة تفاصيلها وهرمها العطري لاحقاً أو فتح الاستوديو المتقدم مباشرة.
+                </p>
               </div>
               <button
                 onClick={() => setIsAddModalOpen(false)}
@@ -959,6 +1212,26 @@ export default function AdminProductsPage() {
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600 font-semibold"
                   />
                 </div>
+              </div>
+
+              {/* Inspired By Field */}
+              <div className="space-y-1 p-3.5 bg-amber-50/70 rounded-xl border border-amber-200">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-amber-900 block text-xs">
+                    العطر العالمي المستوحى منه (Inspired By — اختياري للشفافية القانونية)
+                  </label>
+                  <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-mono">طابع الإلهام</span>
+                </div>
+                <input
+                  type="text"
+                  value={formData.inspiredBy}
+                  onChange={(e) => setFormData({ ...formData, inspiredBy: e.target.value })}
+                  placeholder="مثال: Emporio Armani Stronger With You Intensely أو Dior Sauvage"
+                  className="w-full bg-white border border-amber-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-600 font-medium"
+                />
+                <p className="text-[10px] text-amber-800">
+                  سيتم إظهار إخلاء مسؤولية فوري في صفحة العطر يوضح أن العطر إنتاج مستقل لدار رَحِيقْ مستوحى من هذا الطابع الشمّي دون أي انتهاك للعلامات الأصلية.
+                </p>
               </div>
 
               {/* Brand & Gender */}
@@ -1020,57 +1293,168 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Pricing, Cost & Stock */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 block">سعر البيع (EGP) *</label>
-                  <input
-                    type="number"
-                    required
-                    min={50}
-                    value={formData.regularPriceEgp}
-                    onChange={(e) => setFormData({ ...formData, regularPriceEgp: Number(e.target.value) })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
-                  />
-                  <span className="text-[10px] text-slate-500">جنيه مصري</span>
+              {/* Dual Volume Pricing & Stock (50ml and 100ml) */}
+              <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-serif font-bold text-slate-900 text-xs">
+                    تسعير ومخزون الأحجام (50 مل و 100 مل) المعروضة للجمهور:
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const p100 = Number(formData.regularPrice100Egp) || 2750;
+                      setFormData((prev) => ({
+                        ...prev,
+                        regularPrice50Egp: Math.round(p100 * 0.65),
+                      }));
+                    }}
+                    className="text-[10px] text-teal-700 hover:text-teal-900 font-bold underline cursor-pointer"
+                  >
+                    حساب سعر 50 مل تلقائياً (65%)
+                  </button>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-rose-700 block">سعر الخصم (اختياري)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={formData.salePriceEgp}
-                    onChange={(e) => setFormData({ ...formData, salePriceEgp: e.target.value })}
-                    placeholder="اختياري"
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-rose-700 font-bold focus:outline-none focus:border-teal-600"
-                  />
-                  <span className="text-[10px] text-slate-500">EGP Sale</span>
+                {/* 50ml Box */}
+                <div className="p-3 bg-white rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 block text-[11px]">سعر بيع حجم 50 مل (EGP) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={50}
+                      value={formData.regularPrice50Egp}
+                      onChange={(e) => setFormData({ ...formData, regularPrice50Egp: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-rose-700 block text-[11px]">سعر الخصم 50 مل (اختياري)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formData.salePrice50Egp}
+                      onChange={(e) => setFormData({ ...formData, salePrice50Egp: e.target.value })}
+                      placeholder="اختياري"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-rose-700 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block text-[11px]">مخزون 50 مل (Bottles) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={formData.stock50}
+                      onChange={(e) => setFormData({ ...formData, stock50: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-amber-900 block">التكلفة COGS (سري)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={formData.costPriceEgp}
-                    onChange={(e) => setFormData({ ...formData, costPriceEgp: Number(e.target.value) })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
-                  />
-                  <span className="text-[10px] text-amber-800">حساب الأرباح</span>
+                {/* 100ml Box */}
+                <div className="p-3 bg-white rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 block text-[11px]">سعر بيع حجم 100 مل (EGP) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={50}
+                      value={formData.regularPrice100Egp}
+                      onChange={(e) => setFormData({ ...formData, regularPrice100Egp: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-rose-700 block text-[11px]">سعر الخصم 100 مل (اختياري)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formData.salePrice100Egp}
+                      onChange={(e) => setFormData({ ...formData, salePrice100Egp: e.target.value })}
+                      placeholder="اختياري"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-rose-700 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-amber-900 block text-[11px]">التكلفة COGS (سري)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formData.costPriceEgp}
+                      onChange={(e) => setFormData({ ...formData, costPriceEgp: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block text-[11px]">مخزون 100 مل (Bottles) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      value={formData.stock100}
+                      onChange={(e) => setFormData({ ...formData, stock100: Number(e.target.value) })}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SEO & Search Engines Section */}
+              <div className="space-y-3 p-4 bg-teal-50/60 rounded-xl border border-teal-200">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-1.5">
+                    <Globe className="w-4 h-4 text-teal-800" />
+                    <h4 className="font-serif font-bold text-teal-950 text-xs">
+                      إعدادات محركات البحث وجوجل (SEO & Google Search):
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => autoGenerateSeo('add')}
+                    className="inline-flex items-center gap-1 text-[11px] bg-teal-600 hover:bg-teal-700 text-white font-bold px-2.5 py-1 rounded-md shadow-xs cursor-pointer transition-colors"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>توليد تلقائي احترافي للـ SEO ⚡</span>
+                  </button>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 block">المخزون (Bottles) *</label>
-                  <input
-                    type="number"
-                    required
-                    min={1}
-                    value={formData.stockQuantity}
-                    onChange={(e) => setFormData({ ...formData, stockQuantity: Number(e.target.value) })}
-                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-teal-600"
-                  />
-                  <span className="text-[10px] text-slate-500">حجم 100 مل</span>
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      عنوان العطر في نتائج بحث جوجل (SEO Title)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.seoTitle}
+                      onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
+                      placeholder="مثال: عطر رحيق سترونجر ويذ يو | مستوحى من طابع أرماني | دار رَحِيقْ"
+                      className="w-full bg-white border border-teal-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      وصف الميتا في جوجل (Meta Description)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={formData.seoDescription}
+                      onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
+                      placeholder="الوصف التسويقي الجذاب الذي يظهر أسفل الرابط في جوجل..."
+                      className="w-full bg-white border border-teal-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      الكلمات المفتاحية المستهدفة (SEO Keywords)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.seoKeywords}
+                      onChange={(e) => setFormData({ ...formData, seoKeywords: e.target.value })}
+                      placeholder="مثال: عطر رجالي فخم, بديل سترونجر ويذ يو, عطور رحيق نيش"
+                      className="w-full bg-white border border-teal-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1185,20 +1569,28 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Submit Buttons */}
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
+              <div className="flex flex-col sm:flex-row justify-end gap-2.5 pt-4 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs"
                 >
                   إلغاء
                 </button>
                 <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg flex items-center gap-2"
+                  type="button"
+                  onClick={() => handleQuickAdd(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-bold text-xs"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>حفظ ونشر العطر بالمتجر فوراً</span>
+                  حفظ كمسودة فقط
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickAdd(true)}
+                  className="px-5 py-2 bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-teal-300" />
+                  <span>حفظ كمسودة والفتح في الاستوديو المتقدم ⚡</span>
                 </button>
               </div>
             </form>

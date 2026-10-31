@@ -174,7 +174,7 @@ export function getProductsByCategory(categorySlug: string): { category: Categor
   const meta = CATEGORY_REGISTRY.find((c) => c.slug.toLowerCase() === categorySlug.toLowerCase());
   if (!meta) return null;
 
-  const all = loadCatalogProducts();
+  const all = loadCatalogProducts().filter((p) => p.isPublished !== false && !p.isArchived);
   const matched = all.filter((p) => {
     const fam = (p.fragranceFamily || '').toLowerCase();
     const target = meta.family.toLowerCase();

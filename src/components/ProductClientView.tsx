@@ -143,7 +143,7 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
                 )}
                 <div className="absolute bottom-4 left-4 right-4 bg-[#080A0A]/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-[#2DD4BF]/40 text-[11px] text-[#F5F2EB] flex items-center justify-between">
                   <span className="font-mono text-[#C6A66B]">SKU: {selectedVariant.sku}</span>
-                  <span className="text-[#2DD4BF] font-bold">تركيز 30% Extrait de Parfum</span>
+                  <span className="text-[#2DD4BF] font-bold">{getLocalizedConcentration(product.concentration, isRtl)}</span>
                 </div>
               </div>
 
