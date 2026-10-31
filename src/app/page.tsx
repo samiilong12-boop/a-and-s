@@ -85,16 +85,37 @@ export default function HomePage() {
       return;
     }
 
-    // Schedule video element mounting after main thread is idle & initial paint is complete
-    if ('requestIdleCallback' in window) {
-      const handle = (window as any).requestIdleCallback(
-        () => setMountVideo(true),
-        { timeout: 2000 }
-      );
-      return () => (window as any).cancelIdleCallback(handle);
+    if (isMobileDevice) {
+      // On mobile devices: Show immediately visible optimized poster to lock LCP at <= 1.5s.
+      // Load video only when appropriate (user scrolls, touches, clicks, or requests play)
+      const handleUserInteraction = () => {
+        setMountVideo(true);
+        window.removeEventListener('scroll', handleUserInteraction);
+        window.removeEventListener('touchstart', handleUserInteraction);
+        window.removeEventListener('click', handleUserInteraction);
+      };
+
+      window.addEventListener('scroll', handleUserInteraction, { passive: true });
+      window.addEventListener('touchstart', handleUserInteraction, { passive: true });
+      window.addEventListener('click', handleUserInteraction, { passive: true });
+
+      return () => {
+        window.removeEventListener('scroll', handleUserInteraction);
+        window.removeEventListener('touchstart', handleUserInteraction);
+        window.removeEventListener('click', handleUserInteraction);
+      };
     } else {
-      const timer = setTimeout(() => setMountVideo(true), 1500);
-      return () => clearTimeout(timer);
+      // Desktop / large screens: Load smoothly during idle
+      if ('requestIdleCallback' in window) {
+        const handle = (window as any).requestIdleCallback(
+          () => setMountVideo(true),
+          { timeout: 2000 }
+        );
+        return () => (window as any).cancelIdleCallback(handle);
+      } else {
+        const timer = setTimeout(() => setMountVideo(true), 1500);
+        return () => clearTimeout(timer);
+      }
     }
   }, [heroConfig.visualMode, heroConfig.activeVideoUrl]);
 
@@ -111,6 +132,11 @@ export default function HomePage() {
   }, [mountVideo, heroConfig.visualMode, isMuted, videoSource]);
 
   const toggleVideoPlayback = () => {
+    if (!mountVideo) {
+      setMountVideo(true);
+      setIsVideoPlaying(true);
+      return;
+    }
     if (videoRef.current) {
       if (isVideoPlaying) {
         videoRef.current.pause();
@@ -173,17 +199,23 @@ export default function HomePage() {
         {/* Background Visual Layer: Real Raheeq Campaign Visuals & Ultra-Luxury HD Video */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* Main Editorial Image (Hero LCP Anchor - Image-First Architecture) */}
-          <img
-            src={heroConfig.activePhotoUrl || '/images/campaign/as-signature-male-spray.jpg'}
-            alt="Raheeq Haute Parfumerie Campaign"
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            style={{
-              filter: `brightness(${heroConfig.heroBrightness || 0.95}) contrast(105%)`,
-            }}
-            className="w-full h-full object-cover scale-105 opacity-100 transition-opacity duration-1000"
-          />
+          <picture className="w-full h-full object-cover">
+            <source media="(max-width: 767px)" srcSet="/images/campaign/as-signature-male-spray-mobile.webp" type="image/webp" />
+            <source srcSet="/images/campaign/as-signature-male-spray.webp" type="image/webp" />
+            <img
+              src={heroConfig.activePhotoUrl || '/images/campaign/as-signature-male-spray.webp'}
+              alt="Raheeq Haute Parfumerie Campaign"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              width={1024}
+              height={585}
+              style={{
+                filter: `brightness(${heroConfig.heroBrightness || 0.95}) contrast(105%)`,
+              }}
+              className="w-full h-full object-cover scale-105 opacity-100 transition-opacity duration-1000"
+            />
+          </picture>
 
           {/* Cinematic Background Video (Attached only after critical LCP is locked, single source) */}
           {mountVideo && heroConfig.visualMode === 'video' && (
@@ -754,11 +786,18 @@ export default function HomePage() {
             
             {/* Visual Image */}
             <div className="lg:col-span-7 relative min-h-[420px] lg:min-h-[500px]">
-              <img
-                src={siteContent.rivieraImage || '/images/campaign/female-coastal-spray.jpg'}
-                alt="Raheeq Riviera Campaign"
-                className="absolute inset-0 w-full h-full object-cover filter brightness-[0.9] contrast-105"
-              />
+              <picture className="absolute inset-0 w-full h-full">
+                <source srcSet="/images/campaign/female-coastal-spray.webp" type="image/webp" />
+                <img
+                  src={siteContent.rivieraImage || '/images/campaign/female-coastal-spray.webp'}
+                  alt="Raheeq Riviera Campaign"
+                  loading="lazy"
+                  decoding="async"
+                  width={1024}
+                  height={585}
+                  className="absolute inset-0 w-full h-full object-cover filter brightness-[0.9] contrast-105"
+                />
+              </picture>
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 via-black/35 to-transparent" />
             </div>
 
@@ -900,11 +939,18 @@ export default function HomePage() {
 
           {/* Visual Showcase Block */}
           <div className="relative aspect-square sm:aspect-[4/3] bg-[#080A0A] rounded-2xl border border-[#2DD4BF]/40 p-8 flex flex-col justify-end overflow-hidden shadow-2xl text-white">
-            <img
-              src={siteContent.storyImage || '/images/campaign/couple-sunset-romance.jpg'}
-              alt="Raheeq Artisanal Heritage"
-              className="absolute inset-0 w-full h-full object-cover filter brightness-[0.55] contrast-110"
-            />
+            <picture className="absolute inset-0 w-full h-full">
+              <source srcSet="/images/campaign/couple-sunset-romance.webp" type="image/webp" />
+              <img
+                src={siteContent.storyImage || '/images/campaign/couple-sunset-romance.webp'}
+                alt="Raheeq Artisanal Heritage"
+                loading="lazy"
+                decoding="async"
+                width={1024}
+                height={585}
+                className="absolute inset-0 w-full h-full object-cover filter brightness-[0.55] contrast-110"
+              />
+            </picture>
             <div className={`absolute top-6 ${isRtl ? 'left-6' : 'right-6'}`}>
               <span className="font-serif text-5xl text-[#2DD4BF]/20 font-bold">RAHEEQ</span>
             </div>

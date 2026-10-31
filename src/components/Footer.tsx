@@ -90,8 +90,12 @@ export function Footer() {
             <Link href="/" prefetch={false} className="inline-flex items-center gap-3">
               <div className={`w-12 h-12 ${content.brandLogoShape === 'square' ? 'rounded-none' : content.brandLogoShape === 'rounded' ? 'rounded-xl' : 'rounded-full'} border ${content.brandLogoBorder === 'turquoise' ? 'border-[#54d1b2]' : content.brandLogoBorder === 'none' ? 'border-transparent' : 'border-[#D4AF37]/50'} bg-[#080A0A] flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden`}>
                 <img
-                  src={content.brandLogoUrl || '/images/raheeq-official-logo.png'}
+                  src={content.brandLogoUrl || '/images/raheeq-official-logo.webp'}
                   alt="Raheeq Royal Crest"
+                  width={48}
+                  height={48}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -293,6 +297,10 @@ export function Footer() {
                 <img
                   src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https%3A%2F%2Fa-and-s.vercel.app%2F"
                   alt="Raheeq Official Storefront QR"
+                  width={96}
+                  height={96}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-contain"
                 />
               </div>

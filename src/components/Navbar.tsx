@@ -17,7 +17,7 @@ export function Navbar() {
   const { siteContent } = useSiteContent();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const logoUrl = siteContent.brandLogoUrl || '/images/raheeq-official-logo.png';
+  const logoUrl = siteContent.brandLogoUrl || '/images/raheeq-official-logo.webp';
   const shapeClass =
     siteContent.brandLogoShape === 'square'
       ? 'rounded-none'
@@ -57,6 +57,9 @@ export function Navbar() {
                 <img
                   src={logoUrl}
                   alt="Raheeq Royal Emblem"
+                  width={44}
+                  height={44}
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>

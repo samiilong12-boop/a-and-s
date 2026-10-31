@@ -145,6 +145,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
           '@type': 'Brand',
           name: 'RAHEEQ',
         },
+        manufacturer: {
+          '@type': 'Organization',
+          name: 'دار رَحِيقْ للعطور الملكية',
+        },
         category: product.fragranceFamily,
         offers: (product.variants && product.variants.length > 0)
           ? product.variants.map((v) => {

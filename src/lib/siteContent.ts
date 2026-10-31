@@ -172,7 +172,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
     'في دار رحيق (Raheeq) نرفض الروائح الاصطناعية العابرة ونعتمد على البناء العطري الأصيل. انطلقت دارنا من القاهرة لتمزج تراث النباتات والعطور المصرية العريقة مع أرقى أسرار صناعة العطور الفرنسية.',
   storyParagraph2:
     'يمر كل عطر بمرحلة تعتيق دقيقة تتجاوز 60 يوماً، لتمتزج نفحات الورد الدمشقي مع العود المدخن المعتق والعنبر النادر في توازن متناغم وساحر.',
-  storyImage: '/images/campaign/couple-sunset-romance.jpg',
+  storyImage: '/images/campaign/couple-sunset-romance.webp',
   storyImageQuote: '«العطر ليس مجرد لمسة تجميلية، بل هو هالتك غير المرئية التي تبقى في ذاكرة المكان.»',
   storyImageTag: 'دار رحيق (RAHEEQ) للعطور الفاخرة — القاهرة',
   storyBenefit1Title: 'تركيز إكستري خالص',
@@ -181,7 +181,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   storyBenefit2Desc: 'عاين طردك الفاخر وتأكد من زجاجتك عند باب بيتك قبل دفع أي مليم.',
 
   // 4. Riviera Campaign Banner
-  rivieraImage: '/images/campaign/female-coastal-spray.jpg',
+  rivieraImage: '/images/campaign/female-coastal-spray.webp',
   rivieraBadge: 'حملة صيف الريفييرا المتوسطية',
   rivieraHeadline: 'رذاذ البحر الفيروزي.. وانتعاش الحمضيات الذهبية',
   rivieraDescription:
@@ -194,7 +194,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   showcaseHeadline: 'هندسة العطر الفاخر.. ثباتٌ أسطوري وحضورٌ يأسر الحواس',
   showcaseDescription:
     'تم تصميم كل توليفة في معمل دار رحيق بتركيز Extrait de Parfum من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً لأكثر من 14 ساعة مع نقاء شمي استثنائي.',
-  showcaseBottleImage: '/images/raheeq-official-logo.png',
+  showcaseBottleImage: '/images/raheeq-official-logo.webp',
   showcaseBottleTag: 'Signature Creation',
   showcaseBottleName: 'SAUVAGE ELIXIR / SULTAN OUD',
   showcaseBottleSubtitle: 'التوقيع العطري الأرقى في الشرق الأوسط',

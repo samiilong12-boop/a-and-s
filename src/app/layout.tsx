@@ -144,12 +144,6 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${amiri.variable} ${bodoniModa.variable} ${jost.variable}`}>
       <head>
-        <link
-          rel="preload"
-          as="image"
-          href="/images/campaign/as-signature-male-spray.jpg"
-          fetchPriority="high"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationAndWebsiteSchema) }}
