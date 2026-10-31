@@ -210,10 +210,7 @@ export default function HomePage() {
               decoding="async"
               width={1024}
               height={585}
-              style={{
-                filter: `brightness(${heroConfig.heroBrightness || 0.95}) contrast(105%)`,
-              }}
-              className="w-full h-full object-cover scale-105 opacity-100 transition-opacity duration-1000"
+              className="w-full h-full object-cover"
             />
           </picture>
 
