@@ -77,6 +77,9 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
   const [slug, setSlug] = useState(initialProduct?.slug || '');
   const [brand, setBrand] = useState(initialProduct?.brand || 'RAHEEQ');
   const [inspiredBy, setInspiredBy] = useState(initialProduct?.inspiredBy || '');
+  const [inspirationNoteAr, setInspirationNoteAr] = useState(initialProduct?.inspirationNoteAr || '');
+  const [disclaimerTitleAr, setDisclaimerTitleAr] = useState(initialProduct?.disclaimerTitleAr || '');
+  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(initialProduct?.showDisclaimer ?? true);
   const [gender, setGender] = useState<'MEN' | 'WOMEN' | 'UNISEX'>(initialProduct?.gender || 'UNISEX');
   const [fragranceFamily, setFragranceFamily] = useState(initialProduct?.fragranceFamily || FRAGRANCE_FAMILIES[0]);
   const [concentration, setConcentration] = useState(initialProduct?.concentration || 'EXTRAIT_DE_PARFUM');
@@ -207,9 +210,11 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
             },
           ];
 
-    const inspirationNoteAr = inspiredBy
-      ? `توليفة عطرية خاصة ومستقلة تصنعها دار رَحِيقْ (RAHEEQ) بتركيز نيش فاخر، مستوحاة من الهرم العطري لـ ${inspiredBy}. هذا العطر منتج مستقل تماماً ولا يمثل العلامة التجارية الأصلية أو يدعي أي تبعية لها.`
-      : undefined;
+    const effectiveInspirationNoteAr = inspirationNoteAr.trim()
+      ? inspirationNoteAr.trim()
+      : (inspiredBy
+          ? `عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ ${inspiredBy}، إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.`
+          : undefined);
 
     return {
       id: defaultId,
@@ -218,7 +223,9 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
       nameAr: nameAr || nameEn || 'إبداع عطري جديد من دار رحيق',
       brand: brand || 'RAHEEQ',
       inspiredBy: inspiredBy || undefined,
-      inspirationNoteAr,
+      inspirationNoteAr: effectiveInspirationNoteAr,
+      disclaimerTitleAr: disclaimerTitleAr.trim() || undefined,
+      showDisclaimer,
       gender,
       headlineEn,
       descriptionAr: descriptionAr || 'توليفة عطرية ملكية خاصة مصنوعة في معامل دار رَحِيقْ بزيوت فرنسية نقية.',
@@ -250,6 +257,9 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
     nameAr,
     brand,
     inspiredBy,
+    inspirationNoteAr,
+    disclaimerTitleAr,
+    showDisclaimer,
     gender,
     headlineEn,
     descriptionAr,
@@ -482,6 +492,9 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
           nameAr: nameAr.trim() || nameEn.trim(),
           brand: brand.trim() || 'RAHEEQ',
           inspiredBy: inspiredBy.trim() || undefined,
+          inspirationNoteAr: inspirationNoteAr.trim() || undefined,
+          disclaimerTitleAr: disclaimerTitleAr.trim() || undefined,
+          showDisclaimer,
           gender,
           fragranceFamily,
           concentration,
@@ -524,6 +537,9 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
           nameAr: nameAr.trim() || nameEn.trim(),
           brand: brand.trim() || 'RAHEEQ',
           inspiredBy: inspiredBy.trim() || undefined,
+          inspirationNoteAr: inspirationNoteAr.trim() || undefined,
+          disclaimerTitleAr: disclaimerTitleAr.trim() || undefined,
+          showDisclaimer,
           gender,
           fragranceFamily,
           concentration,
@@ -739,29 +755,97 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
               </div>
 
               {/* Inspiration Disclosure & Brand */}
-              <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl space-y-3">
-                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
-                  <Scale className="w-4 h-4 text-amber-400" />
-                  <span>الشفافية التجارية والقانونية لطابع الإلهام (Inspiration Disclosure)</span>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-amber-300 block">
-                    العطر العالمي المرجعي المستوحى منه (Inspired By Reference)
+              <div className="p-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
+                    <Scale className="w-4 h-4 text-amber-400" />
+                    <span>التحكم في صندوق إيضاح الطابع العطري وإخلاء المسؤولية (Disclaimer Box)</span>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer bg-[#121616] px-3 py-1.5 rounded-xl border border-amber-500/30">
+                    <input
+                      type="checkbox"
+                      checked={showDisclaimer}
+                      onChange={(e) => {
+                        setShowDisclaimer(e.target.checked);
+                        markDirty();
+                      }}
+                      className="accent-amber-500 rounded"
+                    />
+                    <span className="text-[11px] font-bold text-amber-300">
+                      {showDisclaimer ? 'صندوق الإخلاء مفعّل' : 'صندوق الإخلاء مخفي'}
+                    </span>
                   </label>
-                  <input
-                    type="text"
-                    value={inspiredBy}
-                    onChange={(e) => {
-                      setInspiredBy(e.target.value);
-                      markDirty();
-                    }}
-                    placeholder="مثال: Dior Sauvage Elixir أو Creed Aventus"
-                    className="w-full bg-[#121616] border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-200 focus:outline-none focus:border-amber-400 font-medium"
-                  />
-                  <p className="text-[10px] text-amber-400/80 leading-relaxed">
-                    ملاحظة هامة: دار رَحِيقْ تصنع وتملك تركيباتها الخاصة المستقلة. سيتم إظهار إخلاء مسؤولية صريح في صفحة العطر يوضح أنه مستوحى من الهرم العطري لهذا المرجع دون أي ادعاء تبعية أو انتهاك للعلامات الأصلية.
-                  </p>
                 </div>
+
+                {showDisclaimer && (
+                  <div className="space-y-3 pt-1 border-t border-amber-500/15">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-amber-300 block">
+                        العطر العالمي المرجعي المستوحى منه (Inspired By Reference)
+                      </label>
+                      <input
+                        type="text"
+                        value={inspiredBy}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setInspiredBy(val);
+                          markDirty();
+                        }}
+                        placeholder="مثال: Jean Paul Gaultier Le Male Le Parfum أو Dior Sauvage Elixir"
+                        className="w-full bg-[#121616] border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-200 focus:outline-none focus:border-amber-400 font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-amber-300 block">
+                        عنوان الصندوق في صفحة العطر (Disclaimer Title)
+                      </label>
+                      <input
+                        type="text"
+                        value={disclaimerTitleAr}
+                        onChange={(e) => {
+                          setDisclaimerTitleAr(e.target.value);
+                          markDirty();
+                        }}
+                        placeholder="افتراضي: إيضاح الطابع العطري وإخلاء المسؤولية:"
+                        className="w-full bg-[#121616] border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-amber-200 focus:outline-none focus:border-amber-400 font-medium"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-bold text-amber-300 block">
+                          النص المكتوب داخل الصندوق لكل عطر (Custom Disclaimer Text)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const refName = inspiredBy.trim() || 'العطر العالمي';
+                            const generated = `عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ ${refName}، إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.`;
+                            setInspirationNoteAr(generated);
+                            markDirty();
+                          }}
+                          className="text-[10px] text-amber-400 hover:text-amber-200 bg-amber-500/20 hover:bg-amber-500/30 px-2 py-0.5 rounded-lg border border-amber-500/30 transition-colors font-bold cursor-pointer"
+                        >
+                          توليد الصيغة التلقائية ⚡
+                        </button>
+                      </div>
+                      <textarea
+                        rows={3}
+                        value={inspirationNoteAr}
+                        onChange={(e) => {
+                          setInspirationNoteAr(e.target.value);
+                          markDirty();
+                        }}
+                        placeholder="اكتب هنا النص المخصص الذي تريده أن يظهر بدقة في الصندوق الأصفر فوق السعر أمام العميل..."
+                        className="w-full bg-[#121616] border border-amber-500/30 rounded-xl p-3 text-xs text-amber-200 focus:outline-none focus:border-amber-400 font-medium leading-relaxed"
+                      />
+                      <p className="text-[10px] text-amber-400/80 leading-relaxed">
+                        💡 يمكنك التحكم في كل كلمة هنا بحرية تامة؛ سيظهر هذا النص تماماً داخل الصندوق الأصفر التوضيحي بالمتجر كما طلبت، ويمكنك معاينته مباشرة في شاشة المعاينة الحية باليسار.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

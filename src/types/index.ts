@@ -42,6 +42,8 @@ export interface Product {
   inspiredBy?: string;
   inspirationNoteAr?: string;
   inspirationNoteEn?: string;
+  disclaimerTitleAr?: string;
+  showDisclaimer?: boolean;
   gender?: 'MEN' | 'WOMEN' | 'UNISEX';
   headlineEn?: string;
   descriptionEn: string;

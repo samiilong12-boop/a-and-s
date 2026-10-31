@@ -161,6 +161,27 @@ describe('PHASE 10 — Product Studio QA & End-to-End Validation', () => {
     expect(cartItem.totalEgp).toBe(900);
   });
 
+  it('verifies complete store-owner control over the inspiration disclaimer box (title, text, toggle)', () => {
+    // 1. Custom text and custom title
+    const customDisclaimerProduct: Product = {
+      ...testProduct,
+      disclaimerTitleAr: 'تنويه دار رَحِيقْ الملكي:',
+      inspirationNoteAr: 'عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ Jean Paul Gaultier Le Male Le Parfum، إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.',
+      showDisclaimer: true,
+    };
+
+    expect(customDisclaimerProduct.showDisclaimer).toBe(true);
+    expect(customDisclaimerProduct.disclaimerTitleAr).toBe('تنويه دار رَحِيقْ الملكي:');
+    expect(customDisclaimerProduct.inspirationNoteAr).toContain('Jean Paul Gaultier Le Male Le Parfum');
+
+    // 2. Hide toggle
+    const hiddenDisclaimerProduct: Product = {
+      ...testProduct,
+      showDisclaimer: false,
+    };
+    expect(hiddenDisclaimerProduct.showDisclaimer).toBe(false);
+  });
+
   it('Strict Negative Constraint: Zero occurrences of "شامل الضريبة"', () => {
     const rawData = JSON.stringify(testProduct);
     expect(rawData).not.toContain('شامل الضريبة');

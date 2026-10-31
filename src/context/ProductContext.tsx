@@ -32,6 +32,9 @@ interface ProductContextType {
     salePrice100Egp?: number;
     stock100?: number;
     variants?: ProductVariant[];
+    inspirationNoteAr?: string;
+    disclaimerTitleAr?: string;
+    showDisclaimer?: boolean;
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string[] | string;
@@ -51,6 +54,9 @@ interface ProductContextType {
       salePrice100Egp?: number;
       stock100?: number;
       variants?: ProductVariant[];
+      inspirationNoteAr?: string;
+      disclaimerTitleAr?: string;
+      showDisclaimer?: boolean;
     }
   ) => Promise<{ success: boolean; error?: string }>;
   deleteProduct: (productId: string) => Promise<void>;
@@ -153,6 +159,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       salePrice100Egp?: number;
       stock100?: number;
       variants?: ProductVariant[];
+      inspirationNoteAr?: string;
+      disclaimerTitleAr?: string;
+      showDisclaimer?: boolean;
     }
   ) => {
     const updated = products.map((p) => {
@@ -263,9 +272,17 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
       if (updatedFields.inspiredBy !== undefined) {
         merged.inspiredBy = updatedFields.inspiredBy.trim() || undefined;
-        if (merged.inspiredBy) {
-          merged.inspirationNoteAr = `توليفة عطرية خاصة ومستقلة تصنعها دار رَحِيقْ (RAHEEQ) بتركيز نيش فاخر، مستوحاة من الهرم العطري لـ ${merged.inspiredBy}. هذا العطر منتج مستقل تماماً ولا يمثل العلامة التجارية الأصلية أو يدعي أي تبعية لها.`;
-        }
+      }
+      if (updatedFields.inspirationNoteAr !== undefined) {
+        merged.inspirationNoteAr = updatedFields.inspirationNoteAr.trim() || undefined;
+      } else if (updatedFields.inspiredBy && !merged.inspirationNoteAr) {
+        merged.inspirationNoteAr = `عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ ${merged.inspiredBy}، إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.`;
+      }
+      if (updatedFields.disclaimerTitleAr !== undefined) {
+        merged.disclaimerTitleAr = updatedFields.disclaimerTitleAr.trim() || undefined;
+      }
+      if (updatedFields.showDisclaimer !== undefined) {
+        merged.showDisclaimer = updatedFields.showDisclaimer;
       }
       if (updatedFields.seoTitle !== undefined) merged.seoTitle = updatedFields.seoTitle.trim() || undefined;
       if (updatedFields.seoDescription !== undefined) merged.seoDescription = updatedFields.seoDescription.trim() || undefined;
@@ -325,6 +342,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     salePrice100Egp?: number;
     stock100?: number;
     variants?: ProductVariant[];
+    inspirationNoteAr?: string;
+    disclaimerTitleAr?: string;
+    showDisclaimer?: boolean;
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string[] | string;
@@ -380,9 +400,11 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         ];
 
     const inspiredBy = data.inspiredBy?.trim() || undefined;
-    const inspirationNoteAr = inspiredBy
-      ? `توليفة عطرية خاصة ومستقلة تصنعها دار رَحِيقْ (RAHEEQ) بتركيز نيش فاخر، مستوحاة من الهرم العطري لـ ${inspiredBy}. هذا العطر منتج مستقل تماماً ولا يمثل العلامة التجارية الأصلية أو يدعي أي تبعية لها.`
-      : undefined;
+    const inspirationNoteAr = data.inspirationNoteAr?.trim() || (inspiredBy
+      ? `عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ ${inspiredBy}، إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.`
+      : undefined);
+    const disclaimerTitleAr = data.disclaimerTitleAr?.trim() || undefined;
+    const showDisclaimer = data.showDisclaimer !== undefined ? data.showDisclaimer : true;
 
     const seoTitle = data.seoTitle?.trim() || `${data.nameAr || data.nameEn} | دار رَحِيقْ للعطور الملكية`;
     const seoDescription = data.seoDescription?.trim() || (
@@ -401,6 +423,8 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       brand: data.brand || 'رحيق (Raheeq)',
       inspiredBy,
       inspirationNoteAr,
+      disclaimerTitleAr,
+      showDisclaimer,
       gender: data.gender || 'UNISEX',
       headlineEn: 'Exclusive bespoke formulation crafted by Raheeq.',
       descriptionEn: data.descriptionEn || `An opulent masterpiece by Raheeq Haute Parfumerie, blending ${data.topNotes.join(', ')} with a rich heart of ${data.heartNotes.join(', ')}.`,

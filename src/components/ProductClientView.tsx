@@ -202,15 +202,15 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
                 )}
 
                 {/* Inspiration & Commercial Integrity Disclosure */}
-                {product.inspiredBy && (
+                {(product.showDisclaimer !== false && (product.inspiredBy || product.inspirationNoteAr)) && (
                   <div className="mt-3.5 p-3.5 bg-amber-50 rounded-xl border border-amber-200/90 text-xs text-amber-950 space-y-1">
                     <div className="flex items-center gap-1.5 font-bold text-amber-900">
                       <Scale className="w-3.5 h-3.5 text-amber-700" />
-                      <span>{isRtl ? 'إيضاح الطابع العطري وإخلاء المسؤولية:' : 'Inspiration Disclosure & Disclaimer:'}</span>
+                      <span>{product.disclaimerTitleAr || (isRtl ? 'إيضاح الطابع العطري وإخلاء المسؤولية:' : 'Inspiration Disclosure & Disclaimer:')}</span>
                     </div>
                     <p className="text-[11px] text-amber-900/90 leading-relaxed">
                       {product.inspirationNoteAr ||
-                        `هذا العطر تركيبة مستقلة وخاصة صممتها دار رَحِيقْ (RAHEEQ) بتركيز ${getLocalizedConcentration(product.concentration, isRtl)} مستوحاة من الهرم العطري لـ ${product.inspiredBy}. هذا المنتج أصيل وخاص برحيق وغير تابع للعلامة التجارية المذكورة.`}
+                        `عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ ${product.inspiredBy}، إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.`}
                     </p>
                   </div>
                 )}
