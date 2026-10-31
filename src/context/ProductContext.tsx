@@ -35,6 +35,12 @@ interface ProductContextType {
     inspirationNoteAr?: string;
     disclaimerTitleAr?: string;
     showDisclaimer?: boolean;
+    longevityAr?: string;
+    longevityEn?: string;
+    sillageAr?: string;
+    sillageEn?: string;
+    guaranteeTitleAr?: string;
+    guaranteeTextAr?: string;
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string[] | string;
@@ -57,6 +63,12 @@ interface ProductContextType {
       inspirationNoteAr?: string;
       disclaimerTitleAr?: string;
       showDisclaimer?: boolean;
+      longevityAr?: string;
+      longevityEn?: string;
+      sillageAr?: string;
+      sillageEn?: string;
+      guaranteeTitleAr?: string;
+      guaranteeTextAr?: string;
     }
   ) => Promise<{ success: boolean; error?: string }>;
   deleteProduct: (productId: string) => Promise<void>;
@@ -162,6 +174,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       inspirationNoteAr?: string;
       disclaimerTitleAr?: string;
       showDisclaimer?: boolean;
+      longevityAr?: string;
+      longevityEn?: string;
+      sillageAr?: string;
+      sillageEn?: string;
+      guaranteeTitleAr?: string;
+      guaranteeTextAr?: string;
     }
   ) => {
     const updated = products.map((p) => {
@@ -284,6 +302,24 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       if (updatedFields.showDisclaimer !== undefined) {
         merged.showDisclaimer = updatedFields.showDisclaimer;
       }
+      if (updatedFields.longevityAr !== undefined) {
+        merged.longevityAr = updatedFields.longevityAr.trim() || undefined;
+      }
+      if (updatedFields.longevityEn !== undefined) {
+        merged.longevityEn = updatedFields.longevityEn.trim() || undefined;
+      }
+      if (updatedFields.sillageAr !== undefined) {
+        merged.sillageAr = updatedFields.sillageAr.trim() || undefined;
+      }
+      if (updatedFields.sillageEn !== undefined) {
+        merged.sillageEn = updatedFields.sillageEn.trim() || undefined;
+      }
+      if (updatedFields.guaranteeTitleAr !== undefined) {
+        merged.guaranteeTitleAr = updatedFields.guaranteeTitleAr.trim() || undefined;
+      }
+      if (updatedFields.guaranteeTextAr !== undefined) {
+        merged.guaranteeTextAr = updatedFields.guaranteeTextAr.trim() || undefined;
+      }
       if (updatedFields.seoTitle !== undefined) merged.seoTitle = updatedFields.seoTitle.trim() || undefined;
       if (updatedFields.seoDescription !== undefined) merged.seoDescription = updatedFields.seoDescription.trim() || undefined;
       if (updatedFields.seoKeywords !== undefined) {
@@ -345,6 +381,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     inspirationNoteAr?: string;
     disclaimerTitleAr?: string;
     showDisclaimer?: boolean;
+    longevityAr?: string;
+    longevityEn?: string;
+    sillageAr?: string;
+    sillageEn?: string;
+    guaranteeTitleAr?: string;
+    guaranteeTextAr?: string;
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string[] | string;
@@ -425,6 +467,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       inspirationNoteAr,
       disclaimerTitleAr,
       showDisclaimer,
+      longevityAr: data.longevityAr?.trim() || undefined,
+      longevityEn: data.longevityEn?.trim() || undefined,
+      sillageAr: data.sillageAr?.trim() || undefined,
+      sillageEn: data.sillageEn?.trim() || undefined,
+      guaranteeTitleAr: data.guaranteeTitleAr?.trim() || undefined,
+      guaranteeTextAr: data.guaranteeTextAr?.trim() || undefined,
       gender: data.gender || 'UNISEX',
       headlineEn: 'Exclusive bespoke formulation crafted by Raheeq.',
       descriptionEn: data.descriptionEn || `An opulent masterpiece by Raheeq Haute Parfumerie, blending ${data.topNotes.join(', ')} with a rich heart of ${data.heartNotes.join(', ')}.`,

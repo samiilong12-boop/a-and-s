@@ -182,6 +182,21 @@ describe('PHASE 10 — Product Studio QA & End-to-End Validation', () => {
     expect(hiddenDisclaimerProduct.showDisclaimer).toBe(false);
   });
 
+  it('verifies complete store-owner control over performance badges (longevity, sillage) and inspection guarantee', () => {
+    const customPerfume: Product = {
+      ...testProduct,
+      longevityAr: '+24 ساعة',
+      sillageAr: 'فوحان ملكي أسطوري',
+      guaranteeTitleAr: 'ضمان الفحص والمعاينة الملكية',
+      guaranteeTextAr: 'افحص العطر قبل دفع أي مليم للمندوب عند باب منزلك.',
+    };
+
+    expect(customPerfume.longevityAr).toBe('+24 ساعة');
+    expect(customPerfume.sillageAr).toBe('فوحان ملكي أسطوري');
+    expect(customPerfume.guaranteeTitleAr).toBe('ضمان الفحص والمعاينة الملكية');
+    expect(customPerfume.guaranteeTextAr).toContain('افحص العطر');
+  });
+
   it('Strict Negative Constraint: Zero occurrences of "شامل الضريبة"', () => {
     const rawData = JSON.stringify(testProduct);
     expect(rawData).not.toContain('شامل الضريبة');

@@ -44,6 +44,12 @@ export interface Product {
   inspirationNoteEn?: string;
   disclaimerTitleAr?: string;
   showDisclaimer?: boolean;
+  longevityAr?: string;
+  longevityEn?: string;
+  sillageAr?: string;
+  sillageEn?: string;
+  guaranteeTitleAr?: string;
+  guaranteeTextAr?: string;
   gender?: 'MEN' | 'WOMEN' | 'UNISEX';
   headlineEn?: string;
   descriptionEn: string;

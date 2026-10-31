@@ -168,12 +168,12 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
               <div className="p-4 bg-[#F6F3EC] rounded-2xl border border-[#E6E1D5] space-y-2 text-xs">
                 <div className="flex items-center gap-2 text-[#0D9488] font-bold">
                   <ShieldCheck className="w-4 h-4 text-[#0D9488]" />
-                  <span>{isRtl ? 'ضمان المعاينة الملكية عند باب بيتك' : 'Doorstep Inspection & Authenticity Guarantee'}</span>
+                  <span>{product.guaranteeTitleAr || (isRtl ? 'ضمان المعاينة الملكية عند باب بيتك' : 'Doorstep Inspection & Authenticity Guarantee')}</span>
                 </div>
                 <p className="text-[#576563] text-[11px] leading-relaxed">
-                  {isRtl
+                  {product.guaranteeTextAr || (isRtl
                     ? 'يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب. في حال عدم الرغبة في الاستلام، يلتزم العميل بسداد مصاريف الشحن والتوصيل للمندوب فقط.'
-                    : 'Inspect your flacon upon arrival before settling cash payment with our white-glove courier.'}
+                    : 'Inspect your flacon upon arrival before settling cash payment with our white-glove courier.')}
                 </p>
               </div>
             </div>
@@ -243,11 +243,15 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
                 </div>
                 <div className="space-y-0.5 border-x border-[#E6E1D5]">
                   <span className="text-[10px] text-[#788784] uppercase tracking-wider block font-bold">{isRtl ? 'الثبات' : 'Longevity'}</span>
-                  <span className="text-xs sm:text-sm font-bold text-[#080A0A]">{isRtl ? '+14 ساعة' : '+14 Hours'}</span>
+                  <span className="text-xs sm:text-sm font-bold text-[#080A0A]">
+                    {isRtl ? (product.longevityAr || '+14 ساعة') : (product.longevityEn || product.longevityAr || '+14 Hours')}
+                  </span>
                 </div>
                 <div className="space-y-0.5">
                   <span className="text-[10px] text-[#788784] uppercase tracking-wider block font-bold">{isRtl ? 'الفوحان' : 'Sillage'}</span>
-                  <span className="text-xs sm:text-sm font-bold text-[#080A0A]">{isRtl ? 'قوي وملحوظ' : 'Heavy & Noticeable'}</span>
+                  <span className="text-xs sm:text-sm font-bold text-[#080A0A]">
+                    {isRtl ? (product.sillageAr || 'قوي وملحوظ') : (product.sillageEn || product.sillageAr || 'Heavy & Noticeable')}
+                  </span>
                 </div>
               </div>
 

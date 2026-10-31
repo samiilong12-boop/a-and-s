@@ -155,6 +155,11 @@ export default function AdminProductsPage() {
     nameAr: '',
     brand: 'رحيق (Raheeq)',
     inspiredBy: '',
+    inspirationNoteAr: '',
+    disclaimerTitleAr: 'إيضاح الطابع العطري وإخلاء المسؤولية:',
+    showDisclaimer: true,
+    longevityAr: '+14 ساعة',
+    sillageAr: 'قوي وملحوظ',
     gender: 'UNISEX' as 'MEN' | 'WOMEN' | 'UNISEX',
     fragranceFamily: FRAGRANCE_FAMILIES[0] as string,
     concentration: 'EXTRAIT_DE_PARFUM' as string,
@@ -184,6 +189,11 @@ export default function AdminProductsPage() {
     nameAr: '',
     brand: 'رحيق (Raheeq)',
     inspiredBy: '',
+    inspirationNoteAr: '',
+    disclaimerTitleAr: 'إيضاح الطابع العطري وإخلاء المسؤولية:',
+    showDisclaimer: true,
+    longevityAr: '+14 ساعة',
+    sillageAr: 'قوي وملحوظ',
     gender: 'UNISEX' as 'MEN' | 'WOMEN' | 'UNISEX',
     fragranceFamily: FRAGRANCE_FAMILIES[0] as string,
     concentration: 'EXTRAIT_DE_PARFUM' as string,
@@ -205,6 +215,17 @@ export default function AdminProductsPage() {
     seoDescription: '',
     seoKeywords: '',
   });
+
+  const autoGenerateInspirationDisclaimer = (mode: 'add' | 'edit') => {
+    const data = mode === 'add' ? formData : editFormData;
+    const ref = data.inspiredBy.trim() || data.nameEn.trim() || 'العطر العالمي';
+    const text = `عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ ${ref}. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.`;
+    if (mode === 'add') {
+      setFormData((prev) => ({ ...prev, inspirationNoteAr: text }));
+    } else {
+      setEditFormData((prev) => ({ ...prev, inspirationNoteAr: text }));
+    }
+  };
 
   const autoGenerateSeo = (mode: 'add' | 'edit') => {
     const data = mode === 'add' ? formData : editFormData;
@@ -258,18 +279,31 @@ export default function AdminProductsPage() {
       nameEn: formData.nameEn.trim(),
       nameAr: formData.nameAr.trim() || formData.nameEn.trim(),
       brand: formData.brand.trim() || 'RAHEEQ',
+      inspiredBy: formData.inspiredBy.trim() || undefined,
+      inspirationNoteAr: formData.inspirationNoteAr.trim() || undefined,
+      disclaimerTitleAr: formData.disclaimerTitleAr.trim() || undefined,
+      showDisclaimer: formData.showDisclaimer,
+      longevityAr: formData.longevityAr.trim() || undefined,
+      sillageAr: formData.sillageAr.trim() || undefined,
       gender: formData.gender,
       fragranceFamily: formData.fragranceFamily,
-      concentration: 'EXTRAIT_DE_PARFUM',
+      concentration: formData.concentration as any,
+      descriptionEn: formData.descriptionEn.trim(),
+      descriptionAr: formData.descriptionAr.trim(),
       regularPrice50Egp: Number(formData.regularPrice50Egp) || 1850,
+      salePrice50Egp: formData.salePrice50Egp ? Number(formData.salePrice50Egp) : undefined,
       stock50: Number(formData.stock50) || 30,
       regularPrice100Egp: Number(formData.regularPrice100Egp) || 2750,
+      salePrice100Egp: formData.salePrice100Egp ? Number(formData.salePrice100Egp) : undefined,
       stock100: Number(formData.stock100) || 25,
       costPriceEgp: Number(formData.costPriceEgp) || 850,
-      topNotes: ['Bergamot', 'Saffron'],
-      heartNotes: ['Damask Rose', 'Oud'],
-      baseNotes: ['Ambergris', 'Sandalwood'],
+      topNotes: formData.topNotes.split(',').map((s) => s.trim()).filter(Boolean),
+      heartNotes: formData.heartNotes.split(',').map((s) => s.trim()).filter(Boolean),
+      baseNotes: formData.baseNotes.split(',').map((s) => s.trim()).filter(Boolean),
       imageUrl: finalImage,
+      seoTitle: formData.seoTitle.trim() || undefined,
+      seoDescription: formData.seoDescription.trim() || undefined,
+      seoKeywords: formData.seoKeywords.trim() || undefined,
     });
 
     // Created as draft by default
@@ -299,6 +333,11 @@ export default function AdminProductsPage() {
       nameAr: formData.nameAr.trim() || formData.nameEn.trim(),
       brand: formData.brand.trim() || 'رحيق (Raheeq)',
       inspiredBy: formData.inspiredBy.trim() || undefined,
+      inspirationNoteAr: formData.inspirationNoteAr.trim() || undefined,
+      disclaimerTitleAr: formData.disclaimerTitleAr.trim() || undefined,
+      showDisclaimer: formData.showDisclaimer,
+      longevityAr: formData.longevityAr.trim() || undefined,
+      sillageAr: formData.sillageAr.trim() || undefined,
       gender: formData.gender,
       fragranceFamily: formData.fragranceFamily,
       concentration: formData.concentration as any,
@@ -330,6 +369,11 @@ export default function AdminProductsPage() {
       nameAr: '',
       brand: 'رحيق (Raheeq)',
       inspiredBy: '',
+      inspirationNoteAr: '',
+      disclaimerTitleAr: 'إيضاح الطابع العطري وإخلاء المسؤولية:',
+      showDisclaimer: true,
+      longevityAr: '+14 ساعة',
+      sillageAr: 'قوي وملحوظ',
       gender: 'UNISEX',
       fragranceFamily: FRAGRANCE_FAMILIES[0],
       concentration: 'EXTRAIT_DE_PARFUM',
@@ -375,6 +419,11 @@ export default function AdminProductsPage() {
       nameAr: product.nameAr || product.nameEn,
       brand: product.brand || 'رحيق (Raheeq)',
       inspiredBy: product.inspiredBy || '',
+      inspirationNoteAr: product.inspirationNoteAr || '',
+      disclaimerTitleAr: product.disclaimerTitleAr || 'إيضاح الطابع العطري وإخلاء المسؤولية:',
+      showDisclaimer: product.showDisclaimer !== false,
+      longevityAr: product.longevityAr || '+14 ساعة',
+      sillageAr: product.sillageAr || 'قوي وملحوظ',
       gender: product.gender || 'UNISEX',
       fragranceFamily: product.fragranceFamily || FRAGRANCE_FAMILIES[0],
       concentration: product.concentration || 'EXTRAIT_DE_PARFUM',
@@ -413,6 +462,11 @@ export default function AdminProductsPage() {
       nameAr: editFormData.nameAr.trim() || editFormData.nameEn.trim(),
       brand: editFormData.brand.trim() || 'رحيق (Raheeq)',
       inspiredBy: editFormData.inspiredBy.trim() || undefined,
+      inspirationNoteAr: editFormData.inspirationNoteAr.trim() || undefined,
+      disclaimerTitleAr: editFormData.disclaimerTitleAr.trim() || undefined,
+      showDisclaimer: editFormData.showDisclaimer,
+      longevityAr: editFormData.longevityAr.trim() || undefined,
+      sillageAr: editFormData.sillageAr.trim() || undefined,
       gender: editFormData.gender,
       fragranceFamily: editFormData.fragranceFamily,
       concentration: editFormData.concentration as any,
@@ -670,13 +724,23 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        {/* 1. Edit in Studio Button (تعديل العطر بالاستوديو المتقدم) */}
+                        {/* 1. Quick Edit Button (تعديل سريع للنصوص والأسعار) */}
+                        <button
+                          onClick={() => handleOpenEditModal(product)}
+                          className="p-1.5 text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors flex items-center gap-1 font-bold text-[11px] cursor-pointer"
+                          title="تعديل سريع للأسعار والنصوص وصندوق الإخلاء فوراً دون مغادرة الصفحة"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-slate-600" />
+                          <span>تعديل سريع</span>
+                        </button>
+
+                        {/* 2. Edit in Studio Button (تعديل العطر بالاستوديو المتقدم) */}
                         <Link
                           href={`/admin/products/${encodeURIComponent(product.id)}/edit`}
                           className="p-1.5 text-teal-800 hover:text-white bg-teal-50 hover:bg-teal-700 rounded-md transition-colors flex items-center gap-1 font-bold text-[11px]"
                           title="فتح استوديو التعديل المتقدم مع المعاينة الحية"
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          <Sparkles className="w-3.5 h-3.5" />
                           <span>الاستوديو المتقدم</span>
                         </Link>
 
@@ -788,24 +852,79 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Inspired By Field */}
-              <div className="space-y-1 p-3.5 bg-amber-50/70 rounded-xl border border-amber-200">
-                <div className="flex items-center justify-between">
-                  <label className="font-bold text-amber-900 block text-xs">
-                    العطر العالمي المستوحى منه (Inspired By — اختياري للشفافية القانونية)
+              {/* Inspired By & Inspiration Disclaimer Box (الصندوق الأصفر المشار إليه بالسهم الأحمر) */}
+              <div className="space-y-3 p-4 bg-amber-50/80 rounded-xl border border-amber-300 shadow-xs">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                    <label className="font-serif font-bold text-amber-950 block text-xs">
+                      صندوق إيضاح الطابع العطري وإخلاء المسؤولية (الصندوق الأصفر بالمتجر)
+                    </label>
+                  </div>
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-amber-300 text-[11px] font-bold text-amber-900 shadow-xs">
+                    <input
+                      type="checkbox"
+                      checked={editFormData.showDisclaimer}
+                      onChange={(e) => setEditFormData({ ...editFormData, showDisclaimer: e.target.checked })}
+                      className="rounded text-amber-600 focus:ring-amber-500"
+                    />
+                    <span>{editFormData.showDisclaimer ? 'صندوق الإخلاء مفعّل' : 'صندوق الإخلاء مخفي'}</span>
                   </label>
-                  <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-mono">طابع الإلهام</span>
                 </div>
-                <input
-                  type="text"
-                  value={editFormData.inspiredBy}
-                  onChange={(e) => setEditFormData({ ...editFormData, inspiredBy: e.target.value })}
-                  placeholder="مثال: Emporio Armani Stronger With You Intensely أو Creed Aventus"
-                  className="w-full bg-white border border-amber-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-600 font-medium"
-                />
-                <p className="text-[10px] text-amber-800">
-                  سيتم إظهار إخلاء مسؤولية فوري في صفحة العطر يوضح أن العطر إنتاج مستقل لدار رَحِيقْ مستوحى من هذا الطابع الشمّي دون أي انتهاك للعلامات الأصلية.
-                </p>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-amber-900 block">
+                    العطر العالمي المستوحى منه (Inspired By — اختياري)
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.inspiredBy}
+                    onChange={(e) => setEditFormData({ ...editFormData, inspiredBy: e.target.value })}
+                    placeholder="مثال: Emporio Armani Stronger With You Intensely أو Jean Paul Gaultier Le Male"
+                    className="w-full bg-white border border-amber-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-600 font-medium"
+                  />
+                </div>
+
+                {editFormData.showDisclaimer && (
+                  <div className="space-y-2 pt-2 border-t border-amber-200">
+                    <div>
+                      <label className="text-[11px] font-bold text-amber-900 block mb-0.5">
+                        عنوان الصندوق الأصفر (Disclaimer Title)
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.disclaimerTitleAr}
+                        onChange={(e) => setEditFormData({ ...editFormData, disclaimerTitleAr: e.target.value })}
+                        placeholder="إيضاح الطابع العطري وإخلاء المسؤولية:"
+                        className="w-full bg-white border border-amber-300 rounded-lg px-3 py-1.5 text-xs text-amber-950 font-bold focus:outline-none focus:border-amber-600"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-0.5">
+                        <label className="text-[11px] font-bold text-amber-900 block">
+                          النص المكتوب داخل الصندوق لكل عطر (Custom Disclaimer Text)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => autoGenerateInspirationDisclaimer('edit')}
+                          className="text-[10px] text-amber-800 hover:text-amber-950 font-bold underline cursor-pointer"
+                        >
+                          توليد الصيغة التلقائية ⚡
+                        </button>
+                      </div>
+                      <textarea
+                        rows={2}
+                        value={editFormData.inspirationNoteAr}
+                        onChange={(e) => setEditFormData({ ...editFormData, inspirationNoteAr: e.target.value })}
+                        placeholder="عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ..."
+                        className="w-full bg-white border border-amber-300 rounded-lg p-2.5 text-xs text-amber-950 focus:outline-none focus:border-amber-600 leading-relaxed font-medium"
+                      />
+                      <p className="text-[10px] text-amber-800 leading-tight">
+                        💡 يمكنك التحكم في كل كلمة هنا؛ سيظهر هذا النص تماماً داخل الصندوق الأصفر التوضيحي بالمتجر فوق السعر.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Brand & Gender */}
@@ -864,6 +983,58 @@ export default function AdminProductsPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              {/* Performance Metrics: Longevity & Sillage */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700 block text-xs">
+                    مدة الثبات المعروضة للجمهور (Longevity)
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.longevityAr}
+                    onChange={(e) => setEditFormData({ ...editFormData, longevityAr: e.target.value })}
+                    placeholder="مثال: +14 ساعة أو يدوم طوال اليوم"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-teal-600"
+                  />
+                  <div className="flex gap-1 flex-wrap pt-0.5">
+                    {['+12 ساعة', '+14 ساعة', '+16 ساعة', '+24 ساعة'].map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setEditFormData({ ...editFormData, longevityAr: p })}
+                        className="text-[10px] bg-white border border-slate-300 hover:border-teal-600 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer"
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700 block text-xs">
+                    قوة الفوحان المعروضة للجمهور (Sillage)
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.sillageAr}
+                    onChange={(e) => setEditFormData({ ...editFormData, sillageAr: e.target.value })}
+                    placeholder="مثال: قوي وملحوظ أو فوحان ملكي"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-teal-600"
+                  />
+                  <div className="flex gap-1 flex-wrap pt-0.5">
+                    {['قوي وملحوظ', 'فواح جداً', 'فوحان ملكي أسطوري'].map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setEditFormData({ ...editFormData, sillageAr: p })}
+                        className="text-[10px] bg-white border border-slate-300 hover:border-teal-600 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer"
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -1214,24 +1385,79 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Inspired By Field */}
-              <div className="space-y-1 p-3.5 bg-amber-50/70 rounded-xl border border-amber-200">
-                <div className="flex items-center justify-between">
-                  <label className="font-bold text-amber-900 block text-xs">
-                    العطر العالمي المستوحى منه (Inspired By — اختياري للشفافية القانونية)
+              {/* Inspired By & Inspiration Disclaimer Box (الصندوق الأصفر المشار إليه بالسهم الأحمر) */}
+              <div className="space-y-3 p-4 bg-amber-50/80 rounded-xl border border-amber-300 shadow-xs">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                    <label className="font-serif font-bold text-amber-950 block text-xs">
+                      صندوق إيضاح الطابع العطري وإخلاء المسؤولية (الصندوق الأصفر بالمتجر)
+                    </label>
+                  </div>
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-amber-300 text-[11px] font-bold text-amber-900 shadow-xs">
+                    <input
+                      type="checkbox"
+                      checked={formData.showDisclaimer}
+                      onChange={(e) => setFormData({ ...formData, showDisclaimer: e.target.checked })}
+                      className="rounded text-amber-600 focus:ring-amber-500"
+                    />
+                    <span>{formData.showDisclaimer ? 'صندوق الإخلاء مفعّل' : 'صندوق الإخلاء مخفي'}</span>
                   </label>
-                  <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-mono">طابع الإلهام</span>
                 </div>
-                <input
-                  type="text"
-                  value={formData.inspiredBy}
-                  onChange={(e) => setFormData({ ...formData, inspiredBy: e.target.value })}
-                  placeholder="مثال: Emporio Armani Stronger With You Intensely أو Dior Sauvage"
-                  className="w-full bg-white border border-amber-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-600 font-medium"
-                />
-                <p className="text-[10px] text-amber-800">
-                  سيتم إظهار إخلاء مسؤولية فوري في صفحة العطر يوضح أن العطر إنتاج مستقل لدار رَحِيقْ مستوحى من هذا الطابع الشمّي دون أي انتهاك للعلامات الأصلية.
-                </p>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-amber-900 block">
+                    العطر العالمي المستوحى منه (Inspired By — اختياري)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.inspiredBy}
+                    onChange={(e) => setFormData({ ...formData, inspiredBy: e.target.value })}
+                    placeholder="مثال: Emporio Armani Stronger With You Intensely أو Dior Sauvage"
+                    className="w-full bg-white border border-amber-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-600 font-medium"
+                  />
+                </div>
+
+                {formData.showDisclaimer && (
+                  <div className="space-y-2 pt-2 border-t border-amber-200">
+                    <div>
+                      <label className="text-[11px] font-bold text-amber-900 block mb-0.5">
+                        عنوان الصندوق الأصفر (Disclaimer Title)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.disclaimerTitleAr}
+                        onChange={(e) => setFormData({ ...formData, disclaimerTitleAr: e.target.value })}
+                        placeholder="إيضاح الطابع العطري وإخلاء المسؤولية:"
+                        className="w-full bg-white border border-amber-300 rounded-lg px-3 py-1.5 text-xs text-amber-950 font-bold focus:outline-none focus:border-amber-600"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-0.5">
+                        <label className="text-[11px] font-bold text-amber-900 block">
+                          النص المكتوب داخل الصندوق لكل عطر (Custom Disclaimer Text)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => autoGenerateInspirationDisclaimer('add')}
+                          className="text-[10px] text-amber-800 hover:text-amber-950 font-bold underline cursor-pointer"
+                        >
+                          توليد الصيغة التلقائية ⚡
+                        </button>
+                      </div>
+                      <textarea
+                        rows={2}
+                        value={formData.inspirationNoteAr}
+                        onChange={(e) => setFormData({ ...formData, inspirationNoteAr: e.target.value })}
+                        placeholder="عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمي لـ..."
+                        className="w-full bg-white border border-amber-300 rounded-lg p-2.5 text-xs text-amber-950 focus:outline-none focus:border-amber-600 leading-relaxed font-medium"
+                      />
+                      <p className="text-[10px] text-amber-800 leading-tight">
+                        💡 يمكنك التحكم في كل كلمة هنا؛ سيظهر هذا النص تماماً داخل الصندوق الأصفر التوضيحي بالمتجر فوق السعر.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Brand & Gender */}
@@ -1290,6 +1516,58 @@ export default function AdminProductsPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              {/* Performance Metrics: Longevity & Sillage */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700 block text-xs">
+                    مدة الثبات المعروضة للجمهور (Longevity)
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.longevityAr}
+                    onChange={(e) => setEditFormData({ ...editFormData, longevityAr: e.target.value })}
+                    placeholder="مثال: +14 ساعة أو يدوم طوال اليوم"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-teal-600"
+                  />
+                  <div className="flex gap-1 flex-wrap pt-0.5">
+                    {['+12 ساعة', '+14 ساعة', '+16 ساعة', '+24 ساعة'].map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setEditFormData({ ...editFormData, longevityAr: p })}
+                        className="text-[10px] bg-white border border-slate-300 hover:border-teal-600 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer"
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700 block text-xs">
+                    قوة الفوحان المعروضة للجمهور (Sillage)
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.sillageAr}
+                    onChange={(e) => setEditFormData({ ...editFormData, sillageAr: e.target.value })}
+                    placeholder="مثال: قوي وملحوظ أو فوحان ملكي"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-teal-600"
+                  />
+                  <div className="flex gap-1 flex-wrap pt-0.5">
+                    {['قوي وملحوظ', 'فواح جداً', 'فوحان ملكي أسطوري'].map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setEditFormData({ ...editFormData, sillageAr: p })}
+                        className="text-[10px] bg-white border border-slate-300 hover:border-teal-600 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer"
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -1578,11 +1856,11 @@ export default function AdminProductsPage() {
                   إلغاء
                 </button>
                 <button
-                  type="button"
-                  onClick={() => handleQuickAdd(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-bold text-xs"
+                  type="submit"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                 >
-                  حفظ كمسودة فقط
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>حفظ ونشر فوري بالمتجر</span>
                 </button>
                 <button
                   type="button"
@@ -1590,7 +1868,7 @@ export default function AdminProductsPage() {
                   className="px-5 py-2 bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-teal-300" />
-                  <span>حفظ كمسودة والفتح في الاستوديو المتقدم ⚡</span>
+                  <span>حفظ والفتح في الاستوديو المتقدم ⚡</span>
                 </button>
               </div>
             </form>

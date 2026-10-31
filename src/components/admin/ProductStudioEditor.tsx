@@ -169,6 +169,17 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
       : initialProduct?.seoKeywords || ''
   );
 
+  // Performance & Guarantee
+  const [longevityAr, setLongevityAr] = useState(initialProduct?.longevityAr || '+14 ساعة');
+  const [sillageAr, setSillageAr] = useState(initialProduct?.sillageAr || 'قوي وملحوظ');
+  const [guaranteeTitleAr, setGuaranteeTitleAr] = useState(
+    initialProduct?.guaranteeTitleAr || 'ضمان المعاينة الملكية عند باب بيتك'
+  );
+  const [guaranteeTextAr, setGuaranteeTextAr] = useState(
+    initialProduct?.guaranteeTextAr ||
+      'يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب. في حال عدم الرغبة في الاستلام، يلتزم العميل بسداد مصاريف الشحن والتوصيل للمندوب فقط.'
+  );
+
   // UI Navigation & View State
   const [activeTab, setActiveTab] = useState<StudioTab>('identity');
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop');
@@ -226,6 +237,10 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
       inspirationNoteAr: effectiveInspirationNoteAr,
       disclaimerTitleAr: disclaimerTitleAr.trim() || undefined,
       showDisclaimer,
+      longevityAr: longevityAr.trim() || undefined,
+      sillageAr: sillageAr.trim() || undefined,
+      guaranteeTitleAr: guaranteeTitleAr.trim() || undefined,
+      guaranteeTextAr: guaranteeTextAr.trim() || undefined,
       gender,
       headlineEn,
       descriptionAr: descriptionAr || 'توليفة عطرية ملكية خاصة مصنوعة في معامل دار رَحِيقْ بزيوت فرنسية نقية.',
@@ -495,6 +510,10 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
           inspirationNoteAr: inspirationNoteAr.trim() || undefined,
           disclaimerTitleAr: disclaimerTitleAr.trim() || undefined,
           showDisclaimer,
+          longevityAr: longevityAr.trim() || undefined,
+          sillageAr: sillageAr.trim() || undefined,
+          guaranteeTitleAr: guaranteeTitleAr.trim() || undefined,
+          guaranteeTextAr: guaranteeTextAr.trim() || undefined,
           gender,
           fragranceFamily,
           concentration,
@@ -540,6 +559,10 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
           inspirationNoteAr: inspirationNoteAr.trim() || undefined,
           disclaimerTitleAr: disclaimerTitleAr.trim() || undefined,
           showDisclaimer,
+          longevityAr: longevityAr.trim() || undefined,
+          sillageAr: sillageAr.trim() || undefined,
+          guaranteeTitleAr: guaranteeTitleAr.trim() || undefined,
+          guaranteeTextAr: guaranteeTextAr.trim() || undefined,
           gender,
           fragranceFamily,
           concentration,
@@ -1198,6 +1221,118 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
                     placeholder="Artisanal composition crafted with natural oils..."
                     className="w-full bg-[#141A1A] border border-white/15 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-teal-500 leading-relaxed font-sans"
                   />
+                </div>
+              </div>
+
+              {/* Performance Metrics: Longevity & Sillage & Inspection Guarantee */}
+              <div className="p-4 bg-[#141A1A] border border-white/10 rounded-2xl space-y-4">
+                <div className="border-b border-white/10 pb-2">
+                  <h3 className="font-serif text-sm font-bold text-teal-400">
+                    الأداء العطري وضمان المعاينة المعروضة في المتجر (Performance & Guarantee)
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    تحكم بالكلمات التي تظهر داخل مربعات الأداء (الثبات والفوحان) وفي بطاقة ضمان المعاينة عند باب البيت.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Longevity */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-200 block">
+                      مدة الثبات المعروضة للجمهور (Longevity)
+                    </label>
+                    <input
+                      type="text"
+                      value={longevityAr}
+                      onChange={(e) => {
+                        setLongevityAr(e.target.value);
+                        markDirty();
+                      }}
+                      placeholder="مثال: +14 ساعة أو يدوم طوال اليوم"
+                      className="w-full bg-[#0E1212] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-teal-500 font-semibold"
+                    />
+                    <div className="flex gap-1.5 flex-wrap pt-1">
+                      {['+12 ساعة', '+14 ساعة', '+16 ساعة', '+24 ساعة', 'يدوم يومين'].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => {
+                            setLongevityAr(preset);
+                            markDirty();
+                          }}
+                          className="text-[10px] bg-white/5 hover:bg-teal-500/20 text-slate-300 hover:text-teal-300 px-2 py-0.5 rounded border border-white/10 transition-colors"
+                        >
+                          {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Sillage */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-200 block">
+                      قوة الفوحان المعروضة للجمهور (Sillage)
+                    </label>
+                    <input
+                      type="text"
+                      value={sillageAr}
+                      onChange={(e) => {
+                        setSillageAr(e.target.value);
+                        markDirty();
+                      }}
+                      placeholder="مثال: قوي وملحوظ أو فوحان ملكي ينتشر في المكان"
+                      className="w-full bg-[#0E1212] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-teal-500 font-semibold"
+                    />
+                    <div className="flex gap-1.5 flex-wrap pt-1">
+                      {['قوي وملحوظ', 'فواح جداً', 'فوحان ملكي أسطوري', 'هادئ وأنيق'].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => {
+                            setSillageAr(preset);
+                            markDirty();
+                          }}
+                          className="text-[10px] bg-white/5 hover:bg-teal-500/20 text-slate-300 hover:text-teal-300 px-2 py-0.5 rounded border border-white/10 transition-colors"
+                        >
+                          {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Doorstep Inspection Guarantee Card */}
+                <div className="pt-2 border-t border-white/10 space-y-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 block mb-1">
+                      عنوان بطاقة المعاينة عند باب البيت
+                    </label>
+                    <input
+                      type="text"
+                      value={guaranteeTitleAr}
+                      onChange={(e) => {
+                        setGuaranteeTitleAr(e.target.value);
+                        markDirty();
+                      }}
+                      placeholder="ضمان المعاينة الملكية عند باب بيتك"
+                      className="w-full bg-[#0E1212] border border-white/15 rounded-xl px-3.5 py-2 text-xs text-teal-300 focus:outline-none focus:border-teal-500 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 block mb-1">
+                      نص سياسة المعاينة قبل الدفع لكل عطر
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={guaranteeTextAr}
+                      onChange={(e) => {
+                        setGuaranteeTextAr(e.target.value);
+                        markDirty();
+                      }}
+                      placeholder="يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب..."
+                      className="w-full bg-[#0E1212] border border-white/15 rounded-xl p-3 text-xs text-slate-300 focus:outline-none focus:border-teal-500 leading-relaxed"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
