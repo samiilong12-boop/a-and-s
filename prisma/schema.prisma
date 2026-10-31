@@ -124,6 +124,27 @@ model Product {
   batchReference       String?
   internalNotes        String?            @db.Text
 
+  // Inspiration & Commercial Integrity Disclosure (الصندوق الأصفر وإخلاء المسؤولية)
+  inspiredBy        String?
+  inspirationNoteAr String?                 @db.Text
+  disclaimerTitleAr String?
+  showDisclaimer    Boolean?                @default(true)
+
+  // Performance & Olfactory Metrics (الثبات والفوحان المعروض للجمهور)
+  longevityAr       String?
+  longevityEn       String?
+  sillageAr         String?
+  sillageEn         String?
+
+  // Doorstep Inspection Guarantee (ضمان المعاينة عند باب بيتك)
+  guaranteeTitleAr  String?
+  guaranteeTextAr   String?                 @db.Text
+
+  // Technical SEO & Discoverability
+  seoTitle          String?
+  seoDescription    String?                 @db.Text
+  seoKeywords       String?
+
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
 
@@ -395,5 +416,62 @@ model BespokeRequest {
   @@index([status])
   @@index([isArchived])
   @@index([deletedAt])
+  @@index([createdAt])
+}
+
+// -------------------------------------------------------------
+// 7. SMART CLOUD VIDEO MANAGER (Cloudinary Direct Integration)
+// -------------------------------------------------------------
+
+enum VideoProcessingStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum VideoPublishingStatus {
+  DRAFT
+  ACTIVE
+  RETIRED
+  DELETED
+}
+
+model CloudVideo {
+  id                   String                 @id @default(uuid())
+  cloudinaryAssetId    String?
+  cloudinaryPublicId   String                 @unique
+  cloudName            String                 // Tracks which Cloudinary account owns this asset
+  version              Int                    @default(1)
+  originalFilename     String
+  resourceType         String                 @default("video")
+  format               String?                // mp4, webm, mov
+  sourceSizeBytes      Int?
+  durationSeconds      Float?
+  width                Int?
+  height               Int?
+  
+  // Delivery URLs
+  originalUrl          String                 // Secure direct Cloudinary URL
+  mobileDeliveryUrl    String?                // q_auto:eco,f_auto,w_480,vc_h264
+  desktopDeliveryUrl   String?                // q_auto,f_auto,w_720,vc_h264
+  posterUrl            String?                // so_0,f_auto,q_auto,w_1024
+  
+  processingStatus     VideoProcessingStatus  @default(UPLOADING)
+  publishingStatus     VideoPublishingStatus  @default(DRAFT)
+  
+  isShared             Boolean                @default(false) // Prevents deletion if referenced elsewhere
+  notes                String?                // e.g. "Summer Campaign Hero 2026"
+  
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  publishedAt          DateTime?
+  retiredAt            DateTime?
+  scheduledDeletionAt  DateTime?
+  deletedAt            DateTime?
+
+  @@index([publishingStatus])
+  @@index([processingStatus])
+  @@index([cloudName])
   @@index([createdAt])
 }

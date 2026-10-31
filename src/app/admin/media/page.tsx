@@ -44,6 +44,7 @@ import {
   SiteContentConfig,
 } from '@/lib/siteContent';
 import { compressImageFile } from '@/lib/imageCompression';
+import { CloudVideoManager } from '@/components/admin/CloudVideoManager';
 
 type TabType = 'logo' | 'hero' | 'studio3d' | 'bespoke' | 'showcase' | 'riviera' | 'story' | 'footer';
 
@@ -1017,6 +1018,19 @@ export default function AdminStorefrontContentPage() {
               </div>
             </div>
           </div>
+
+          {/* Smart Cloud Video Management System (Cloudinary Direct Signed Uploads) */}
+          <CloudVideoManager
+            onVideoPublished={(newUrl, posterUrl) => {
+              handleSaveConfig({
+                activeVideoUrl: newUrl,
+                visualMode: 'video',
+                videoTitle: 'فيديو كلاوديناري السحابي فائق السرعة',
+                ...(posterUrl ? { activePhotoUrl: posterUrl } : {}),
+              });
+              showNotification('تم بنجاح تفعيل ونشر الفيديو السحابي الجديد في واجهة المتجر!');
+            }}
+          />
 
           {/* Clarity & Brightness Sliders */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">

@@ -20,6 +20,7 @@ import {
   RefreshCw,
   HardDrive,
   Globe,
+  ShieldCheck,
 } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 import { Product } from '@/types';
@@ -180,6 +181,8 @@ export default function AdminProductsPage() {
     seoTitle: '',
     seoDescription: '',
     seoKeywords: '',
+    guaranteeTitleAr: 'ضمان المعاينة الملكية عند باب بيتك',
+    guaranteeTextAr: 'يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب. في حال عدم الرغبة في الاستلام، يلتزم العميل بسداد مصاريف الشحن والتوصيل للمندوب فقط.',
   });
 
   // Form State for Editing Existing Fragrance
@@ -214,6 +217,8 @@ export default function AdminProductsPage() {
     seoTitle: '',
     seoDescription: '',
     seoKeywords: '',
+    guaranteeTitleAr: 'ضمان المعاينة الملكية عند باب بيتك',
+    guaranteeTextAr: 'يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب. في حال عدم الرغبة في الاستلام، يلتزم العميل بسداد مصاريف الشحن والتوصيل للمندوب فقط.',
   });
 
   const autoGenerateInspirationDisclaimer = (mode: 'add' | 'edit') => {
@@ -304,6 +309,8 @@ export default function AdminProductsPage() {
       seoTitle: formData.seoTitle.trim() || undefined,
       seoDescription: formData.seoDescription.trim() || undefined,
       seoKeywords: formData.seoKeywords.trim() || undefined,
+      guaranteeTitleAr: formData.guaranteeTitleAr.trim() || undefined,
+      guaranteeTextAr: formData.guaranteeTextAr.trim() || undefined,
     });
 
     // Created as draft by default
@@ -357,6 +364,8 @@ export default function AdminProductsPage() {
       seoTitle: formData.seoTitle.trim() || undefined,
       seoDescription: formData.seoDescription.trim() || undefined,
       seoKeywords: formData.seoKeywords.trim() || undefined,
+      guaranteeTitleAr: formData.guaranteeTitleAr.trim() || undefined,
+      guaranteeTextAr: formData.guaranteeTextAr.trim() || undefined,
     });
 
     setIsAddModalOpen(false);
@@ -394,6 +403,8 @@ export default function AdminProductsPage() {
       seoTitle: '',
       seoDescription: '',
       seoKeywords: '',
+      guaranteeTitleAr: 'ضمان المعاينة الملكية عند باب بيتك',
+      guaranteeTextAr: 'يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب. في حال عدم الرغبة في الاستلام، يلتزم العميل بسداد مصاريف الشحن والتوصيل للمندوب فقط.',
     });
   };
 
@@ -444,6 +455,8 @@ export default function AdminProductsPage() {
       seoTitle: product.seoTitle || '',
       seoDescription: product.seoDescription || '',
       seoKeywords: Array.isArray(product.seoKeywords) ? product.seoKeywords.join(', ') : (product.seoKeywords || ''),
+      guaranteeTitleAr: product.guaranteeTitleAr || 'ضمان المعاينة الملكية عند باب بيتك',
+      guaranteeTextAr: product.guaranteeTextAr || 'يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب. في حال عدم الرغبة في الاستلام، يلتزم العميل بسداد مصاريف الشحن والتوصيل للمندوب فقط.',
     });
     setIsEditModalOpen(true);
   };
@@ -486,6 +499,8 @@ export default function AdminProductsPage() {
       seoTitle: editFormData.seoTitle.trim() || undefined,
       seoDescription: editFormData.seoDescription.trim() || undefined,
       seoKeywords: editFormData.seoKeywords.trim() || undefined,
+      guaranteeTitleAr: editFormData.guaranteeTitleAr.trim() || undefined,
+      guaranteeTextAr: editFormData.guaranteeTextAr.trim() || undefined,
     });
 
     setIsEditModalOpen(false);
@@ -1311,6 +1326,42 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
+              {/* Doorstep Inspection Guarantee Section */}
+              <div className="space-y-3 p-4 bg-emerald-50/70 rounded-xl border border-emerald-300">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-800" />
+                  <h4 className="font-serif font-bold text-emerald-950 text-xs">
+                    ضمان المعاينة والفحص عند باب بيتك (Doorstep Guarantee):
+                  </h4>
+                </div>
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      عنوان الضمان (Guarantee Title)
+                    </label>
+                    <input
+                      type="text"
+                      value={editFormData.guaranteeTitleAr}
+                      onChange={(e) => setEditFormData({ ...editFormData, guaranteeTitleAr: e.target.value })}
+                      placeholder="ضمان المعاينة الملكية عند باب بيتك"
+                      className="w-full bg-white border border-emerald-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-emerald-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      نص سياسة المعاينة قبل الدفع (Guarantee Body Text)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={editFormData.guaranteeTextAr}
+                      onChange={(e) => setEditFormData({ ...editFormData, guaranteeTextAr: e.target.value })}
+                      placeholder="يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب..."
+                      className="w-full bg-white border border-emerald-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Action Buttons */}
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
                 <button
@@ -1527,8 +1578,8 @@ export default function AdminProductsPage() {
                   </label>
                   <input
                     type="text"
-                    value={editFormData.longevityAr}
-                    onChange={(e) => setEditFormData({ ...editFormData, longevityAr: e.target.value })}
+                    value={formData.longevityAr}
+                    onChange={(e) => setFormData({ ...formData, longevityAr: e.target.value })}
                     placeholder="مثال: +14 ساعة أو يدوم طوال اليوم"
                     className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-teal-600"
                   />
@@ -1537,7 +1588,7 @@ export default function AdminProductsPage() {
                       <button
                         key={p}
                         type="button"
-                        onClick={() => setEditFormData({ ...editFormData, longevityAr: p })}
+                        onClick={() => setFormData({ ...formData, longevityAr: p })}
                         className="text-[10px] bg-white border border-slate-300 hover:border-teal-600 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer"
                       >
                         {p}
@@ -1551,8 +1602,8 @@ export default function AdminProductsPage() {
                   </label>
                   <input
                     type="text"
-                    value={editFormData.sillageAr}
-                    onChange={(e) => setEditFormData({ ...editFormData, sillageAr: e.target.value })}
+                    value={formData.sillageAr}
+                    onChange={(e) => setFormData({ ...formData, sillageAr: e.target.value })}
                     placeholder="مثال: قوي وملحوظ أو فوحان ملكي"
                     className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-teal-600"
                   />
@@ -1561,7 +1612,7 @@ export default function AdminProductsPage() {
                       <button
                         key={p}
                         type="button"
-                        onClick={() => setEditFormData({ ...editFormData, sillageAr: p })}
+                        onClick={() => setFormData({ ...formData, sillageAr: p })}
                         className="text-[10px] bg-white border border-slate-300 hover:border-teal-600 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer"
                       >
                         {p}
@@ -1843,6 +1894,42 @@ export default function AdminProductsPage() {
                     placeholder="تحفة عطرية استثنائية من دار رحيق للعطور..."
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
                   />
+                </div>
+              </div>
+
+              {/* Doorstep Inspection Guarantee Section */}
+              <div className="space-y-3 p-4 bg-emerald-50/70 rounded-xl border border-emerald-300">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-800" />
+                  <h4 className="font-serif font-bold text-emerald-950 text-xs">
+                    ضمان المعاينة والفحص عند باب بيتك (Doorstep Guarantee):
+                  </h4>
+                </div>
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      عنوان الضمان (Guarantee Title)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.guaranteeTitleAr}
+                      onChange={(e) => setFormData({ ...formData, guaranteeTitleAr: e.target.value })}
+                      placeholder="ضمان المعاينة الملكية عند باب بيتك"
+                      className="w-full bg-white border border-emerald-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-emerald-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-0.5">
+                      نص سياسة المعاينة قبل الدفع (Guarantee Body Text)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={formData.guaranteeTextAr}
+                      onChange={(e) => setFormData({ ...formData, guaranteeTextAr: e.target.value })}
+                      placeholder="يحق لك فتح كرتونة الشحن والتأكد من مطابقة الزجاجة وسلامتها ورائحتها قبل دفع أي جنيه للمندوب..."
+                      className="w-full bg-white border border-emerald-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
+                    />
+                  </div>
                 </div>
               </div>
 

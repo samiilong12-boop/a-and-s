@@ -138,6 +138,19 @@ export async function GET(req: NextRequest) {
               topNotes: p.topNotes || [],
               heartNotes: p.heartNotes || [],
               baseNotes: p.baseNotes || [],
+              inspiredBy: p.inspiredBy || undefined,
+              inspirationNoteAr: p.inspirationNoteAr || undefined,
+              disclaimerTitleAr: p.disclaimerTitleAr || undefined,
+              showDisclaimer: p.showDisclaimer ?? true,
+              longevityAr: p.longevityAr || undefined,
+              longevityEn: p.longevityEn || undefined,
+              sillageAr: p.sillageAr || undefined,
+              sillageEn: p.sillageEn || undefined,
+              guaranteeTitleAr: p.guaranteeTitleAr || undefined,
+              guaranteeTextAr: p.guaranteeTextAr || undefined,
+              seoTitle: p.seoTitle || undefined,
+              seoDescription: p.seoDescription || undefined,
+              seoKeywords: p.seoKeywords || undefined,
               categoryId: p.categoryId || undefined,
               isFeatured: p.isFeatured,
               isNewArrival: p.isNewArrival,
@@ -295,6 +308,19 @@ export async function POST(req: NextRequest) {
             topNotes: newProduct.topNotes || [],
             heartNotes: newProduct.heartNotes || [],
             baseNotes: newProduct.baseNotes || [],
+            inspiredBy: newProduct.inspiredBy || null,
+            inspirationNoteAr: newProduct.inspirationNoteAr || null,
+            disclaimerTitleAr: newProduct.disclaimerTitleAr || null,
+            showDisclaimer: newProduct.showDisclaimer !== false,
+            longevityAr: newProduct.longevityAr || null,
+            longevityEn: newProduct.longevityEn || null,
+            sillageAr: newProduct.sillageAr || null,
+            sillageEn: newProduct.sillageEn || null,
+            guaranteeTitleAr: newProduct.guaranteeTitleAr || null,
+            guaranteeTextAr: newProduct.guaranteeTextAr || null,
+            seoTitle: newProduct.seoTitle || null,
+            seoDescription: newProduct.seoDescription || null,
+            seoKeywords: Array.isArray(newProduct.seoKeywords) ? newProduct.seoKeywords.join(', ') : (newProduct.seoKeywords || null),
           },
           create: {
             id: newProduct.id,
@@ -309,6 +335,19 @@ export async function POST(req: NextRequest) {
             topNotes: newProduct.topNotes || [],
             heartNotes: newProduct.heartNotes || [],
             baseNotes: newProduct.baseNotes || [],
+            inspiredBy: newProduct.inspiredBy || null,
+            inspirationNoteAr: newProduct.inspirationNoteAr || null,
+            disclaimerTitleAr: newProduct.disclaimerTitleAr || null,
+            showDisclaimer: newProduct.showDisclaimer !== false,
+            longevityAr: newProduct.longevityAr || null,
+            longevityEn: newProduct.longevityEn || null,
+            sillageAr: newProduct.sillageAr || null,
+            sillageEn: newProduct.sillageEn || null,
+            guaranteeTitleAr: newProduct.guaranteeTitleAr || null,
+            guaranteeTextAr: newProduct.guaranteeTextAr || null,
+            seoTitle: newProduct.seoTitle || null,
+            seoDescription: newProduct.seoDescription || null,
+            seoKeywords: Array.isArray(newProduct.seoKeywords) ? newProduct.seoKeywords.join(', ') : (newProduct.seoKeywords || null),
           },
         });
       }
@@ -394,6 +433,44 @@ export async function PUT(req: NextRequest) {
 
     persistProducts(updated);
     await persistToCloudSetting(updated);
+
+    // Sync to Prisma DB if available
+    try {
+      const hasDb = await isDatabaseConnected();
+      if (hasDb) {
+        const edited = updated.find((p) => p.id === targetId);
+        if (edited) {
+          await prisma.product.update({
+            where: { id: targetId },
+            data: {
+              nameEn: edited.nameEn,
+              nameAr: edited.nameAr || null,
+              descriptionEn: edited.descriptionEn || '',
+              descriptionAr: edited.descriptionAr || null,
+              concentration: edited.concentration as any,
+              fragranceFamily: edited.fragranceFamily || 'Oriental',
+              topNotes: edited.topNotes || [],
+              heartNotes: edited.heartNotes || [],
+              baseNotes: edited.baseNotes || [],
+              inspiredBy: edited.inspiredBy || null,
+              inspirationNoteAr: edited.inspirationNoteAr || null,
+              disclaimerTitleAr: edited.disclaimerTitleAr || null,
+              showDisclaimer: edited.showDisclaimer !== false,
+              longevityAr: edited.longevityAr || null,
+              longevityEn: edited.longevityEn || null,
+              sillageAr: edited.sillageAr || null,
+              sillageEn: edited.sillageEn || null,
+              guaranteeTitleAr: edited.guaranteeTitleAr || null,
+              guaranteeTextAr: edited.guaranteeTextAr || null,
+              seoTitle: edited.seoTitle || null,
+              seoDescription: edited.seoDescription || null,
+              seoKeywords: Array.isArray(edited.seoKeywords) ? edited.seoKeywords.join(', ') : (edited.seoKeywords || null),
+            },
+          }).catch(() => {});
+        }
+      }
+    } catch {}
+
     return NextResponse.json({ success: true, message: 'تم تحديث بيانات العطر بنجاح' });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
