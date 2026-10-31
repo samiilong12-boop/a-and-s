@@ -22,6 +22,7 @@ import { Product, ProductVariant } from '@/types';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/currency';
 import { useCart } from '@/context/CartContext';
+import { useProducts } from '@/context/ProductContext';
 import { ProductCard } from '@/components/ProductCard';
 import { trackViewItem, trackAddToCart, trackBeginCheckout } from '@/lib/analytics';
 import {
@@ -38,10 +39,15 @@ interface ProductClientViewProps {
   relatedProducts: Product[];
 }
 
-export function ProductClientView({ product, relatedProducts }: ProductClientViewProps) {
+export function ProductClientView({ product: initialProduct, relatedProducts }: ProductClientViewProps) {
   const router = useRouter();
   const { t, isRtl } = useLanguage();
   const { addItem } = useCart();
+  const { getProductBySlug } = useProducts();
+
+  // Subscribe to live product from ProductContext (reflects admin price edits & server sync in real time)
+  const liveProduct = getProductBySlug(initialProduct.slug || initialProduct.id) || initialProduct;
+  const product = liveProduct;
 
   const fallbackVariant = product.variants?.[0] || {
     id: `${product.id}-var-100`,
@@ -57,17 +63,22 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
     isActive: true,
   };
 
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(fallbackVariant);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(() => {
+    return product.variants?.[0] || fallbackVariant;
+  });
   const [selectedImage, setSelectedImage] = useState(product.images?.[0]?.url || product.imageUrl || '');
   const [quantity, setQuantity] = useState(1);
   const [addedAnimation, setAddedAnimation] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
 
   useEffect(() => {
-    setSelectedVariant(product.variants?.[0] || fallbackVariant);
+    // When product updates from ProductContext (e.g. price edited in Admin), update the active variant
+    const currentVol = selectedVariant?.volumeMl;
+    const matching = (currentVol && product.variants?.find((v) => v.volumeMl === currentVol)) || product.variants?.[0] || fallbackVariant;
+    setSelectedVariant(matching);
     setSelectedImage(product.images?.[0]?.url || product.imageUrl || '');
     // GA4: track view_item
-    trackViewItem(product, product.variants?.[0] || fallbackVariant);
+    trackViewItem(product, matching);
   }, [product]);
 
   useEffect(() => {
@@ -322,7 +333,7 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
                 <div className="grid grid-cols-2 gap-3">
                   {product.variants.map((v) => {
                     const vPrice = v.salePriceInPiasters || v.regularPriceInPiasters || ((v.salePriceEgp || v.regularPriceEgp || 0) * 100);
-                    const isSelected = selectedVariant.id === v.id;
+                    const isSelected = selectedVariant.id === v.id || selectedVariant.volumeMl === v.volumeMl;
                     return (
                       <button
                         key={v.id}

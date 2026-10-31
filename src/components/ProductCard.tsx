@@ -14,15 +14,23 @@ import {
   getLocalizedOlfactoryNote,
 } from '@/lib/fragrance-translations';
 import { buildProductResponsiveImage } from '@/lib/productImageDelivery';
+import { useProducts } from '@/context/ProductContext';
 
 interface ProductCardProps {
   product: Product;
   onExpressOrder?: (product: Product) => void;
 }
 
-export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
+export function ProductCard({ product: propProduct, onExpressOrder }: ProductCardProps) {
   const { addItem } = useCart();
   const { isRtl } = useLanguage();
+  const { getProductBySlug } = useProducts();
+
+  const product =
+    (propProduct.slug && getProductBySlug(propProduct.slug)) ||
+    (propProduct.id && getProductBySlug(propProduct.id)) ||
+    propProduct;
+
   const primaryImage =
     product.images?.find((img) => img.isPrimary)?.url ||
     product.images?.[0]?.url ||

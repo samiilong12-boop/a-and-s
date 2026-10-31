@@ -16,6 +16,9 @@ interface PageProps {
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://a-and-s.vercel.app';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateStaticParams() {
   const categories = getAllCategories();
   return categories.map((cat) => ({ slug: cat.slug }));

@@ -3,12 +3,56 @@ import { notFound } from 'next/navigation';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { getProductBySlug, loadCatalogProducts, getAllProductSlugs, CATEGORY_REGISTRY } from '@/lib/catalog';
 import { ProductClientView } from '@/components/ProductClientView';
+import { prisma, isDatabaseConnected } from '@/lib/prisma';
+import { Product } from '@/types';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://a-and-s.vercel.app';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+async function getLiveProduct(slug: string): Promise<Product | null> {
+  try {
+    const hasDb = await isDatabaseConnected();
+    if (hasDb) {
+      const setting = await prisma.storeSetting.findUnique({
+        where: { key: 'catalog_products' },
+      });
+      if (setting?.value) {
+        const list: Product[] = JSON.parse(setting.value);
+        const decoded = decodeURIComponent(slug).toLowerCase().trim();
+        const raw = slug.toLowerCase().trim();
+        const found = list.find((p) => {
+          const s = (p.slug || '').toLowerCase();
+          const id = (p.id || '').toLowerCase();
+          return s === decoded || id === decoded || s === raw || id === raw;
+        });
+        if (found) return found;
+      }
+    }
+  } catch {}
+  return getProductBySlug(slug);
+}
+
+async function getLiveCatalog(): Promise<Product[]> {
+  try {
+    const hasDb = await isDatabaseConnected();
+    if (hasDb) {
+      const setting = await prisma.storeSetting.findUnique({
+        where: { key: 'catalog_products' },
+      });
+      if (setting?.value) {
+        const list: Product[] = JSON.parse(setting.value);
+        if (Array.isArray(list) && list.length > 0) return list;
+      }
+    }
+  } catch {}
+  return loadCatalogProducts();
+}
 
 export async function generateStaticParams() {
   const slugs = getAllProductSlugs();
@@ -20,7 +64,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getLiveProduct(slug);
 
   if (!product || product.isPublished === false) {
     return {
@@ -73,13 +117,13 @@ export async function generateMetadata(
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getLiveProduct(slug);
 
   if (!product || product.isPublished === false) {
     notFound();
   }
 
-  const allProducts = loadCatalogProducts();
+  const allProducts = await getLiveCatalog();
   const relatedProducts = allProducts
     .filter((p) => p.id !== product.id && p.fragranceFamily === product.fragranceFamily)
     .slice(0, 4);
