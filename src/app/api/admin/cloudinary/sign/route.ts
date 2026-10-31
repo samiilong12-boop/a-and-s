@@ -23,26 +23,36 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const filename = (body.filename || 'hero-video').replace(/[^a-zA-Z0-9_-]/g, '_');
-    const folder = 'raheeq/hero-videos';
-    const uniqueId = `raheeq_hero_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const resourceType = body.resourceType === 'image' ? 'image' : 'video';
+    const isImage = resourceType === 'image';
+
+    const defaultFolder = isImage ? 'raheeq/products' : 'raheeq/hero-videos';
+    const folder = body.folder || defaultFolder;
+
+    const prefix = isImage ? 'raheeq_prod' : 'raheeq_hero';
+    const uniqueId = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const publicId = `${folder}/${uniqueId}`;
 
-    // Cloudinary Eager Transformations to automatically generate lightweight mobile & desktop derivatives
-    const eager = 'q_auto:eco,f_auto,w_480,vc_h264|q_auto,f_auto,w_720,vc_h264|so_0,f_auto,q_auto,w_1024';
+    // Cloudinary Eager Transformations (only for videos)
+    const eager = isImage
+      ? undefined
+      : 'q_auto:eco,f_auto,w_480,vc_h264|q_auto,f_auto,w_720,vc_h264|so_0,f_auto,q_auto,w_1024';
 
     const paramsToSign: Record<string, string | number> = {
       folder,
       public_id: publicId,
-      eager,
       overwrite: 'false',
     };
+
+    if (eager) {
+      paramsToSign.eager = eager;
+    }
 
     const { signature, timestamp } = generateUploadSignature(paramsToSign, config.apiSecret);
 
     return NextResponse.json({
       success: true,
-      uploadUrl: `https://api.cloudinary.com/v1_1/${config.cloudName}/video/upload`,
+      uploadUrl: `https://api.cloudinary.com/v1_1/${config.cloudName}/${resourceType}/upload`,
       cloudName: config.cloudName,
       apiKey: config.apiKey,
       publicId,
@@ -50,7 +60,7 @@ export async function POST(req: NextRequest) {
       eager,
       timestamp,
       signature,
-      resourceType: 'video',
+      resourceType,
     });
   } catch (err: any) {
     console.error('Cloudinary sign error:', err);

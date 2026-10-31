@@ -40,6 +40,7 @@ import { useProducts } from '@/context/ProductContext';
 import { FRAGRANCE_FAMILIES, CONCENTRATIONS, getDemoBottleSvg } from '@/lib/data/products';
 import { formatPrice } from '@/lib/currency';
 import { compressImageFile } from '@/lib/imageCompression';
+import { SmartProductImageOptimizer } from '@/components/admin/SmartProductImageOptimizer';
 import { ProductClientView } from '@/components/ProductClientView';
 
 interface ProductStudioEditorProps {
@@ -932,48 +933,19 @@ export default function ProductStudioEditor({ mode, initialProduct }: ProductStu
                 </p>
               </div>
 
-              {/* Main Image Uploader */}
-              <div className="p-4 bg-[#141A1A] border border-white/10 rounded-2xl space-y-4">
-                <label className="text-xs font-bold text-slate-200 block">
-                  الصورة الرئيسية للعطر (Primary Flacon Visual)
-                </label>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <div className="w-24 h-28 bg-black/50 border border-white/20 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center relative">
-                    <img
-                      src={imageUrl || getDemoBottleSvg(nameEn || 'perfume')}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                    {isUploadingImage && (
-                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                        <RefreshCw className="w-5 h-5 text-teal-400 animate-spin" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-2 w-full">
-                    <input
-                      type="text"
-                      value={imageUrl}
-                      onChange={(e) => {
-                        setImageUrl(e.target.value);
-                        markDirty();
-                      }}
-                      placeholder="رابط الصورة أو اضغط على زر الرفع..."
-                      className="w-full bg-[#0E1212] border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-teal-500 font-mono"
-                    />
-                    <label className="inline-flex items-center gap-2 bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all">
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>رفع صورة من جهازك مباشرة</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
+              {/* Smart Fragrance Visual Studio & Automatic Optimizer */}
+              <SmartProductImageOptimizer
+                primaryImageUrl={imageUrl}
+                images={images}
+                productNameEn={nameEn}
+                productNameAr={nameAr}
+                showGallery={true}
+                onChange={(newPrimary, newGallery) => {
+                  setImageUrl(newPrimary);
+                  setImages(newGallery);
+                  markDirty();
+                }}
+              />
             </div>
           )}
 

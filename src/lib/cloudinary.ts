@@ -134,6 +134,11 @@ export function buildDeliveryUrls(
 }
 
 /**
+ * Re-export pure isomorphic product image delivery helpers (Client-Safe)
+ */
+export * from './productImageDelivery';
+
+/**
  * Verify Cloudinary webhook notification signature (X-Cld-Signature & X-Cld-Timestamp)
  */
 export function verifyWebhookSignature(

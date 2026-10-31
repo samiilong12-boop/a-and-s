@@ -31,6 +31,7 @@ import {
   getLocalizedConcentration,
   getLocalizedOlfactoryNote,
 } from '@/lib/fragrance-translations';
+import { buildProductResponsiveImage, getOptimizedProductImageUrl } from '@/lib/productImageDelivery';
 
 interface ProductClientViewProps {
   product: Product;
@@ -131,11 +132,21 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
             {/* Left: Product Imagery & Gallery */}
             <div className="space-y-4">
               <div className="aspect-[4/5] bg-[#FAF8F4] rounded-2xl border border-[#E6E1D5] overflow-hidden relative shadow-lg group">
-                <img
-                  src={selectedImage || product.images?.[0]?.url || product.imageUrl}
-                  alt={getLocalizedProductName(product, isRtl)}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                />
+                {(() => {
+                  const currentImgUrl = selectedImage || product.images?.[0]?.url || product.imageUrl || '';
+                  const responsive = buildProductResponsiveImage(currentImgUrl, 'max_quality');
+                  return (
+                    <img
+                      src={responsive.detailUrl || currentImgUrl}
+                      srcSet={responsive.srcSet}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      alt={getLocalizedProductName(product, isRtl)}
+                      width={800}
+                      height={1000}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  );
+                })()}
                 {product.isBestseller && (
                   <span className={`absolute top-4 ${isRtl ? 'right-4' : 'left-4'} badge-emerald px-3 py-1 rounded-sm font-bold shadow-md`}>
                     {isRtl ? 'الأكثر طلباً' : 'Bestseller'}
@@ -158,7 +169,11 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
                         selectedImage === img.url ? 'border-[#0D9488] scale-105 shadow-md' : 'border-[#E6E1D5] opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={img.url} alt={img.altTextEn} className="w-full h-full object-cover" />
+                      <img
+                        src={getOptimizedProductImageUrl(img.url, 480)}
+                        alt={img.altTextEn}
+                        className="w-full h-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>

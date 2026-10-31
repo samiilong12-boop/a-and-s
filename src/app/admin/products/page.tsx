@@ -27,6 +27,8 @@ import { Product } from '@/types';
 import { FRAGRANCE_FAMILIES, CONCENTRATIONS, getDemoBottleSvg } from '@/lib/data/products';
 import { formatPrice } from '@/lib/currency';
 import { compressImageFile } from '@/lib/imageCompression';
+import { SmartProductImageOptimizer } from '@/components/admin/SmartProductImageOptimizer';
+import { BulkImageOptimizerModal } from '@/components/admin/BulkImageOptimizerModal';
 
 export default function AdminProductsPage() {
   const router = useRouter();
@@ -46,6 +48,7 @@ export default function AdminProductsPage() {
   const [selectedFamily, setSelectedFamily] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -595,6 +598,15 @@ export default function AdminProductsPage() {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
             <span>حفظ ومزامنة السحابة فوراً (Cloud Sync)</span>
+          </button>
+
+          <button
+            onClick={() => setIsBulkModalOpen(true)}
+            className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-3.5 py-2 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            title="فحص وتحسين جميع صور العطور السابقة سحابياً غير الإتلافي وتوفير المساحة"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-teal-300" />
+            <span>فحص وتحسين الصور (Bulk Optimizer) ⚡</span>
           </button>
 
           <button
@@ -1218,57 +1230,21 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Image URL & File Upload */}
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700 block">
-                  صورة العطر (Product Image) — يمكنك رفع صورة جديدة من جهازك مباشرة
-                </label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    value={editFormData.imageUrl}
-                    onChange={(e) => setEditFormData({ ...editFormData, imageUrl: e.target.value })}
-                    placeholder="رابط الصورة أو اختر من جهازك..."
-                    className="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
-                  />
-                  <label className="cursor-pointer bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors flex-shrink-0">
-                    <Upload className="w-3.5 h-3.5 text-teal-700" />
-                    <span>رفع من جهازك</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          try {
-                            const compressed = await compressImageFile(file);
-                            setEditFormData({ ...editFormData, imageUrl: compressed });
-                          } catch {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              if (event.target?.result) {
-                                setEditFormData({ ...editFormData, imageUrl: event.target.result as string });
-                              }
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-                {editFormData.imageUrl && (
-                  <div className="mt-2 flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-slate-200">
-                    <img
-                      src={editFormData.imageUrl}
-                      alt="Preview"
-                      className="w-12 h-12 object-cover rounded-md border border-slate-300"
-                    />
-                    <span className="text-[11px] text-teal-800 font-bold">معاينة الصورة المعدلة</span>
-                  </div>
-                )}
-              </div>
+              {/* Smart Fragrance Visual Studio & Automatic Optimizer */}
+              <SmartProductImageOptimizer
+                primaryImageUrl={editFormData.imageUrl}
+                images={
+                  products.find((p) => p.id === editingId)?.images ||
+                  (editFormData.imageUrl
+                    ? [{ id: 'primary-img', productId: editingId || '', url: editFormData.imageUrl, isPrimary: true, sortOrder: 0 }]
+                    : [])
+                }
+                productNameEn={editFormData.nameEn}
+                productNameAr={editFormData.nameAr}
+                onChange={(newPrimary, newGallery) => {
+                  setEditFormData((prev) => ({ ...prev, imageUrl: newPrimary }));
+                }}
+              />
 
               {/* Scent Notes */}
               <div className="space-y-3 p-4 bg-teal-50/50 rounded-xl border border-teal-200">
@@ -1787,57 +1763,20 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Image URL & File Upload */}
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700 block">
-                  صورة العطر (Product Image) — يمكنك رفع صورة من جهازك أو وضع رابط
-                </label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    placeholder="ضع رابط الصورة هنا أو اضغط زر الرفع من جهازك..."
-                    className="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-teal-600"
-                  />
-                  <label className="cursor-pointer bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors flex-shrink-0">
-                    <Upload className="w-3.5 h-3.5 text-teal-700" />
-                    <span>اختر من جهازك</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          try {
-                            const compressed = await compressImageFile(file);
-                            setFormData({ ...formData, imageUrl: compressed });
-                          } catch {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              if (event.target?.result) {
-                                setFormData({ ...formData, imageUrl: event.target.result as string });
-                              }
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-                {formData.imageUrl && (
-                  <div className="mt-2 flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-slate-200">
-                    <img
-                      src={formData.imageUrl}
-                      alt="Product Preview"
-                      className="w-12 h-12 object-cover rounded-md border border-slate-300"
-                    />
-                    <span className="text-[11px] text-teal-800 font-bold">تم تجهيز ومعاينة صورة العطر بنجاح</span>
-                  </div>
-                )}
-              </div>
+              {/* Smart Fragrance Visual Studio & Automatic Optimizer */}
+              <SmartProductImageOptimizer
+                primaryImageUrl={formData.imageUrl}
+                images={
+                  formData.imageUrl
+                    ? [{ id: 'new-primary-img', productId: '', url: formData.imageUrl, isPrimary: true, sortOrder: 0 }]
+                    : []
+                }
+                productNameEn={formData.nameEn}
+                productNameAr={formData.nameAr}
+                onChange={(newPrimary, newGallery) => {
+                  setFormData((prev) => ({ ...prev, imageUrl: newPrimary }));
+                }}
+              />
 
               {/* Scent Notes Pyramid */}
               <div className="space-y-3 p-4 bg-teal-50/50 rounded-xl border border-teal-200">
@@ -1962,6 +1901,12 @@ export default function AdminProductsPage() {
           </div>
         </div>
       )}
+      {/* Bulk Image Optimizer Audit & Delivery Transformation Modal */}
+      <BulkImageOptimizerModal
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        onCatalogUpdated={() => syncWithServer()}
+      />
     </div>
   );
 }

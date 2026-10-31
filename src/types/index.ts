@@ -27,10 +27,17 @@ export interface ProductVariant {
 export interface ProductImage {
   id: string;
   url: string;
-  altTextEn: string;
+  altTextEn?: string;
   altTextAr?: string;
   isPrimary: boolean;
   sortOrder: number;
+  productId?: string;
+  cloudinaryPublicId?: string;
+  cloudName?: string;
+  width?: number;
+  height?: number;
+  format?: string;
+  bytes?: number;
 }
 
 export interface Product {

@@ -13,6 +13,7 @@ import {
   getLocalizedConcentration,
   getLocalizedOlfactoryNote,
 } from '@/lib/fragrance-translations';
+import { buildProductResponsiveImage } from '@/lib/productImageDelivery';
 
 interface ProductCardProps {
   product: Product;
@@ -27,6 +28,7 @@ export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
     product.images?.[0]?.url ||
     product.imageUrl ||
     '';
+  const responsiveImage = buildProductResponsiveImage(primaryImage);
   const defaultVariant = product.variants[0];
 
   const regularPrice =
@@ -50,7 +52,9 @@ export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
       {/* Visual Image Container */}
       <Link href={`/product/${product.slug}`} prefetch={false} className="relative block aspect-[4/5] bg-[#FAF8F4] overflow-hidden">
         <img
-          src={primaryImage}
+          src={responsiveImage.src}
+          srcSet={responsiveImage.srcSet}
+          sizes={responsiveImage.sizes}
           alt={product.nameEn}
           width={400}
           height={500}
