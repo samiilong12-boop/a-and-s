@@ -17,16 +17,16 @@ interface CustomRequestContextType {
     concentration: string;
     notes?: string;
   }) => Promise<{ success: boolean; request?: BespokePerfumeRequest }>;
-  updateRequestStatus: (id: string, status: BespokePerfumeRequest['status']) => Promise<void>;
-  deleteRequest: (id: string) => Promise<void>;
-  clearFulfilledRequests: () => Promise<void>;
-  markAllActiveAsFulfilled: () => Promise<void>;
+  updateRequestStatus: (id: string, status: BespokePerfumeRequest['status']) => Promise<{ success: boolean; error?: string }>;
+  deleteRequest: (id: string) => Promise<{ success: boolean; error?: string }>;
+  clearFulfilledRequests: () => Promise<{ success: boolean; error?: string }>;
+  markAllActiveAsFulfilled: () => Promise<{ success: boolean; error?: string }>;
   refreshRequests: () => Promise<void>;
 }
 
 const CustomRequestContext = createContext<CustomRequestContextType | undefined>(undefined);
 
-export const CUSTOM_REQUESTS_STORAGE_KEY = 'raheeq_custom_requests_cache_v2';
+export const CUSTOM_REQUESTS_STORAGE_KEY = 'raheeq_custom_requests_cache_v3';
 export const LEGACY_STORAGE_KEY = 'a_and_s_custom_requests_cache';
 export const TOKEN_KEY = 'a_and_s_admin_jwt_token';
 
@@ -57,7 +57,6 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     setDefaultPerfume('');
   };
 
-  // Helper to read local storage safely
   const getLocalStoredRequests = useCallback((): BespokePerfumeRequest[] => {
     if (typeof window === 'undefined') return [];
     try {
@@ -66,7 +65,9 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
         localStorage.getItem(LEGACY_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter((r) => r && !r.deletedAt);
+        }
       }
     } catch (e) {
       console.warn('Failed reading local bespoke requests', e);
@@ -74,11 +75,8 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     return [];
   }, []);
 
-  // Intelligently merge without losing any requests (Scoped for Admin)
+  // Server-Authoritative Refresh: Remote is the single source of truth
   const refreshRequests = useCallback(async () => {
-    const local = getLocalStoredRequests();
-
-    // Privacy & Security Lockdown: Only fetch remote customer database if logged in as Admin
     const isAdmin =
       typeof window !== 'undefined' &&
       (Boolean(sessionStorage.getItem(TOKEN_KEY)) ||
@@ -86,6 +84,7 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
         window.location.pathname.startsWith('/admin'));
 
     if (!isAdmin) {
+      const local = getLocalStoredRequests();
       if (local.length > 0) setRequests(local);
       return;
     }
@@ -93,27 +92,17 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     try {
       const res = await fetch('/api/custom-requests', {
         headers: getAdminAuthHeaders(),
+        cache: 'no-store',
       });
       if (res.ok) {
-        const remote = await res.json();
-
+        const remote: BespokePerfumeRequest[] = await res.json();
         if (Array.isArray(remote)) {
-          // Merge both by ID: remote items + local items
-          const map = new Map<string, BespokePerfumeRequest>();
-          remote.filter(Boolean).forEach((r) => {
-            if (r?.id) map.set(r.id, r);
-          });
-          local.filter(Boolean).forEach((r) => {
-            if (r?.id) map.set(r.id, r);
-          });
-
-          const merged = Array.from(map.values()).sort(
-            (a, b) => new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime()
-          );
-
-          setRequests(merged);
-          localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(merged));
-          localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(merged));
+          const validRemote = remote.filter((r) => r && !r.deletedAt);
+          setRequests(validRemote);
+          try {
+            localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(validRemote));
+            localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(validRemote));
+          } catch {}
           return;
         }
       }
@@ -121,12 +110,12 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
       console.warn('Remote sync error, using local requests', e);
     }
 
+    const local = getLocalStoredRequests();
     if (local.length > 0) {
       setRequests(local);
     }
   }, [getLocalStoredRequests]);
 
-  // Initial mount: load local immediately, then fetch remote
   useEffect(() => {
     const local = getLocalStoredRequests();
     if (local.length > 0) {
@@ -135,7 +124,6 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     setIsHydrated(true);
     refreshRequests();
 
-    // Listen for storage changes across tabs or custom dispatch
     const handleStorageEvent = () => {
       refreshRequests();
     };
@@ -157,8 +145,9 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
     concentration: string;
     notes?: string;
   }) => {
+    const id = `REQ-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
     const newReq: BespokePerfumeRequest = {
-      id: `req-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+      id,
       customerName: data.customerName || 'عميل رحيق',
       customerPhone: data.customerPhone,
       perfumeName: data.perfumeName,
@@ -166,24 +155,12 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
       concentration: data.concentration,
       notes: data.notes || '',
       status: 'NEW',
+      isArchived: false,
+      archivedAt: null,
+      deletedAt: null,
       createdAt: new Date().toISOString(),
     };
 
-    // 1. Instant optimistic local update
-    const current = getLocalStoredRequests();
-    const updated = [newReq, ...current.filter((r) => r.id !== newReq.id)];
-
-    setRequests(updated);
-    try {
-      localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updated));
-      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updated));
-      // Notify other tabs/admin windows immediately
-      window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
-    } catch (e) {
-      console.error('Failed saving to localStorage', e);
-    }
-
-    // 2. Persist to API in background
     try {
       const res = await fetch('/api/custom-requests', {
         method: 'POST',
@@ -192,107 +169,132 @@ export function CustomRequestProvider({ children }: { children: React.ReactNode 
       });
       if (res.ok) {
         const result = await res.json();
-        if (result.success && result.request) {
-          return { success: true, request: result.request };
-        }
+        const savedReq = result.request || newReq;
+        setRequests((prev) => [savedReq, ...prev.filter((r) => r.id !== savedReq.id)]);
+        try {
+          const updatedLocal = [savedReq, ...getLocalStoredRequests().filter((r) => r.id !== savedReq.id)];
+          localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updatedLocal));
+          window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
+        } catch {}
+        return { success: true, request: savedReq };
       }
     } catch (e) {
-      console.warn('API post failed, kept safe in local cache', e);
+      console.warn('API post failed, keeping locally', e);
     }
 
+    setRequests((prev) => [newReq, ...prev.filter((r) => r.id !== newReq.id)]);
     return { success: true, request: newReq };
   };
 
-  const updateRequestStatus = async (id: string, status: BespokePerfumeRequest['status']) => {
-    const current = getLocalStoredRequests();
-    const updated = current.map((r) => (r.id === id ? { ...r, status } : r));
-
-    setRequests(updated);
-    try {
-      localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updated));
-      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updated));
-      window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
-    } catch {}
+  const updateRequestStatus = async (
+    id: string,
+    status: BespokePerfumeRequest['status']
+  ): Promise<{ success: boolean; error?: string }> => {
+    const isArchived = status === 'FULFILLED' || status === 'COMPLETED';
+    const archivedAt = isArchived ? new Date().toISOString() : null;
 
     try {
-      await fetch('/api/custom-requests', {
+      const res = await fetch('/api/custom-requests', {
         method: 'PATCH',
         headers: getAdminAuthHeaders(),
-        body: JSON.stringify({ id, status }),
+        body: JSON.stringify({ id, status, isArchived, archivedAt }),
       });
-    } catch (e) {
-      console.error('Failed to patch request', e);
-    }
-  };
 
-  const deleteRequest = async (id: string) => {
-    const current = getLocalStoredRequests();
-    const updated = current.filter((r) => r.id !== id);
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        return { success: false, error: errJson.error || `خطأ ${res.status}` };
+      }
 
-    setRequests(updated);
-    try {
-      localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updated));
-      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updated));
-      window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
-    } catch {}
+      const json = await res.json();
+      const confirmedReq: BespokePerfumeRequest = json.request || {
+        ...requests.find((r) => r.id === id),
+        id,
+        status,
+        isArchived,
+        archivedAt,
+      };
 
-    try {
-      await fetch(`/api/custom-requests?id=${id}`, {
-        method: 'DELETE',
-        headers: getAdminAuthHeaders(),
-      });
-    } catch (e) {
-      console.error('Failed to delete request', e);
-    }
-  };
-
-  const clearFulfilledRequests = async () => {
-    const current = getLocalStoredRequests();
-    const updated = current.filter((r) => r.status !== 'FULFILLED');
-
-    setRequests(updated);
-    try {
-      localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updated));
-      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updated));
-      window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
-    } catch {}
-
-    try {
-      await fetch('/api/custom-requests?clearFulfilled=true', {
-        method: 'DELETE',
-        headers: getAdminAuthHeaders(),
-      });
-    } catch (e) {
-      console.error('Failed to clear fulfilled requests', e);
-    }
-  };
-
-  const markAllActiveAsFulfilled = async () => {
-    const current = getLocalStoredRequests();
-    const activeItems = current.filter((r) => r.status === 'NEW' || r.status === 'CONTACTED');
-    if (activeItems.length === 0) return;
-
-    const updated = current.map((r) =>
-      r.status === 'NEW' || r.status === 'CONTACTED' ? { ...r, status: 'FULFILLED' as const } : r
-    );
-
-    setRequests(updated);
-    try {
-      localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updated));
-      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updated));
-      window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
-    } catch {}
-
-    // In background, patch them to API
-    for (const req of activeItems) {
+      setRequests((prev) => prev.map((r) => (r.id === id ? confirmedReq : r)));
       try {
-        await fetch('/api/custom-requests', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: req.id, status: 'FULFILLED' }),
-        });
+        const updatedLocal = getLocalStoredRequests().map((r) =>
+          r.id === id ? confirmedReq : r
+        );
+        localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updatedLocal));
+        localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updatedLocal));
+        window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
       } catch {}
+
+      return { success: true };
+    } catch (err: any) {
+      console.error('Network error patching request status:', err);
+      return { success: false, error: err.message || 'خطأ في الاتصال بالخادم' };
     }
+  };
+
+  const deleteRequest = async (id: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await fetch(`/api/custom-requests?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: getAdminAuthHeaders(),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        return { success: false, error: errJson.error || `خطأ ${res.status}` };
+      }
+
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+      try {
+        const updatedLocal = getLocalStoredRequests().filter((r) => r.id !== id);
+        localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updatedLocal));
+        localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updatedLocal));
+        window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
+      } catch {}
+
+      return { success: true };
+    } catch (err: any) {
+      console.error('Network error deleting request:', err);
+      return { success: false, error: err.message || 'خطأ في الاتصال بالخادم' };
+    }
+  };
+
+  const clearFulfilledRequests = async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await fetch('/api/custom-requests?clearFulfilled=true', {
+        method: 'DELETE',
+        headers: getAdminAuthHeaders(),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        return { success: false, error: errJson.error || `خطأ ${res.status}` };
+      }
+
+      setRequests((prev) => prev.filter((r) => r.status !== 'FULFILLED' && r.status !== 'COMPLETED' && !r.isArchived));
+      try {
+        const updatedLocal = getLocalStoredRequests().filter(
+          (r) => r.status !== 'FULFILLED' && r.status !== 'COMPLETED' && !r.isArchived
+        );
+        localStorage.setItem(CUSTOM_REQUESTS_STORAGE_KEY, JSON.stringify(updatedLocal));
+        localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(updatedLocal));
+        window.dispatchEvent(new Event('raheeq_custom_requests_updated'));
+      } catch {}
+
+      return { success: true };
+    } catch (err: any) {
+      console.error('Network error clearing fulfilled requests:', err);
+      return { success: false, error: err.message || 'خطأ في الاتصال بالخادم' };
+    }
+  };
+
+  const markAllActiveAsFulfilled = async (): Promise<{ success: boolean; error?: string }> => {
+    const activeItems = requests.filter((r) => r.status === 'NEW' || r.status === 'CONTACTED');
+    if (activeItems.length === 0) return { success: true };
+
+    for (const req of activeItems) {
+      await updateRequestStatus(req.id, 'FULFILLED');
+    }
+    return { success: true };
   };
 
   return (

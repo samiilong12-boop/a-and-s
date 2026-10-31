@@ -5,60 +5,93 @@ import os from 'os';
 import { verifyAdminSession } from '@/lib/serverAuth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
-// Global memory container for serverless runtime
-declare global {
-  var __CATALOG_ORDERS__: any[] | undefined;
+interface OrdersStorage {
+  initialized: boolean;
+  orders: any[];
+  softDeletedOrderNumbers: string[];
 }
 
-const tmpFilePath = path.join(os.tmpdir(), 'raheeq-catalog-orders.json');
+declare global {
+  var __ORDERS_STORE__: OrdersStorage | undefined;
+}
+
+const tmpFilePath = path.join(os.tmpdir(), 'raheeq-catalog-orders-v3.json');
 const publicFilePath = path.join(process.cwd(), 'public', 'data', 'orders.json');
 
-function loadPersistedOrders(): any[] {
-  if (globalThis.__CATALOG_ORDERS__ && Array.isArray(globalThis.__CATALOG_ORDERS__)) {
-    return globalThis.__CATALOG_ORDERS__;
+function getStore(): OrdersStorage {
+  if (globalThis.__ORDERS_STORE__) {
+    return globalThis.__ORDERS_STORE__;
   }
 
-  // Check /tmp
+  // 1. Try reading /tmp
   try {
     if (fs.existsSync(tmpFilePath)) {
       const data = fs.readFileSync(tmpFilePath, 'utf-8');
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) {
-        globalThis.__CATALOG_ORDERS__ = parsed;
-        return parsed;
+      if (parsed && typeof parsed === 'object') {
+        if (parsed.initialized && Array.isArray(parsed.orders)) {
+          globalThis.__ORDERS_STORE__ = {
+            initialized: true,
+            orders: parsed.orders,
+            softDeletedOrderNumbers: Array.isArray(parsed.softDeletedOrderNumbers)
+              ? parsed.softDeletedOrderNumbers
+              : [],
+          };
+          return globalThis.__ORDERS_STORE__;
+        } else if (Array.isArray(parsed)) {
+          globalThis.__ORDERS_STORE__ = {
+            initialized: true,
+            orders: parsed,
+            softDeletedOrderNumbers: [],
+          };
+          return globalThis.__ORDERS_STORE__;
+        }
       }
     }
   } catch {}
 
-  // Check public/data/orders.json
+  // 2. Try reading public/data/orders.json
   try {
     if (fs.existsSync(publicFilePath)) {
       const data = fs.readFileSync(publicFilePath, 'utf-8');
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed)) {
-        globalThis.__CATALOG_ORDERS__ = parsed;
-        return parsed;
+        globalThis.__ORDERS_STORE__ = {
+          initialized: true,
+          orders: parsed,
+          softDeletedOrderNumbers: [],
+        };
+        return globalThis.__ORDERS_STORE__;
       }
     }
   } catch {}
 
-  globalThis.__CATALOG_ORDERS__ = [];
-  return [];
+  const defaultStore: OrdersStorage = {
+    initialized: true,
+    orders: [],
+    softDeletedOrderNumbers: [],
+  };
+  globalThis.__ORDERS_STORE__ = defaultStore;
+  return defaultStore;
 }
 
-function persistOrders(list: any[]) {
-  globalThis.__CATALOG_ORDERS__ = list;
+function persistStore(store: OrdersStorage) {
+  globalThis.__ORDERS_STORE__ = store;
 
   try {
-    fs.writeFileSync(tmpFilePath, JSON.stringify(list, null, 2), 'utf-8');
+    fs.writeFileSync(tmpFilePath, JSON.stringify(store, null, 2), 'utf-8');
   } catch (e) {
-    console.warn('Failed writing orders to tmp:', e);
+    console.warn('Failed writing orders store to tmp:', e);
   }
 
   try {
     const dir = path.dirname(publicFilePath);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(publicFilePath, JSON.stringify(list, null, 2), 'utf-8');
+    // Write non-deleted orders
+    const nonDeleted = store.orders.filter(
+      (o) => !store.softDeletedOrderNumbers.includes(o.orderNumber) && !o.deletedAt
+    );
+    fs.writeFileSync(publicFilePath, JSON.stringify(nonDeleted, null, 2), 'utf-8');
   } catch {}
 }
 
@@ -72,14 +105,46 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const orderNumber = searchParams.get('orderNumber');
   const phone = searchParams.get('phone');
-  const orders = loadPersistedOrders();
+
+  const store = getStore();
+  const deletedSet = new Set(store.softDeletedOrderNumbers);
+  const activeAndArchived = store.orders.filter(
+    (o) => !deletedSet.has(o.orderNumber) && !o.deletedAt
+  );
 
   // Mode 1: Customer single order tracking lookup
   if (orderNumber || phone) {
     const cOrderNum = cleanStr(orderNumber || '');
     const cPhone = cleanDigits(phone || '');
 
-    const found = orders.find((o) => {
+    // Check DB first if available
+    try {
+      const { prisma } = await import('@/lib/prisma');
+      const dbOrder = await prisma.order.findFirst({
+        where: {
+          deletedAt: null,
+          OR: [
+            ...(cOrderNum ? [{ orderNumber: { contains: cOrderNum, mode: 'insensitive' as const } }] : []),
+            ...(cPhone.length >= 6 ? [{ customerPhone: { contains: cPhone.slice(-8) } }] : []),
+          ],
+        },
+        include: { items: true },
+      });
+      if (dbOrder) {
+        const maskedPhone = dbOrder.customerPhone ? dbOrder.customerPhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '';
+        return NextResponse.json({
+          success: true,
+          order: {
+            ...dbOrder,
+            createdAt: dbOrder.createdAt.toISOString(),
+            archivedAt: dbOrder.archivedAt?.toISOString() || null,
+            customerPhone: maskedPhone,
+          },
+        });
+      }
+    } catch {}
+
+    const found = activeAndArchived.find((o) => {
       const oNum = cleanStr(o.orderNumber);
       const oPhone = cleanDigits(o.customerPhone);
 
@@ -110,40 +175,59 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'غير مصرح بالوصول لقائمة الطلبات' }, { status: 401 });
   }
 
-  // Merge with Cloud Database (Prisma PostgreSQL) when available
+  // Authoritative Database Query (Prisma PostgreSQL)
   try {
     const { prisma } = await import('@/lib/prisma');
     const dbOrders = await prisma.order.findMany({
+      where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
-      take: 200,
+      take: 300,
+      include: { items: true },
     });
-    if (Array.isArray(dbOrders) && dbOrders.length > 0) {
-      let archivedSet = new Set<string>();
-      try {
-        const archSetting = await prisma.storeSetting.findUnique({ where: { key: 'archived_order_numbers' } });
-        if (archSetting && archSetting.value) {
-          const parsed = JSON.parse(archSetting.value);
-          if (Array.isArray(parsed)) archivedSet = new Set(parsed);
-        }
-      } catch {}
 
-      const map = new Map<string, any>();
-      orders.forEach((o) => map.set(o.orderNumber, o));
-      dbOrders.forEach((dbo) => {
-        if (!map.has(dbo.orderNumber)) {
-          map.set(dbo.orderNumber, {
-            ...dbo,
-            isArchived: archivedSet.has(dbo.orderNumber),
-          });
-        }
-      });
-      const mergedList = Array.from(map.values()).map((o) => {
-        if (archivedSet.has(o.orderNumber)) {
-          return { ...o, isArchived: true };
-        }
-        return o;
-      });
-      return NextResponse.json(mergedList, {
+    if (Array.isArray(dbOrders) && dbOrders.length > 0) {
+      const serialized = dbOrders.map((dbo) => ({
+        id: dbo.id,
+        orderNumber: dbo.orderNumber,
+        customerName: dbo.customerName,
+        customerPhone: dbo.customerPhone,
+        customerEmail: dbo.customerEmail,
+        governorate: dbo.governorate,
+        city: dbo.city,
+        streetAddress: dbo.streetAddress,
+        buildingDetails: dbo.buildingDetails,
+        deliveryNotes: dbo.deliveryNotes,
+        status: dbo.status,
+        paymentMethod: dbo.paymentMethod,
+        paymentStatus: dbo.paymentStatus,
+        subtotalInPiasters: dbo.subtotalInPiasters,
+        shippingInPiasters: dbo.shippingInPiasters,
+        discountInPiasters: dbo.discountInPiasters,
+        taxInPiasters: dbo.taxInPiasters,
+        totalInPiasters: dbo.totalInPiasters,
+        courierName: dbo.courierName,
+        trackingNumber: dbo.trackingNumber,
+        adminNotes: dbo.adminNotes,
+        isArchived: dbo.isArchived || dbo.status === 'DELIVERED',
+        archivedAt: dbo.archivedAt?.toISOString() || null,
+        deletedAt: dbo.deletedAt?.toISOString() || null,
+        createdAt: dbo.createdAt.toISOString(),
+        updatedAt: dbo.updatedAt.toISOString(),
+        items: dbo.items || [],
+        shippingAddress: {
+          governorate: dbo.governorate,
+          city: dbo.city,
+          streetAddress: dbo.streetAddress,
+          buildingDetails: dbo.buildingDetails,
+          deliveryNotes: dbo.deliveryNotes,
+        },
+      }));
+
+      // Keep fallback store aligned with database truth
+      store.orders = serialized;
+      persistStore(store);
+
+      return NextResponse.json(serialized, {
         headers: {
           'Cache-Control': 'no-store, no-cache, must-revalidate',
         },
@@ -151,7 +235,8 @@ export async function GET(req: NextRequest) {
     }
   } catch {}
 
-  return NextResponse.json(orders, {
+  // Fallback Store Response (filtered against deleted orders)
+  return NextResponse.json(activeAndArchived, {
     headers: {
       'Cache-Control': 'no-store, no-cache, must-revalidate',
     },
@@ -161,7 +246,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const clientIp = getClientIp(req);
-    // Rate limit: max 10 orders per minute per IP
     const rateCheck = checkRateLimit(`order_checkout_${clientIp}`, 10, 60000);
     if (!rateCheck.allowed) {
       return NextResponse.json({ success: false, error: 'يرجى الانتظار قبل إرسال طلب جديد' }, { status: 429 });
@@ -173,13 +257,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'بيانات الطلب غير مكتملة (رقم الهاتف مطلوب)' }, { status: 400 });
     }
 
-    // Auto-generate missing fields for maximum reliability across Express and Cart checkout
+    const now = new Date();
     if (!orderData.orderNumber) {
-      const now = new Date();
       orderData.orderNumber = `RHQ-EXP-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
     }
     if (!orderData.createdAt) {
-      orderData.createdAt = new Date().toISOString();
+      orderData.createdAt = now.toISOString();
     }
     if (!orderData.status) {
       orderData.status = 'PENDING_CONFIRMATION';
@@ -204,11 +287,16 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    const existing = loadPersistedOrders();
-    const updated = [orderData, ...existing.filter((o) => o.orderNumber !== orderData.orderNumber)];
-    persistOrders(updated);
+    orderData.isArchived = false;
+    orderData.archivedAt = null;
+    orderData.deletedAt = null;
 
-    // Sync with Cloud Database (Prisma PostgreSQL) when available
+    const store = getStore();
+    store.softDeletedOrderNumbers = store.softDeletedOrderNumbers.filter((n) => n !== orderData.orderNumber);
+    store.orders = [orderData, ...store.orders.filter((o) => o.orderNumber !== orderData.orderNumber)];
+    persistStore(store);
+
+    // Sync with Cloud Database (Prisma PostgreSQL)
     try {
       const { prisma } = await import('@/lib/prisma');
       await prisma.order.upsert({
@@ -226,16 +314,16 @@ export async function POST(req: NextRequest) {
           subtotalInPiasters: orderData.subtotalInPiasters || 0,
           shippingInPiasters: orderData.shippingInPiasters || 0,
           discountInPiasters: orderData.discountInPiasters || 0,
+          taxInPiasters: orderData.taxInPiasters || 0,
           totalInPiasters: orderData.totalInPiasters || 0,
           status: 'PENDING_CONFIRMATION',
           paymentMethod: 'CASH_ON_DELIVERY',
           paymentStatus: 'PENDING_COLLECTION',
+          isArchived: false,
         },
         update: {},
       });
-    } catch (dbErr) {
-      // Gracefully continue with high-resilience in-memory/tmp persistence
-    }
+    } catch {}
 
     return NextResponse.json({ success: true, order: orderData });
   } catch (error) {
@@ -253,13 +341,47 @@ export async function PATCH(req: NextRequest) {
 
     const body = await req.json();
     const { orderNumber, updates } = body;
-    const existing = loadPersistedOrders();
 
-    const updated = existing.map((o) =>
-      o.orderNumber === orderNumber ? { ...o, ...updates } : o
+    if (!orderNumber || !updates) {
+      return NextResponse.json({ error: 'Missing orderNumber or updates' }, { status: 400 });
+    }
+
+    const store = getStore();
+    const target = store.orders.find((o) => o.orderNumber === orderNumber);
+
+    let updatedIsArchived = updates.isArchived !== undefined
+      ? Boolean(updates.isArchived)
+      : (target?.isArchived || false);
+
+    let updatedArchivedAt = updates.archivedAt !== undefined
+      ? updates.archivedAt
+      : target?.archivedAt || null;
+
+    // Delivery completion automatically archives the order
+    if (updates.status === 'DELIVERED' || updates.isArchived === true) {
+      updatedIsArchived = true;
+      updatedArchivedAt = updatedArchivedAt || new Date().toISOString();
+    } else if (updates.isArchived === false) {
+      updatedIsArchived = false;
+      updatedArchivedAt = null;
+    }
+
+    const updatedOrder = {
+      ...(target || { orderNumber }),
+      ...updates,
+      isArchived: updatedIsArchived,
+      archivedAt: updatedArchivedAt,
+      deletedAt: null,
+      updatedAt: new Date().toISOString(),
+    };
+
+    store.orders = store.orders.map((o) =>
+      o.orderNumber === orderNumber ? updatedOrder : o
     );
-    persistOrders(updated);
+    if (!target) store.orders.unshift(updatedOrder);
+    persistStore(store);
 
+    // Persist to Authoritative Database
     try {
       const { prisma } = await import('@/lib/prisma');
       await prisma.order.updateMany({
@@ -267,32 +389,29 @@ export async function PATCH(req: NextRequest) {
         data: {
           ...(updates.status ? { status: updates.status } : {}),
           ...(updates.paymentStatus ? { paymentStatus: updates.paymentStatus } : {}),
+          ...(updates.courierName !== undefined ? { courierName: updates.courierName } : {}),
+          ...(updates.trackingNumber !== undefined ? { trackingNumber: updates.trackingNumber } : {}),
+          ...(updates.adminNotes !== undefined ? { adminNotes: updates.adminNotes } : {}),
+          isArchived: updatedIsArchived,
+          archivedAt: updatedArchivedAt ? new Date(updatedArchivedAt) : null,
         },
       });
 
-      // Synchronize archived status in StoreSetting
-      if (updates && updates.isArchived !== undefined && orderNumber) {
-        const archSetting = await prisma.storeSetting.findUnique({ where: { key: 'archived_order_numbers' } }).catch(() => null);
-        let currentArchived: string[] = [];
-        if (archSetting && archSetting.value) {
-          try { currentArchived = JSON.parse(archSetting.value); } catch {}
-        }
-        let updatedArchived: string[];
-        if (updates.isArchived) {
-          updatedArchived = Array.from(new Set([...currentArchived, orderNumber]));
-        } else {
-          updatedArchived = currentArchived.filter((id) => id !== orderNumber);
-        }
-        await prisma.storeSetting.upsert({
-          where: { key: 'archived_order_numbers' },
-          create: { key: 'archived_order_numbers', value: JSON.stringify(updatedArchived) },
-          update: { value: JSON.stringify(updatedArchived) },
-        }).catch(() => {});
-      }
-    } catch {}
+      await prisma.auditLog.create({
+        data: {
+          action: updatedIsArchived ? 'ORDER_ARCHIVED' : 'ORDER_STATUS_UPDATE',
+          entity: 'Order',
+          entityId: orderNumber,
+          details: { ...updates, isArchived: updatedIsArchived, archivedAt: updatedArchivedAt },
+        },
+      }).catch(() => {});
+    } catch (dbErr) {
+      console.warn('Database patch error on order:', dbErr);
+    }
 
-    return NextResponse.json({ success: true, orders: updated });
+    return NextResponse.json({ success: true, order: updatedOrder });
   } catch (error) {
+    console.error('Failed to update order:', error);
     return NextResponse.json({ success: false, error: 'Failed to update order' }, { status: 500 });
   }
 }
@@ -306,33 +425,41 @@ export async function DELETE(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const orderNumber = searchParams.get('orderNumber');
-    const existing = loadPersistedOrders();
 
-    const updated = existing.filter((o) => o.orderNumber !== orderNumber);
-    persistOrders(updated);
+    if (!orderNumber) {
+      return NextResponse.json({ error: 'Missing orderNumber' }, { status: 400 });
+    }
 
+    const store = getStore();
+    // Soft delete: record in softDeletedOrderNumbers and tag with deletedAt
+    store.softDeletedOrderNumbers = Array.from(new Set([...store.softDeletedOrderNumbers, orderNumber]));
+    store.orders = store.orders.map((o) =>
+      o.orderNumber === orderNumber ? { ...o, deletedAt: new Date().toISOString() } : o
+    );
+    persistStore(store);
+
+    // Authoritative Soft Delete in Database
     try {
       const { prisma } = await import('@/lib/prisma');
-      if (orderNumber) {
-        await prisma.order.deleteMany({ where: { orderNumber } }).catch(() => {});
+      await prisma.order.updateMany({
+        where: { orderNumber },
+        data: { deletedAt: new Date() },
+      });
 
-        // Also clean from archived list if present
-        const archSetting = await prisma.storeSetting.findUnique({ where: { key: 'archived_order_numbers' } }).catch(() => null);
-        if (archSetting && archSetting.value) {
-          try {
-            const currentArchived: string[] = JSON.parse(archSetting.value);
-            const filtered = currentArchived.filter((id) => id !== orderNumber);
-            await prisma.storeSetting.update({
-              where: { key: 'archived_order_numbers' },
-              data: { value: JSON.stringify(filtered) },
-            }).catch(() => {});
-          } catch {}
-        }
-      }
-    } catch {}
+      await prisma.auditLog.create({
+        data: {
+          action: 'ORDER_SOFT_DELETED',
+          entity: 'Order',
+          entityId: orderNumber,
+        },
+      }).catch(() => {});
+    } catch (dbErr) {
+      console.warn('Database delete error on order:', dbErr);
+    }
 
-    return NextResponse.json({ success: true, orders: updated });
+    return NextResponse.json({ success: true, orderNumber });
   } catch (error) {
+    console.error('Failed to delete order:', error);
     return NextResponse.json({ success: false, error: 'Failed to delete order' }, { status: 500 });
   }
 }

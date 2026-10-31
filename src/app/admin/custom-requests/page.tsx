@@ -96,8 +96,12 @@ export default function AdminCustomRequestsPage() {
 
   // Action: Mark single request status
   const handleSetStatus = async (id: string, status: BespokePerfumeRequest['status']) => {
-    await updateRequestStatus(id, status);
-    if (status === 'FULFILLED') {
+    const res = await updateRequestStatus(id, status);
+    if (!res.success) {
+      showToast(`فشل تحديث حالة الطلب: ${res.error || 'خطأ في الاتصال'}`);
+      return;
+    }
+    if (status === 'FULFILLED' || status === 'COMPLETED') {
       showToast('تم إتمام الطلب ونقله فورياً إلى سجل الطلبات المنفذة (السجل) ✓');
     } else if (status === 'CONTACTED' || status === 'NEW') {
       showToast('تم تحديث حالة الطلب بنجاح ✓');
@@ -112,8 +116,12 @@ export default function AdminCustomRequestsPage() {
         `هل تريد بالتأكيد تنفيذ كافة الطلبات النشطة (${activeCount} طلب) ونقلها فورياً إلى سجل الطلبات المنفذة؟`
       )
     ) {
-      await markAllActiveAsFulfilled();
-      showToast(`تم تنفيذ كافة الطلبات النشطة (${activeCount}) ونقلها جميعاً للسجل بنجاح ✓`);
+      const res = await markAllActiveAsFulfilled();
+      if (!res.success) {
+        showToast(`فشل تنفيذ بعض الطلبات: ${res.error || 'يرجى المحاولة مجدداً'}`);
+      } else {
+        showToast(`تم تنفيذ كافة الطلبات النشطة (${activeCount}) ونقلها جميعاً للسجل بنجاح ✓`);
+      }
     }
   };
 
@@ -396,10 +404,14 @@ export default function AdminCustomRequestsPage() {
           {fulfilledCount > 0 && (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (confirm(`هل تريد بالتأكيد تفريغ ومسح كافة الطلبات المنفذة (${fulfilledCount} طلب) نهائياً من السجل؟`)) {
-                    clearFulfilledRequests();
-                    showToast('تم تفريغ السجل بالكامل بنجاح ✓');
+                    const res = await clearFulfilledRequests();
+                    if (!res.success) {
+                      showToast(`فشل تفريغ السجل: ${res.error || 'يرجى المحاولة مجدداً'}`);
+                    } else {
+                      showToast('تم تفريغ السجل بالكامل بنجاح ✓');
+                    }
                   }
                 }}
                 className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
@@ -468,10 +480,14 @@ export default function AdminCustomRequestsPage() {
                       })}
                     </span>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (confirm(`هل تريد بالتأكيد حذف هذا الطلب (#${req.id}) نهائياً؟`)) {
-                          deleteRequest(req.id);
-                          showToast('تم حذف الطلب نهائياً ✓');
+                          const res = await deleteRequest(req.id);
+                          if (!res.success) {
+                            showToast(`فشل حذف الطلب: ${res.error || 'يرجى المحاولة'}`);
+                          } else {
+                            showToast('تم حذف الطلب نهائياً ✓');
+                          }
                         }
                       }}
                       className="p-1 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
@@ -573,10 +589,14 @@ export default function AdminCustomRequestsPage() {
                           <span>استعادة للنشط</span>
                         </button>
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             if (confirm(`هل تريد بالتأكيد حذف هذا الطلب المنفذ نهائياً من السجل؟`)) {
-                              deleteRequest(req.id);
-                              showToast('تم حذف الطلب نهائياً من السجل ✓');
+                              const res = await deleteRequest(req.id);
+                              if (!res.success) {
+                                showToast(`فشل حذف الطلب: ${res.error || 'يرجى المحاولة'}`);
+                              } else {
+                                showToast('تم حذف الطلب نهائياً من السجل ✓');
+                              }
                             }
                           }}
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"

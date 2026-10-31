@@ -288,6 +288,9 @@ model Order {
   status         OrderStatus    @default(PENDING_CONFIRMATION)
   paymentMethod  PaymentMethod  @default(CASH_ON_DELIVERY)
   paymentStatus  PaymentStatus  @default(PENDING_COLLECTION)
+  isArchived     Boolean        @default(false)
+  archivedAt     DateTime?
+  deletedAt      DateTime?
   
   // Financial Snapshot in Integer Piasters (E1)
   currency               String @default("EGP")
@@ -318,6 +321,8 @@ model Order {
 
   @@index([orderNumber])
   @@index([status])
+  @@index([isArchived])
+  @@index([deletedAt])
   @@index([customerPhone])
   @@index([createdAt])
 }
@@ -372,18 +377,23 @@ model StoreSetting {
 // -------------------------------------------------------------
 
 model BespokeRequest {
-  id            String   @id // e.g. REQ-123456-789
+  id            String    @id // e.g. REQ-123456-789
   customerName  String
   customerPhone String
   perfumeName   String
-  volumeMl      String   @default("100ml")
-  concentration String   @default("EXTRAIT_DE_PARFUM")
+  volumeMl      String    @default("100ml")
+  concentration String    @default("EXTRAIT_DE_PARFUM")
   notes         String?
-  status        String   @default("NEW") // NEW, CONTACTED, FULFILLED, CANCELLED
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  status        String    @default("NEW") // NEW, CONTACTED, FULFILLED, COMPLETED, CANCELLED
+  isArchived    Boolean   @default(false)
+  archivedAt    DateTime?
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([customerPhone])
   @@index([status])
+  @@index([isArchived])
+  @@index([deletedAt])
   @@index([createdAt])
 }

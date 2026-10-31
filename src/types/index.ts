@@ -80,7 +80,10 @@ export interface BespokePerfumeRequest {
   volumeMl: string;
   concentration: string;
   notes?: string;
-  status: 'NEW' | 'CONTACTED' | 'PROCESSING' | 'FULFILLED' | 'CANCELLED';
+  status: 'NEW' | 'CONTACTED' | 'PROCESSING' | 'FULFILLED' | 'COMPLETED' | 'CANCELLED';
+  isArchived?: boolean;
+  archivedAt?: string | null;
+  deletedAt?: string | null;
   createdAt: string;
 }
 
@@ -158,6 +161,9 @@ export interface Order {
   courierName?: string | null;
   trackingNumber?: string | null;
   adminNotes?: string | null;
+  isArchived?: boolean;
+  archivedAt?: string | null;
+  deletedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];

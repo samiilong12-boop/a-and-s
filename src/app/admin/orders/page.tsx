@@ -106,7 +106,7 @@ function AdminOrdersContent() {
       console.error('Error loading orders from localStorage:', e);
     }
 
-    // Set initial display immediately from local cache
+    // Set initial display immediately from local cache (fast initial render)
     setOrders(localActive);
     setArchivedOrders(localArchive);
 
@@ -117,7 +117,7 @@ function AdminOrdersContent() {
       if (found) openOrderDetails(found);
     }
 
-    // Server-side sync: Fetch all orders across Egypt
+    // Authoritative Server-side sync: Remote is the single source of truth
     try {
       const res = await fetch('/api/orders', {
         headers: getAdminAuthHeaders(),
@@ -126,45 +126,29 @@ function AdminOrdersContent() {
       if (res.ok) {
         const remoteOrders: any[] = await res.json();
         if (Array.isArray(remoteOrders)) {
-          const activeMap = new Map<string, any>();
-          const archiveMap = new Map<string, any>();
+          // Filter out soft-deleted orders
+          const validOrders = remoteOrders.filter((ro) => ro && !ro.deletedAt);
 
-          localActive.forEach((o) => {
-            if (o && o.orderNumber) activeMap.set(o.orderNumber, o);
-          });
-          localArchive.forEach((o) => {
-            if (o && o.orderNumber) archiveMap.set(o.orderNumber, o);
-          });
+          const newActive = validOrders
+            .filter((ro) => !ro.isArchived)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-          remoteOrders.forEach((ro) => {
-            if (!ro || !ro.orderNumber) return;
+          const newArchive = validOrders
+            .filter((ro) => Boolean(ro.isArchived))
+            .sort(
+              (a, b) =>
+                new Date(b.archivedAt || b.createdAt).getTime() -
+                new Date(a.archivedAt || a.createdAt).getTime()
+            );
 
-            // If the order is archived on the server OR already archived locally:
-            if (ro.isArchived || archiveMap.has(ro.orderNumber)) {
-              const existing = archiveMap.get(ro.orderNumber) || {};
-              archiveMap.set(ro.orderNumber, { ...ro, ...existing, isArchived: true });
-              activeMap.delete(ro.orderNumber); // Never let it stay in active!
-            } else {
-              const existing = activeMap.get(ro.orderNumber) || {};
-              activeMap.set(ro.orderNumber, { ...ro, ...existing, isArchived: false });
-            }
-          });
-
-          const mergedActive = Array.from(activeMap.values()).sort(
-            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-          const mergedArchive = Array.from(archiveMap.values()).sort(
-            (a, b) => new Date(b.archivedAt || b.createdAt).getTime() - new Date(a.archivedAt || a.createdAt).getTime()
-          );
-
-          setOrders(mergedActive);
-          setArchivedOrders(mergedArchive);
-          localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(mergedActive));
-          localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(mergedArchive));
+          setOrders(newActive);
+          setArchivedOrders(newArchive);
+          localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(newActive));
+          localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(newArchive));
         }
       }
     } catch (netErr) {
-      // Gracefully continue with local orders
+      // Gracefully continue with local orders when offline
     }
   };
 
@@ -185,7 +169,7 @@ function AdminOrdersContent() {
     setSaveSuccess(false);
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (!selectedOrder) return;
 
     const updates = {
@@ -197,80 +181,55 @@ function AdminOrdersContent() {
       updatedAt: new Date().toISOString(),
     };
 
-    const isArchived = archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber);
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAdminAuthHeaders(),
+        },
+        body: JSON.stringify({
+          orderNumber: selectedOrder.orderNumber,
+          updates,
+        }),
+      });
 
-    if (isArchived) {
-      const updated = archivedOrders.map((o) => {
-        if (o.orderNumber === selectedOrder.orderNumber) {
-          return {
-            ...o,
-            ...updates,
-          };
-        }
-        return o;
-      });
-      setArchivedOrders(updated);
-      localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updated));
-    } else {
-      const updated = orders.map((o) => {
-        if (o.orderNumber === selectedOrder.orderNumber) {
-          return {
-            ...o,
-            ...updates,
-          };
-        }
-        return o;
-      });
-      setOrders(updated);
-      localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updated));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showNotice(`فشل حفظ التعديلات: ${err.error || 'خطأ في الاتصال'}`);
+        return;
+      }
+
+      const isArchived = archivedOrders.some((o) => o.orderNumber === selectedOrder.orderNumber);
+      if (isArchived) {
+        const updated = archivedOrders.map((o) =>
+          o.orderNumber === selectedOrder.orderNumber ? { ...o, ...updates } : o
+        );
+        setArchivedOrders(updated);
+        localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updated));
+      } else {
+        const updated = orders.map((o) =>
+          o.orderNumber === selectedOrder.orderNumber ? { ...o, ...updates } : o
+        );
+        setOrders(updated);
+        localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updated));
+      }
+
+      setSaveSuccess(true);
+      showNotice('تم حفظ تعديلات الطلب وتأكيدها في السيرفر بنجاح ✓');
+      setTimeout(() => setSaveSuccess(false), 2500);
+    } catch (err: any) {
+      showNotice(`خطأ في الاتصال بالسيرفر: ${err.message}`);
     }
-
-    // Persist changes to server database immediately
-    fetch('/api/orders', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAdminAuthHeaders(),
-      },
-      body: JSON.stringify({
-        orderNumber: selectedOrder.orderNumber,
-        updates,
-      }),
-    }).catch(() => {});
-
-    setSaveSuccess(true);
-    showNotice('تم حفظ تعديلات الطلب بنجاح.');
-    setTimeout(() => setSaveSuccess(false), 2500);
   };
 
   // Archive an active order (Moves order to Archive so it NEVER returns to Active)
   const handleArchiveOrder = async (orderToArchive: any, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!confirm(`هل تريد حذف الطلب #${orderToArchive.orderNumber} من الطلبات النشطة ونقله إلى سجل الأرشيف المحفوظ؟`)) return;
+    if (!confirm(`هل تريد نقل الطلب #${orderToArchive.orderNumber} من الطلبات النشطة إلى سجل الأرشيف المحفوظ؟`)) return;
 
-    const remainingActive = orders.filter((o) => o.orderNumber !== orderToArchive.orderNumber);
-    const orderWithArchiveTag = {
-      ...orderToArchive,
-      isArchived: true,
-      archivedAt: new Date().toISOString(),
-    };
-    const updatedArchive = [
-      orderWithArchiveTag,
-      ...archivedOrders.filter((o) => o.orderNumber !== orderToArchive.orderNumber),
-    ];
-
-    setOrders(remainingActive);
-    setArchivedOrders(updatedArchive);
-    localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(remainingActive));
-    localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updatedArchive));
-
-    if (selectedOrder?.orderNumber === orderToArchive.orderNumber) {
-      setSelectedOrder(null);
-    }
-
-    // Persist archive flag to cloud server
     try {
-      await fetch('/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -284,9 +243,37 @@ function AdminOrdersContent() {
           },
         }),
       });
-    } catch {}
 
-    showNotice(`تم حذف الطلب #${orderToArchive.orderNumber} من الطلبات النشطة ونقله إلى سجل الأرشيف بنجاح.`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showNotice(`فشل نقل الطلب للأرشيف: ${err.error || 'خطأ في السيرفر'}`);
+        return;
+      }
+
+      const remainingActive = orders.filter((o) => o.orderNumber !== orderToArchive.orderNumber);
+      const orderWithArchiveTag = {
+        ...orderToArchive,
+        isArchived: true,
+        archivedAt: new Date().toISOString(),
+      };
+      const updatedArchive = [
+        orderWithArchiveTag,
+        ...archivedOrders.filter((o) => o.orderNumber !== orderToArchive.orderNumber),
+      ];
+
+      setOrders(remainingActive);
+      setArchivedOrders(updatedArchive);
+      localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(remainingActive));
+      localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updatedArchive));
+
+      if (selectedOrder?.orderNumber === orderToArchive.orderNumber) {
+        setSelectedOrder(null);
+      }
+
+      showNotice(`تم نقل الطلب #${orderToArchive.orderNumber} إلى سجل الأرشيف بنجاح ✓`);
+    } catch (err: any) {
+      showNotice(`تعذر الاتصال بالسيرفر: ${err.message}`);
+    }
   };
 
   // Restore order from archive back to active
@@ -294,26 +281,8 @@ function AdminOrdersContent() {
     if (e) e.stopPropagation();
     if (!confirm(`هل تريد استعادة الطلب #${orderToRestore.orderNumber} إلى قائمة الطلبات النشطة؟`)) return;
 
-    const remainingArchive = archivedOrders.filter((o) => o.orderNumber !== orderToRestore.orderNumber);
-    const restoredOrder = {
-      ...orderToRestore,
-      isArchived: false,
-      archivedAt: null,
-    };
-    const updatedActive = [restoredOrder, ...orders.filter((o) => o.orderNumber !== orderToRestore.orderNumber)];
-
-    setArchivedOrders(remainingArchive);
-    setOrders(updatedActive);
-    localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(remainingArchive));
-    localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updatedActive));
-
-    if (selectedOrder?.orderNumber === orderToRestore.orderNumber) {
-      setSelectedOrder(null);
-    }
-
-    // Sync restored status to server
     try {
-      await fetch('/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -327,55 +296,93 @@ function AdminOrdersContent() {
           },
         }),
       });
-    } catch {}
 
-    showNotice(`تمت استعادة الطلب #${orderToRestore.orderNumber} إلى قائمة الطلبات النشطة.`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showNotice(`فشل استعادة الطلب: ${err.error || 'خطأ في السيرفر'}`);
+        return;
+      }
+
+      const remainingArchive = archivedOrders.filter((o) => o.orderNumber !== orderToRestore.orderNumber);
+      const restoredOrder = {
+        ...orderToRestore,
+        isArchived: false,
+        archivedAt: null,
+      };
+      const updatedActive = [restoredOrder, ...orders.filter((o) => o.orderNumber !== orderToRestore.orderNumber)];
+
+      setArchivedOrders(remainingArchive);
+      setOrders(updatedActive);
+      localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(remainingArchive));
+      localStorage.setItem(ACTIVE_ORDERS_KEY, JSON.stringify(updatedActive));
+
+      if (selectedOrder?.orderNumber === orderToRestore.orderNumber) {
+        setSelectedOrder(null);
+      }
+
+      showNotice(`تمت استعادة الطلب #${orderToRestore.orderNumber} إلى قائمة الطلبات النشطة بنجاح ✓`);
+    } catch (err: any) {
+      showNotice(`تعذر الاتصال بالسيرفر: ${err.message}`);
+    }
   };
 
-  // Delete Order: If in Active tab, moves to Archive. If in Archive, permanently deletes.
-  const handleDeleteOrder = (order: any, isFromArchive = false, e?: React.MouseEvent) => {
+  // Delete Order: If in Active tab, moves to Archive. If in Archive, permanently soft-deletes on server.
+  const handleDeleteOrder = async (order: any, isFromArchive = false, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
 
     if (!isFromArchive) {
       // In Active Orders tab: "حذف" moves the order to Archive!
-      handleArchiveOrder(order);
+      await handleArchiveOrder(order);
       return;
     }
 
     // In Archive tab: permanent delete
     if (!confirm(`تحذير: هل أنت متأكد من مسح الطلب #${order.orderNumber} نهائياً من سجل الأرشيف والسيرفر؟ لن يمكن استرجاعه.`)) return;
 
-    const updated = archivedOrders.filter((o) => o.orderNumber !== order.orderNumber);
-    setArchivedOrders(updated);
-    localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updated));
+    try {
+      const res = await fetch(`/api/orders?orderNumber=${encodeURIComponent(order.orderNumber)}`, {
+        method: 'DELETE',
+        headers: getAdminAuthHeaders(),
+      });
 
-    // Delete from server so it never returns on reload
-    fetch(`/api/orders?orderNumber=${encodeURIComponent(order.orderNumber)}`, {
-      method: 'DELETE',
-      headers: getAdminAuthHeaders(),
-    }).catch(() => {});
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showNotice(`فشل مسح الطلب من السيرفر: ${err.error || 'خطأ في السيرفر'}`);
+        return;
+      }
 
-    if (selectedOrder?.orderNumber === order.orderNumber) {
-      setSelectedOrder(null);
+      const updated = archivedOrders.filter((o) => o.orderNumber !== order.orderNumber);
+      setArchivedOrders(updated);
+      localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify(updated));
+
+      if (selectedOrder?.orderNumber === order.orderNumber) {
+        setSelectedOrder(null);
+      }
+      showNotice(`تم مسح الطلب #${order.orderNumber} نهائياً من الأرشيف والسيرفر بنجاح ✓`);
+    } catch (err: any) {
+      showNotice(`تعذر الاتصال بالسيرفر: ${err.message}`);
     }
-    showNotice(`تم مسح الطلب #${order.orderNumber} نهائياً من الأرشيف والسيرفر.`);
   };
 
   // Clear entire archive
-  const handleClearArchive = () => {
+  const handleClearArchive = async () => {
     if (archivedOrders.length === 0) return;
-    if (!confirm(`هل أنت متأكد من مسح جميع الطلبات المؤرشفة (${archivedOrders.length} طلب) نهائياً؟`)) return;
+    if (!confirm(`هل أنت متأكد من مسح جميع الطلبات المؤرشفة (${archivedOrders.length} طلب) نهائياً من السيرفر؟`)) return;
 
-    archivedOrders.forEach((o) => {
-      fetch(`/api/orders?orderNumber=${encodeURIComponent(o.orderNumber)}`, {
-        method: 'DELETE',
-        headers: getAdminAuthHeaders(),
-      }).catch(() => {});
-    });
+    try {
+      for (const o of archivedOrders) {
+        await fetch(`/api/orders?orderNumber=${encodeURIComponent(o.orderNumber)}`, {
+          method: 'DELETE',
+          headers: getAdminAuthHeaders(),
+        });
+      }
 
-    setArchivedOrders([]);
-    localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify([]));
-    showNotice('تم تفريغ سجل الأرشيف بالكامل.');
+      setArchivedOrders([]);
+      localStorage.setItem(ARCHIVE_ORDERS_KEY, JSON.stringify([]));
+      showNotice('تم تفريغ سجل الأرشيف بالكامل من السيرفر بنجاح ✓');
+    } catch (err: any) {
+      showNotice(`حدث خطأ أثناء تفريغ الأرشيف: ${err.message}`);
+    }
   };
 
   // Export orders to CSV
