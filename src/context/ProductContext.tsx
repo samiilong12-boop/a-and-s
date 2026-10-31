@@ -82,7 +82,9 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v4';
+const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v5';
+const CATALOG_VERSION_KEY = 'raheeq_catalog_version_sig';
+const CURRENT_CATALOG_VERSION = '2026.10.31.v5_webp_official';
 const TOKEN_KEY = 'a_and_s_admin_jwt_token';
 
 function getAdminAuthHeaders(): Record<string, string> {
@@ -106,9 +108,25 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         const remoteProducts = await res.json();
         if (Array.isArray(remoteProducts) && remoteProducts.length > 0) {
           // Authoritative server database replaces memory & local cache
-          // Never re-insert deleted demo products!
-          setProducts(remoteProducts);
-          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(remoteProducts));
+          // Safeguard: filter out test dummy items and sanitize heavy base64
+          const cleaned = remoteProducts
+            .filter((p: Product) => p && p.slug !== 'yyyyy' && p.nameEn !== 'yyyyy')
+            .map((p: Product) => {
+              if (p.imageUrl?.includes(';base64,') || (p.images && p.images[0]?.url?.includes(';base64,'))) {
+                const official = FAMOUS_50_PERFUMES.find((f) => f.slug === p.slug || f.id === p.id);
+                if (official) {
+                  return {
+                    ...p,
+                    imageUrl: official.imageUrl,
+                    images: official.images,
+                  };
+                }
+              }
+              return p;
+            });
+
+          setProducts(cleaned);
+          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(cleaned));
         }
       }
     } catch (e) {
@@ -119,24 +137,34 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   // Load products on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Preserve the merchant's saved catalog with brand RAHEEQ and no fake ratings
-          const sanitized = parsed.map((p: Product) => ({
-            ...p,
-            brand: 'RAHEEQ',
-            rating: undefined,
-            reviewCount: undefined,
-          }));
-          setProducts(sanitized);
+      const storedVersion = localStorage.getItem(CATALOG_VERSION_KEY);
+      if (storedVersion !== CURRENT_CATALOG_VERSION) {
+        // Upgrade cache to official WebP version: purge stale v4 storage with heavy base64
+        localStorage.removeItem('raheeq_official_catalog_v4');
+        localStorage.removeItem(PRODUCTS_STORAGE_KEY);
+        localStorage.setItem(CATALOG_VERSION_KEY, CURRENT_CATALOG_VERSION);
+        setProducts(FAMOUS_50_PERFUMES);
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(FAMOUS_50_PERFUMES));
+      } else {
+        const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const sanitized = parsed.map((p: Product) => ({
+              ...p,
+              brand: 'RAHEEQ',
+              rating: undefined,
+              reviewCount: undefined,
+            }));
+            setProducts(sanitized);
+          } else {
+            setProducts(FAMOUS_50_PERFUMES);
+            localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(FAMOUS_50_PERFUMES));
+          }
         } else {
           setProducts(FAMOUS_50_PERFUMES);
           localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(FAMOUS_50_PERFUMES));
         }
-      } else {
-        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(FAMOUS_50_PERFUMES));
       }
     } catch (e) {
       console.error(e);
@@ -146,7 +174,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     // Defer server sync until after initial paint & critical asset loading
     if (typeof window !== 'undefined') {
       const isMobile = window.innerWidth < 768;
-      const delay = isMobile ? 4500 : 2500;
+      const delay = isMobile ? 3500 : 2000;
       const timer = setTimeout(() => {
         if ('requestIdleCallback' in window) {
           (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(() => syncWithServer());

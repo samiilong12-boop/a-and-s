@@ -92,6 +92,91 @@ async function persistToCloudSetting(list: Product[]) {
   }
 }
 
+function healAndReconcileCatalog(
+  rawList: Product[],
+  isAlreadyMigrated: boolean
+): { healed: Product[]; needsSave: boolean } {
+  let needsSave = false;
+
+  // 1. Purge dummy / test artifacts (such as yyyyy)
+  const nonDummy = rawList.filter((p) => {
+    const isDummy = p.slug === 'yyyyy' || p.nameEn === 'yyyyy' || p.id?.includes('1793434628296');
+    if (isDummy) needsSave = true;
+    return !isDummy;
+  });
+
+  const officialBySlug = new Map<string, Product>();
+  const officialById = new Map<string, Product>();
+  const officialByName = new Map<string, Product>();
+  FAMOUS_50_PERFUMES.forEach((p) => {
+    if (p.slug) officialBySlug.set(p.slug.toLowerCase(), p);
+    officialById.set(p.id, p);
+    if (p.nameEn) officialByName.set(p.nameEn.toLowerCase(), p);
+  });
+
+  // 2. Clean up base64 payloads and link official WebP assets
+  const healedList: Product[] = nonDummy.map((p) => {
+    let item = { ...p };
+    const official =
+      (item.slug && officialBySlug.get(item.slug.toLowerCase())) ||
+      officialById.get(item.id) ||
+      (item.nameEn && officialByName.get(item.nameEn.toLowerCase()));
+
+    // Check for heavy base64 strings
+    const hasBase64 =
+      item.imageUrl?.includes(';base64,') ||
+      (Array.isArray(item.images) && item.images.some((img) => img.url?.includes(';base64,')));
+
+    if (hasBase64) {
+      needsSave = true;
+      if (official) {
+        item.imageUrl = official.imageUrl;
+        item.images = official.images;
+      } else {
+        item.imageUrl = '/images/products/dior-sauvage-elixir.webp';
+        item.images = [
+          {
+            id: `${item.id}-clean-img`,
+            url: '/images/products/dior-sauvage-elixir.webp',
+            altTextEn: item.nameEn || 'Raheeq Perfume',
+            isPrimary: true,
+            sortOrder: 0,
+          },
+        ];
+      }
+    } else if (official) {
+      // If official item has an optimized WebP image while database has old placeholder or png
+      if (official.imageUrl?.endsWith('.webp') && !item.imageUrl?.endsWith('.webp')) {
+        item.imageUrl = official.imageUrl;
+        item.images = official.images;
+        needsSave = true;
+      }
+    }
+
+    return item;
+  });
+
+  // 3. One-time seeding of missing official perfumes (e.g. misk-al-rumman, khmrah-lattafa, etc.)
+  // Only if NOT already migrated, so admin deletions in future are NEVER resurrected!
+  if (!isAlreadyMigrated) {
+    const existingSlugs = new Set(healedList.map((p) => p.slug?.toLowerCase()).filter(Boolean));
+    const existingIds = new Set(healedList.map((p) => p.id));
+
+    for (const official of FAMOUS_50_PERFUMES) {
+      const slugKey = official.slug?.toLowerCase();
+      const hasItem = (slugKey && existingSlugs.has(slugKey)) || existingIds.has(official.id);
+      if (!hasItem) {
+        healedList.push(official);
+        needsSave = true;
+        if (slugKey) existingSlugs.add(slugKey);
+        existingIds.add(official.id);
+      }
+    }
+  }
+
+  return { healed: healedList, needsSave };
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -108,11 +193,31 @@ export async function GET(req: NextRequest) {
         const setting = await prisma.storeSetting.findUnique({
           where: { key: 'catalog_products' },
         });
+        const migrationSetting = await prisma.storeSetting.findUnique({
+          where: { key: 'catalog_v2_migrated' },
+        });
+        const isMigrated = migrationSetting?.value === 'true';
+
         if (setting && setting.value) {
           const parsed = JSON.parse(setting.value);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            products = parsed;
-            globalThis.__PRODUCTS_CATALOG__ = parsed;
+            const { healed, needsSave } = healAndReconcileCatalog(parsed, isMigrated);
+            products = healed;
+            globalThis.__PRODUCTS_CATALOG__ = healed;
+
+            if (needsSave || !isMigrated) {
+              persistProducts(healed);
+              persistToCloudSetting(healed).catch(() => {});
+              prisma.storeSetting.upsert({
+                where: { key: 'catalog_v2_migrated' },
+                update: { value: 'true' },
+                create: {
+                  key: 'catalog_v2_migrated',
+                  value: 'true',
+                  description: 'Catalog v2 WebP migration and cleanup applied',
+                },
+              }).catch(() => {});
+            }
           }
         } else {
           // Priority 2: Check relational product table
@@ -491,8 +596,23 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'معرف العطر مطلوب للحذف' }, { status: 400 });
     }
 
-    const currentList = loadPersistedProducts();
-    const updated = currentList.filter((p) => p.id !== id);
+    let currentList = loadPersistedProducts();
+    try {
+      const hasDb = await isDatabaseConnected();
+      if (hasDb) {
+        const setting = await prisma.storeSetting.findUnique({
+          where: { key: 'catalog_products' },
+        });
+        if (setting && setting.value) {
+          const parsed = JSON.parse(setting.value);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            currentList = parsed;
+          }
+        }
+      }
+    } catch {}
+
+    const updated = currentList.filter((p) => p.id !== id && p.slug !== id);
     persistProducts(updated);
     await persistToCloudSetting(updated);
 
@@ -500,7 +620,11 @@ export async function DELETE(req: NextRequest) {
     try {
       const hasDb = await isDatabaseConnected();
       if (hasDb) {
-        await prisma.product.delete({ where: { id } });
+        await prisma.product.deleteMany({
+          where: {
+            OR: [{ id }, { slug: id }],
+          },
+        }).catch(() => {});
       }
     } catch {}
 
