@@ -143,8 +143,19 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
     setIsLoaded(true);
 
-    // Immediate server sync to fetch the latest cloud catalog
-    syncWithServer();
+    // Defer server sync until after initial paint & critical asset loading
+    if (typeof window !== 'undefined') {
+      const timer = setTimeout(() => {
+        if ('requestIdleCallback' in window) {
+          (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(() => syncWithServer());
+        } else {
+          syncWithServer();
+        }
+      }, 2500);
+      return () => clearTimeout(timer);
+    } else {
+      syncWithServer();
+    }
   }, [syncWithServer]);
 
   const saveProductsLocally = (updatedList: Product[]) => {

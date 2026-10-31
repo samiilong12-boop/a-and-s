@@ -35,8 +35,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ["var(--font-bodoni-moda)", "Bodoni Moda", "Georgia", "serif"],
-        sans: ["var(--font-jost)", "Jost", "system-ui", "sans-serif"],
+        serif: ["var(--font-amiri)", "var(--font-bodoni-moda)", "Bodoni Moda", "Georgia", "serif"],
+        sans: ["var(--font-cairo)", "var(--font-jost)", "Jost", "system-ui", "sans-serif"],
       },
       screens: {
         xs: "475px",

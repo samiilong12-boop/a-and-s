@@ -87,7 +87,7 @@ export function Footer() {
           
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="inline-flex items-center gap-3">
+            <Link href="/" prefetch={false} className="inline-flex items-center gap-3">
               <div className={`w-12 h-12 ${content.brandLogoShape === 'square' ? 'rounded-none' : content.brandLogoShape === 'rounded' ? 'rounded-xl' : 'rounded-full'} border ${content.brandLogoBorder === 'turquoise' ? 'border-[#54d1b2]' : content.brandLogoBorder === 'none' ? 'border-transparent' : 'border-[#D4AF37]/50'} bg-[#080A0A] flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden`}>
                 <img
                   src={content.brandLogoUrl || '/images/raheeq-official-logo.png'}
@@ -200,32 +200,32 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-[#9EABA7]">
               <li>
-                <Link href="/category/oriental" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/category/oriental" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'العطور الشرقية النادرة' : 'Oriental Perfumes'}
                 </Link>
               </li>
               <li>
-                <Link href="/category/woody" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/category/woody" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'أخشاب العود والصندل' : 'Woody & Oud'}
                 </Link>
               </li>
               <li>
-                <Link href="/category/fresh-citrus" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/category/fresh-citrus" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'حمضيات برغموت منعشة' : 'Fresh Citrus'}
                 </Link>
               </li>
               <li>
-                <Link href="/category/floral" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/category/floral" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'عنبر وزهور نقية' : 'Floral & Amber'}
                 </Link>
               </li>
               <li>
-                <Link href="/category/leather-spice" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/category/leather-spice" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'جلود وتوابل ملكية' : 'Leather & Spice'}
                 </Link>
               </li>
               <li>
-                <Link href="/fragrance-guide" className="hover:text-[#2DD4BF] text-teal-400 font-semibold transition-colors flex items-center gap-1">
+                <Link href="/fragrance-guide" prefetch={false} className="hover:text-[#2DD4BF] text-teal-400 font-semibold transition-colors flex items-center gap-1">
                   <span>{isRtl ? 'دليل تركيز العطور والأهرام الشمية ←' : 'Fragrance Guide & Science ←'}</span>
                 </Link>
               </li>
@@ -239,39 +239,39 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-[#9EABA7]">
               <li>
-                <Link href="/terms#delivery" className="hover:text-[#2DD4BF] transition-colors flex items-center gap-1.5 font-medium text-emerald-400">
+                <Link href="/terms#delivery" prefetch={false} className="hover:text-[#2DD4BF] transition-colors flex items-center gap-1.5 font-medium text-emerald-400">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>{isRtl ? 'شروط المعاينة عند الاستلام' : 'Doorstep Inspection Policy'}</span>
                 </Link>
               </li>
               <li>
-                <Link href="/terms#terms" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/terms#terms" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'شروط الاستخدام والطلب' : 'Terms of Use'}
                 </Link>
               </li>
               <li>
-                <Link href="/terms#privacy" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/terms#privacy" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'سياسة الخصوصية وأمان البيانات' : 'Privacy & Security'}
                 </Link>
               </li>
               <li>
-                <Link href="/terms#returns" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/terms#returns" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {isRtl ? 'الاستبدال والاسترجاع والضمان' : 'Returns & Warranty'}
                 </Link>
               </li>
               <li>
-                <Link href="/terms#ai" className="hover:text-[#2DD4BF] transition-colors flex items-center gap-1.5 text-amber-300">
+                <Link href="/terms#ai" prefetch={false} className="hover:text-[#2DD4BF] transition-colors flex items-center gap-1.5 text-amber-300">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>{isRtl ? 'إشعار محتوى الذكاء الاصطناعي (AI)' : 'AI Content Notice'}</span>
                 </Link>
               </li>
               <li>
-                <Link href="/track-order" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/track-order" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {t('nav.track_order')}
                 </Link>
               </li>
               <li>
-                <Link href="/#brand-story" className="hover:text-[#2DD4BF] transition-colors">
+                <Link href="/#brand-story" prefetch={false} className="hover:text-[#2DD4BF] transition-colors">
                   {t('nav.brand_story')}
                 </Link>
               </li>

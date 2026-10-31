@@ -48,12 +48,15 @@ export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden flex flex-col group relative border border-[#E6E1D5] hover:border-[#2DD4BF] shadow-sm hover:shadow-2xl transition-all duration-500 ease-out hover:-translate-y-1.5">
       {/* Visual Image Container */}
-      <Link href={`/product/${product.slug}`} className="relative block aspect-[4/5] bg-[#FAF8F4] overflow-hidden">
+      <Link href={`/product/${product.slug}`} prefetch={false} className="relative block aspect-[4/5] bg-[#FAF8F4] overflow-hidden">
         <img
           src={primaryImage}
           alt={product.nameEn}
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          width={400}
+          height={500}
+          decoding="async"
           loading="lazy"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
 
         {/* Badges Overlay */}

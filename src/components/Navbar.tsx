@@ -81,18 +81,21 @@ export function Navbar() {
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs lg:text-sm font-bold tracking-wider uppercase text-[#4A5553]">
             <Link
               href="/catalog"
+              prefetch={false}
               className="hover:text-[#080A0A] hover:border-b-2 hover:border-[#54d1b2] transition-all py-2"
             >
               {t('nav.all_fragrances')}
             </Link>
             <Link
               href="/catalog?family=Oriental+Woody"
+              prefetch={false}
               className="hover:text-[#080A0A] hover:border-b-2 hover:border-[#54d1b2] transition-all py-2"
             >
               {t('nav.oud_woods')}
             </Link>
             <Link
               href="/catalog?family=Floral+Amber"
+              prefetch={false}
               className="hover:text-[#080A0A] hover:border-b-2 hover:border-[#54d1b2] transition-all py-2"
             >
               {t('nav.floral_amber')}
@@ -105,6 +108,7 @@ export function Navbar() {
             </Link>
             <Link
               href="/track-order"
+              prefetch={false}
               className="hover:text-[#080A0A] transition-colors py-2 text-xs text-[#788784]"
             >
               {t('nav.track_order')}
@@ -147,6 +151,7 @@ export function Navbar() {
             {/* Catalog Search */}
             <Link
               href="/catalog"
+              prefetch={false}
               className="p-2 text-[#4A5553] hover:text-[#080A0A] transition-colors"
               title={t('nav.search_placeholder')}
             >
@@ -199,6 +204,7 @@ export function Navbar() {
 
           <Link
             href="/catalog"
+            prefetch={false}
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#080A0A] hover:text-[#0D9488] py-2 text-base font-bold tracking-wide"
           >
@@ -206,6 +212,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/catalog?family=Oriental+Woody"
+            prefetch={false}
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#4A5553] hover:text-[#080A0A] py-2 text-sm font-semibold"
           >
@@ -213,6 +220,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/catalog?family=Floral+Amber"
+            prefetch={false}
             onClick={() => setMobileMenuOpen(false)}
             className="block text-[#4A5553] hover:text-[#080A0A] py-2 text-sm font-semibold"
           >
@@ -228,6 +236,7 @@ export function Navbar() {
           <div className="pt-3 border-t border-[#E7E3D6] flex items-center justify-between">
             <Link
               href="/track-order"
+              prefetch={false}
               onClick={() => setMobileMenuOpen(false)}
               className="text-xs text-[#0D9488] font-bold"
             >

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Bodoni_Moda, Jost } from 'next/font/google';
+import { Bodoni_Moda, Jost, Cairo, Amiri } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { ProductProvider } from '@/context/ProductContext';
@@ -28,6 +28,20 @@ const jost = Jost({
   variable: '--font-jost',
   display: 'swap',
   weight: ['300', '400', '500', '600', '700'],
+});
+
+const cairo = Cairo({
+  subsets: ['arabic', 'latin'],
+  variable: '--font-cairo',
+  display: 'swap',
+  weight: ['400', '600', '700', '800'],
+});
+
+const amiri = Amiri({
+  subsets: ['arabic', 'latin'],
+  variable: '--font-amiri',
+  display: 'swap',
+  weight: ['400', '700'],
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://a-and-s.vercel.app';
@@ -128,8 +142,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${bodoniModa.variable} ${jost.variable}`}>
+    <html lang="ar" dir="rtl" className={`${cairo.variable} ${amiri.variable} ${bodoniModa.variable} ${jost.variable}`}>
       <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/images/campaign/as-signature-male-spray.jpg"
+          fetchPriority="high"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationAndWebsiteSchema) }}

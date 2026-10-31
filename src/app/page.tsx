@@ -29,6 +29,7 @@ import { FRAGRANCE_FAMILIES } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
 import { ExpressOrderModal } from '@/components/ExpressOrderModal';
 import { Product } from '@/types';
+import { getOptimizedVideoUrl } from '@/lib/videoOptimizer';
 
 const Interactive3DStudio = dynamic(
   () => import('@/components/Interactive3DStudio').then((m) => m.Interactive3DStudio),
@@ -59,22 +60,55 @@ export default function HomePage() {
   // Full Storefront Dynamic CMS Content & Media
   const { siteContent } = useSiteContent();
   const heroConfig = siteContent; // alias for backwards compatibility
-  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [mountVideo, setMountVideo] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [videoSource, setVideoSource] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Ensure autoplay on mount or mode change with aggressive mobile support
+  // Image-First Hero: Defer heavyweight video streaming until after critical LCP is locked
   useEffect(() => {
-    if (videoRef.current && heroConfig.visualMode === 'video') {
-      videoRef.current.muted = true;
+    if (typeof window === 'undefined') return;
+    const isMobileDevice = window.innerWidth < 768;
+    const activeUrl = heroConfig.activeVideoUrl || '/videos/campaign-hero.mp4';
+    setVideoSource(getOptimizedVideoUrl(activeUrl, isMobileDevice));
+
+    // Check user data-saver & reduced motion preferences
+    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const nav = navigator as any;
+    const isSaveData = Boolean(
+      nav.connection?.saveData ||
+      nav.connection?.effectiveType === 'slow-2g' ||
+      nav.connection?.effectiveType === '2g'
+    );
+
+    if (isReducedMotion || isSaveData || heroConfig.visualMode === 'photo') {
+      return;
+    }
+
+    // Schedule video element mounting after main thread is idle & initial paint is complete
+    if ('requestIdleCallback' in window) {
+      const handle = (window as any).requestIdleCallback(
+        () => setMountVideo(true),
+        { timeout: 2000 }
+      );
+      return () => (window as any).cancelIdleCallback(handle);
+    } else {
+      const timer = setTimeout(() => setMountVideo(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [heroConfig.visualMode, heroConfig.activeVideoUrl]);
+
+  // Handle video autoplay once mounted
+  useEffect(() => {
+    if (videoRef.current && mountVideo && heroConfig.visualMode === 'video') {
+      videoRef.current.muted = isMuted;
       videoRef.current.playsInline = true;
       const playPromise = videoRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Autoplay requires mute, handled by default
-        });
+        playPromise.catch(() => {});
       }
     }
-  }, [heroConfig.visualMode, heroConfig.activeVideoUrl]);
+  }, [mountVideo, heroConfig.visualMode, isMuted, videoSource]);
 
   const toggleVideoPlayback = () => {
     if (videoRef.current) {
@@ -138,49 +172,49 @@ export default function HomePage() {
         
         {/* Background Visual Layer: Real Raheeq Campaign Visuals & Ultra-Luxury HD Video */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Main Editorial Image (Fallback + Poster + Photo Mode) */}
+          {/* Main Editorial Image (Hero LCP Anchor - Image-First Architecture) */}
           <img
             src={heroConfig.activePhotoUrl || '/images/campaign/as-signature-male-spray.jpg'}
             alt="Raheeq Haute Parfumerie Campaign"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             style={{
               filter: `brightness(${heroConfig.heroBrightness || 0.95}) contrast(105%)`,
             }}
-            className={`w-full h-full object-cover scale-105 transition-opacity duration-1000 ${
-              heroConfig.visualMode === 'photo'
-                ? 'opacity-100'
-                : 'opacity-40'
-            }`}
+            className="w-full h-full object-cover scale-105 opacity-100 transition-opacity duration-1000"
           />
 
-          {/* Cinematic Background Video */}
-          <video
-            ref={videoRef}
-            key={heroConfig.activeVideoUrl}
-            autoPlay
-            loop
-            muted={isMuted}
-            playsInline
-            preload="auto"
-            poster={heroConfig.activePhotoUrl || '/images/campaign/as-signature-male-spray.jpg'}
-            src={heroConfig.activeVideoUrl}
-            onLoadedData={() => setVideoLoaded(true)}
-            onCanPlay={(e) => {
-              setVideoLoaded(true);
-              e.currentTarget.muted = true;
-              e.currentTarget.play().catch(() => {});
-            }}
-            style={{
-              filter: `brightness(${heroConfig.heroBrightness || 1.0}) contrast(105%)`,
-            }}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-              heroConfig.visualMode === 'video'
-                ? 'opacity-100'
-                : 'opacity-0 pointer-events-none'
-            }`}
-          >
-            <source src={heroConfig.activeVideoUrl} type="video/mp4" />
-            <source src="/videos/campaign-hero.mp4" type="video/mp4" />
-          </video>
+          {/* Cinematic Background Video (Attached only after critical LCP is locked, single source) */}
+          {mountVideo && heroConfig.visualMode === 'video' && (
+            <video
+              ref={videoRef}
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+              preload="metadata"
+              src={videoSource}
+              onPlaying={() => setVideoReady(true)}
+              onCanPlay={() => {
+                if (videoRef.current) {
+                  videoRef.current.play().catch(() => {});
+                }
+              }}
+              onError={() => {
+                // Reliable local fallback if remote video fails
+                if (videoSource !== '/videos/campaign-hero.mp4') {
+                  setVideoSource('/videos/campaign-hero.mp4');
+                }
+              }}
+              style={{
+                filter: `brightness(${heroConfig.heroBrightness || 1.0}) contrast(105%)`,
+              }}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                videoReady ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          )}
 
           {/* Elegant Readable Overlay with Controlled Transparency */}
           <div
@@ -330,6 +364,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/catalog"
+            prefetch={false}
             className="text-xs font-extrabold tracking-wider text-[#00bc7d] hover:text-[#080A0A] uppercase flex items-center gap-1.5 transition-colors self-start md:self-auto bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-2 rounded-xl shadow-xs"
           >
             <span>{isRtl ? 'عرض الكتالوج الكامل (50+ عطر) ←' : 'View Full Catalog (50+) ←'}</span>
@@ -743,12 +778,14 @@ export default function HomePage() {
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/catalog?family=Fresh+Citrus"
+                  prefetch={false}
                   className="btn-turquoise py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider text-center"
                 >
                   {isRtl ? (siteContent.rivieraBtn1Text || 'اكتشف عطور الريفييرا') : 'Explore Riviera Scents'}
                 </Link>
                 <Link
                   href="/catalog"
+                  prefetch={false}
                   className="btn-secondary !bg-transparent !text-white !border-white/30 hover:!border-[#54d1b2] hover:!text-[#54d1b2] py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider text-center"
                 >
                   {isRtl ? (siteContent.rivieraBtn2Text || 'مشاهدة الكتالوج الكامل') : 'View Full Catalog'}
@@ -904,6 +941,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/catalog?sort=newest"
+            prefetch={false}
             className="text-xs font-bold tracking-widest text-[#0D9488] hover:text-[#080A0A] uppercase flex items-center gap-1.5 transition-colors"
           >
             <span>{isRtl ? 'عرض جميع العطور الجديدة' : 'View All New Releases'}</span>
