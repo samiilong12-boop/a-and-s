@@ -94,7 +94,7 @@ async function persistToCloudSetting(list: Product[]) {
 
 function healAndReconcileCatalog(
   rawList: Product[],
-  isAlreadyMigrated: boolean
+  deletedIds: Set<string>
 ): { healed: Product[]; needsSave: boolean } {
   let needsSave = false;
 
@@ -156,21 +156,21 @@ function healAndReconcileCatalog(
     return item;
   });
 
-  // 3. One-time seeding of missing official perfumes (e.g. misk-al-rumman, khmrah-lattafa, etc.)
-  // Only if NOT already migrated, so admin deletions in future are NEVER resurrected!
-  if (!isAlreadyMigrated) {
-    const existingSlugs = new Set(healedList.map((p) => p.slug?.toLowerCase()).filter(Boolean));
-    const existingIds = new Set(healedList.map((p) => p.id));
+  // 3. Ensure official perfumes exist unless explicitly deleted by merchant
+  const existingSlugs = new Set(healedList.map((p) => p.slug?.toLowerCase()).filter(Boolean));
+  const existingIds = new Set(healedList.map((p) => p.id));
 
-    for (const official of FAMOUS_50_PERFUMES) {
-      const slugKey = official.slug?.toLowerCase();
-      const hasItem = (slugKey && existingSlugs.has(slugKey)) || existingIds.has(official.id);
-      if (!hasItem) {
-        healedList.push(official);
-        needsSave = true;
-        if (slugKey) existingSlugs.add(slugKey);
-        existingIds.add(official.id);
-      }
+  for (const official of FAMOUS_50_PERFUMES) {
+    const slugKey = official.slug?.toLowerCase();
+    const isDeleted = deletedIds.has(official.id) || (slugKey && deletedIds.has(slugKey));
+    if (isDeleted) continue;
+
+    const hasItem = (slugKey && existingSlugs.has(slugKey)) || existingIds.has(official.id);
+    if (!hasItem) {
+      healedList.push(official);
+      needsSave = true;
+      if (slugKey) existingSlugs.add(slugKey);
+      existingIds.add(official.id);
     }
   }
 
@@ -193,30 +193,30 @@ export async function GET(req: NextRequest) {
         const setting = await prisma.storeSetting.findUnique({
           where: { key: 'catalog_products' },
         });
-        const migrationSetting = await prisma.storeSetting.findUnique({
-          where: { key: 'catalog_v2_migrated' },
-        });
-        const isMigrated = migrationSetting?.value === 'true';
 
         if (setting && setting.value) {
           const parsed = JSON.parse(setting.value);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const { healed, needsSave } = healAndReconcileCatalog(parsed, isMigrated);
+            let deletedIds = new Set<string>();
+            try {
+              const deletedSetting = await prisma.storeSetting.findUnique({
+                where: { key: 'deleted_product_ids' },
+              });
+              if (deletedSetting && deletedSetting.value) {
+                const arr = JSON.parse(deletedSetting.value);
+                if (Array.isArray(arr)) {
+                  deletedIds = new Set(arr.map((s: string) => String(s).toLowerCase()));
+                }
+              }
+            } catch {}
+
+            const { healed, needsSave } = healAndReconcileCatalog(parsed, deletedIds);
             products = healed;
             globalThis.__PRODUCTS_CATALOG__ = healed;
 
-            if (needsSave || !isMigrated) {
+            if (needsSave) {
               persistProducts(healed);
-              persistToCloudSetting(healed).catch(() => {});
-              prisma.storeSetting.upsert({
-                where: { key: 'catalog_v2_migrated' },
-                update: { value: 'true' },
-                create: {
-                  key: 'catalog_v2_migrated',
-                  value: 'true',
-                  description: 'Catalog v2 WebP migration and cleanup applied',
-                },
-              }).catch(() => {});
+              await persistToCloudSetting(healed);
             }
           }
         } else {
@@ -612,14 +612,33 @@ export async function DELETE(req: NextRequest) {
       }
     } catch {}
 
+    const targetProduct = currentList.find((p) => p.id === id || p.slug === id);
     const updated = currentList.filter((p) => p.id !== id && p.slug !== id);
     persistProducts(updated);
     await persistToCloudSetting(updated);
 
-    // Prisma delete in background if available
+    // Record tombstone in PostgreSQL storeSetting so deleted products are never resurrected
     try {
       const hasDb = await isDatabaseConnected();
       if (hasDb) {
+        const deletedSetting = await prisma.storeSetting.findUnique({
+          where: { key: 'deleted_product_ids' },
+        });
+        const deletedList: string[] = deletedSetting?.value ? JSON.parse(deletedSetting.value) : [];
+        deletedList.push(id.toLowerCase());
+        if (targetProduct?.slug) deletedList.push(targetProduct.slug.toLowerCase());
+        const uniqueDeleted = Array.from(new Set(deletedList));
+
+        await prisma.storeSetting.upsert({
+          where: { key: 'deleted_product_ids' },
+          update: { value: JSON.stringify(uniqueDeleted) },
+          create: {
+            key: 'deleted_product_ids',
+            value: JSON.stringify(uniqueDeleted),
+            description: 'Tombstone list of products deleted by merchant',
+          },
+        });
+
         await prisma.product.deleteMany({
           where: {
             OR: [{ id }, { slug: id }],
