@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { DEMO_PRODUCTS, SHIPPING_ZONES, FRAGRANCE_FAMILIES } from '../src/lib/data/products';
 
-describe('Fragrance Catalog & Seeding Verification (50+ Famous Luxury Perfumes)', () => {
-  it('contains at least 50 famous luxury fragrance products', () => {
-    expect(DEMO_PRODUCTS.length).toBeGreaterThanOrEqual(50);
+describe('Fragrance Catalog & Seeding Verification (Official Luxury Perfumes)', () => {
+  it('contains at least 10 official luxury fragrance products', () => {
+    expect(DEMO_PRODUCTS.length).toBeGreaterThanOrEqual(10);
   });
 
   it('ensures all products have unique IDs and unique slugs', () => {

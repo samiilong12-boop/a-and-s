@@ -82,9 +82,9 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v5';
+const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v6';
 const CATALOG_VERSION_KEY = 'raheeq_catalog_version_sig';
-const CURRENT_CATALOG_VERSION = '2026.10.31.v5_webp_official';
+const CURRENT_CATALOG_VERSION = '2026.10.31.v6_official_10_clean';
 const TOKEN_KEY = 'a_and_s_admin_jwt_token';
 
 function getAdminAuthHeaders(): Record<string, string> {

@@ -11,7 +11,7 @@ describe('Sync Products Catalog to public/data/products.json', () => {
     const fileContent = fs.readFileSync(jsonPath, 'utf-8');
     const parsed = JSON.parse(fileContent);
 
-    expect(parsed.length).toBeGreaterThanOrEqual(56);
+    expect(parsed.length).toBeGreaterThanOrEqual(10);
     expect(fileContent).not.toContain('data:image/jpeg;base64');
     console.log(`Successfully synced ${parsed.length} products to public/data/products.json!`);
   });

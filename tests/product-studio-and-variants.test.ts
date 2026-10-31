@@ -7,35 +7,34 @@ describe('Advanced Perfume Product Management Studio & Data Consistency', () => 
   const productsJsonPath = path.join(process.cwd(), 'public', 'data', 'products.json');
   const productsData = JSON.parse(fs.readFileSync(productsJsonPath, 'utf-8'));
 
-  it('verifies creed-aventus has authentic Aventus notes and honest variants', () => {
-    const aventus = productsData.find((p: any) => p.id === 'creed-aventus');
-    expect(aventus).toBeDefined();
-    expect(aventus.nameEn).toBe('Creed Aventus');
-    expect(aventus.nameAr).toBe('كريد أفينتوس');
-    expect(aventus.inspiredBy).toContain('Creed Aventus');
-    expect(aventus.brand).toBe('RAHEEQ');
+  it('verifies dior-sauvage-elixir has authentic notes and honest variants', () => {
+    const sauvage = productsData.find((p: any) => p.id === 'dior-sauvage-elixir');
+    expect(sauvage).toBeDefined();
+    expect(sauvage.nameEn).toBe('Sauvage Elixir');
+    expect(sauvage.nameAr).toBe('سوفاج إكسير');
+    expect(sauvage.inspiredBy).toContain('Dior Sauvage Elixir');
+    expect(sauvage.brand).toBe('RAHEEQ');
     // Ensure notes reflect authentic olfactory pyramid
-    expect(aventus.topNotes).toContain('Pineapple');
-    expect(aventus.baseNotes).toContain('Ambergris');
+    expect(sauvage.topNotes).toContain('Cinnamon');
+    expect(sauvage.baseNotes).toContain('Sandalwood');
     // Ensure dual variants 50ml and 100ml
-    expect(aventus.variants).toHaveLength(2);
-    expect(aventus.variants[0].volumeMl).toBe(50);
-    expect(aventus.variants[0].regularPriceEgp).toBe(1850);
-    expect(aventus.variants[1].volumeMl).toBe(100);
-    expect(aventus.variants[1].regularPriceEgp).toBe(2750);
+    expect(sauvage.variants).toHaveLength(2);
+    expect(sauvage.variants[0].volumeMl).toBe(50);
+    expect(sauvage.variants[0].regularPriceEgp).toBe(1850);
+    expect(sauvage.variants[1].volumeMl).toBe(100);
+    expect(sauvage.variants[1].regularPriceEgp).toBe(2750);
   });
 
-  it('verifies emporio-armani-stronger-with-you-intensely is configured as a dedicated product', () => {
-    const swy = productsData.find((p: any) => p.id === 'emporio-armani-stronger-with-you-intensely');
-    expect(swy).toBeDefined();
-    expect(swy.nameEn).toBe('Emporio Armani Stronger With You Intensely');
-    expect(swy.nameAr).toBe('أرماني سترونجر ويذ يو إنتنسلي');
-    expect(swy.brand).toBe('RAHEEQ');
-    expect(swy.fragranceFamily).toBe('Gourmand');
-    expect(swy.topNotes).toContain('Pink Pepper');
-    expect(swy.heartNotes).toContain('Toffee');
-    expect(swy.baseNotes).toContain('Madagascar Vanilla');
-    expect(swy.variants.length).toBeGreaterThanOrEqual(2);
+  it('verifies misk-al-rumman is configured as a dedicated luxury product', () => {
+    const misk = productsData.find((p: any) => p.id === 'misk-al-rumman');
+    expect(misk).toBeDefined();
+    expect(misk.nameEn).toBe('Misk Al-Rumman');
+    expect(misk.nameAr).toBe('مسك الرمان');
+    expect(misk.brand).toBe('RAHEEQ');
+    expect(misk.topNotes).toContain('Pomegranate');
+    expect(misk.heartNotes).toContain('Jasmine');
+    expect(misk.baseNotes).toContain('White Musk');
+    expect(misk.variants.length).toBeGreaterThanOrEqual(2);
   });
 
   it('verifies draft products are not exposed to public catalog or category listings', () => {
@@ -70,9 +69,9 @@ describe('Advanced Perfume Product Management Studio & Data Consistency', () => 
   });
 
   it('verifies product SEO metadata is generated with RAHEEQ brand', () => {
-    const aventus = getProductBySlug('creed-aventus');
-    expect(aventus).toBeDefined();
-    expect(aventus?.brand).toBe('RAHEEQ');
-    expect(aventus?.inspirationNoteAr).toContain('دار رحيق');
+    const sauvage = getProductBySlug('dior-sauvage-elixir');
+    expect(sauvage).toBeDefined();
+    expect(sauvage?.brand).toBe('RAHEEQ');
+    expect(sauvage?.inspirationNoteAr).toContain('دار رحيق');
   });
 });

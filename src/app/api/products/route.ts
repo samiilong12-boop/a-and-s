@@ -189,115 +189,62 @@ export async function GET(req: NextRequest) {
     try {
       const hasDb = await isDatabaseConnected();
       if (hasDb) {
-        // Priority 1: Check storeSetting for full cloud catalog
-        const setting = await prisma.storeSetting.findUnique({
-          where: { key: 'catalog_products' },
+        // One-time Cloud Clean Wipe: replace cloud DB with only the official 10 perfumes
+        const wipeSetting = await prisma.storeSetting.findUnique({
+          where: { key: 'catalog_v3_clean_10_wiped' },
         });
+        const isCleanWiped = wipeSetting?.value === 'true';
 
-        if (setting && setting.value) {
-          const parsed = JSON.parse(setting.value);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            let deletedIds = new Set<string>();
-            try {
-              const deletedSetting = await prisma.storeSetting.findUnique({
-                where: { key: 'deleted_product_ids' },
-              });
-              if (deletedSetting && deletedSetting.value) {
-                const arr = JSON.parse(deletedSetting.value);
-                if (Array.isArray(arr)) {
-                  deletedIds = new Set(arr.map((s: string) => String(s).toLowerCase()));
-                }
-              }
-            } catch {}
-
-            const { healed, needsSave } = healAndReconcileCatalog(parsed, deletedIds);
-            products = healed;
-            globalThis.__PRODUCTS_CATALOG__ = healed;
-
-            if (needsSave) {
-              persistProducts(healed);
-              await persistToCloudSetting(healed);
-            }
-          }
-        } else {
-          // Priority 2: Check relational product table
-          const dbProducts = await prisma.product.findMany({
-            include: {
-              variants: true,
-              images: true,
+        if (!isCleanWiped) {
+          products = FAMOUS_50_PERFUMES;
+          globalThis.__PRODUCTS_CATALOG__ = products;
+          persistProducts(products);
+          await persistToCloudSetting(products);
+          await prisma.storeSetting.upsert({
+            where: { key: 'catalog_v3_clean_10_wiped' },
+            update: { value: 'true' },
+            create: {
+              key: 'catalog_v3_clean_10_wiped',
+              value: 'true',
+              description: 'Catalog wiped clean to only official 10 perfumes',
             },
           });
-          if (dbProducts && dbProducts.length > 0) {
-            const formattedDbProducts: Product[] = dbProducts.map((p: any) => ({
-              id: p.id,
-              slug: p.slug,
-              nameEn: p.nameEn,
-              nameAr: p.nameAr || undefined,
-              brand: p.brand || 'رحيق (Raheeq)',
-              gender: p.gender || 'UNISEX',
-              headlineEn: p.headlineEn || undefined,
-              descriptionEn: p.descriptionEn,
-              descriptionAr: p.descriptionAr || undefined,
-              concentration: p.concentration as any,
-              fragranceFamily: p.fragranceFamily,
-              topNotes: p.topNotes || [],
-              heartNotes: p.heartNotes || [],
-              baseNotes: p.baseNotes || [],
-              inspiredBy: p.inspiredBy || undefined,
-              inspirationNoteAr: p.inspirationNoteAr || undefined,
-              disclaimerTitleAr: p.disclaimerTitleAr || undefined,
-              showDisclaimer: p.showDisclaimer ?? true,
-              longevityAr: p.longevityAr || undefined,
-              longevityEn: p.longevityEn || undefined,
-              sillageAr: p.sillageAr || undefined,
-              sillageEn: p.sillageEn || undefined,
-              guaranteeTitleAr: p.guaranteeTitleAr || undefined,
-              guaranteeTextAr: p.guaranteeTextAr || undefined,
-              seoTitle: p.seoTitle || undefined,
-              seoDescription: p.seoDescription || undefined,
-              seoKeywords: p.seoKeywords || undefined,
-              categoryId: p.categoryId || undefined,
-              isFeatured: p.isFeatured,
-              isNewArrival: p.isNewArrival,
-              isBestseller: p.isBestseller,
-              isPublished: p.isPublished,
-              rating: p.rating || undefined,
-              reviewCount: p.reviewCount || undefined,
-              images: p.images.map((img: any) => ({
-                id: img.id,
-                url: img.url,
-                altTextEn: img.altTextEn || p.nameEn || 'Raheeq Perfume',
-                isPrimary: img.isPrimary,
-                sortOrder: img.sortOrder,
-              })),
-              imageUrl: p.images[0]?.url,
-              createdAt: p.createdAt ? p.createdAt.toISOString() : new Date().toISOString(),
-              updatedAt: p.updatedAt ? p.updatedAt.toISOString() : undefined,
-              variants: p.variants.map((v: any) => ({
-                id: v.id,
-                productId: v.productId,
-                sku: v.sku,
-                volumeMl: v.volumeMl,
-                titleEn: v.titleEn || undefined,
-                regularPriceInPiasters: v.regularPriceInPiasters,
-                regularPriceEgp: Math.round(v.regularPriceInPiasters / 100),
-                salePriceInPiasters: v.salePriceInPiasters,
-                salePriceEgp: v.salePriceInPiasters ? Math.round(v.salePriceInPiasters / 100) : null,
-                costPriceInPiasters: v.costPriceInPiasters,
-                costPriceEgp: v.costPriceInPiasters ? Math.round(v.costPriceInPiasters / 100) : undefined,
-                stockQuantity: v.stockQuantity,
-                lowStockThreshold: v.lowStockThreshold,
-                isActive: v.isActive,
-              })),
-            }));
+          await prisma.storeSetting.upsert({
+            where: { key: 'deleted_product_ids' },
+            update: { value: '[]' },
+            create: { key: 'deleted_product_ids', value: '[]' },
+          });
+        } else {
+          // Priority 1: Check storeSetting for full cloud catalog
+          const setting = await prisma.storeSetting.findUnique({
+            where: { key: 'catalog_products' },
+          });
 
-            // Merge DB with local items
-            const map = new Map<string, Product>();
-            products.forEach((p) => map.set(p.id, p));
-            formattedDbProducts.forEach((p) => map.set(p.id, p));
-            products = Array.from(map.values());
-            persistProducts(products);
-            persistToCloudSetting(products).catch(() => {});
+          if (setting && setting.value) {
+            const parsed = JSON.parse(setting.value);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              let deletedIds = new Set<string>();
+              try {
+                const deletedSetting = await prisma.storeSetting.findUnique({
+                  where: { key: 'deleted_product_ids' },
+                });
+                if (deletedSetting && deletedSetting.value) {
+                  const arr = JSON.parse(deletedSetting.value);
+                  if (Array.isArray(arr)) {
+                    deletedIds = new Set(arr.map((s: string) => String(s).toLowerCase()));
+                  }
+                }
+              } catch {}
+
+              const { healed, needsSave } = healAndReconcileCatalog(parsed, deletedIds);
+              products = healed;
+              globalThis.__PRODUCTS_CATALOG__ = healed;
+
+              if (needsSave) {
+                persistProducts(healed);
+                await persistToCloudSetting(healed);
+              }
+            }
           }
         }
       }
