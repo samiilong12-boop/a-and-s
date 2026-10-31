@@ -58,6 +58,17 @@ interface CloudinaryConfigState {
   hasSecret: boolean;
 }
 
+const getAdminAuthToken = (): string => {
+  if (typeof window === 'undefined') return '';
+  return (
+    sessionStorage.getItem('a_and_s_admin_jwt_token') ||
+    localStorage.getItem('a_and_s_admin_jwt_token') ||
+    sessionStorage.getItem('raheeq_admin_token') ||
+    localStorage.getItem('raheeq_admin_token') ||
+    ''
+  );
+};
+
 export function CloudVideoManager({
   onVideoPublished,
 }: {
@@ -104,7 +115,7 @@ export function CloudVideoManager({
   const loadData = async () => {
     try {
       setLoading(true);
-      const token = typeof window !== 'undefined' ? (sessionStorage.getItem('raheeq_admin_token') || localStorage.getItem('raheeq_admin_token')) : '';
+      const token = getAdminAuthToken();
       const headers = { Authorization: `Bearer ${token}` };
 
       // Config check
@@ -140,7 +151,7 @@ export function CloudVideoManager({
   const handleSaveCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = sessionStorage.getItem('raheeq_admin_token') || localStorage.getItem('raheeq_admin_token');
+      const token = getAdminAuthToken();
       const res = await fetch('/api/admin/cloudinary/config', {
         method: 'POST',
         headers: {
@@ -188,7 +199,7 @@ export function CloudVideoManager({
     setUploadStatusText('جاري إنشاء التوقيع الأمني والاتصال بـ Cloudinary...');
 
     try {
-      const token = sessionStorage.getItem('raheeq_admin_token') || localStorage.getItem('raheeq_admin_token');
+      const token = getAdminAuthToken();
 
       // 1. Get Signed upload signature from Next.js server route
       const signRes = await fetch('/api/admin/cloudinary/sign', {
@@ -319,7 +330,7 @@ export function CloudVideoManager({
   // Publish video to live storefront
   const handlePublishVideo = async (videoId: string) => {
     try {
-      const token = sessionStorage.getItem('raheeq_admin_token') || localStorage.getItem('raheeq_admin_token');
+      const token = getAdminAuthToken();
       const res = await fetch('/api/admin/cloudinary/publish', {
         method: 'POST',
         headers: {
@@ -352,7 +363,7 @@ export function CloudVideoManager({
     if (!confirm('هل تريد استعادة وتفعيل هذا الفيديو السابق كفيديو رئيسي لواجهة المتجر الآن؟')) return;
 
     try {
-      const token = sessionStorage.getItem('raheeq_admin_token') || localStorage.getItem('raheeq_admin_token');
+      const token = getAdminAuthToken();
       const res = await fetch('/api/admin/cloudinary/rollback', {
         method: 'POST',
         headers: {
@@ -384,7 +395,7 @@ export function CloudVideoManager({
     if (!confirm('هل أنت متأكد من حذف هذا الفيديو نهائياً من خوادم Cloudinary وتحرير مساحة التخزين؟')) return;
 
     try {
-      const token = sessionStorage.getItem('raheeq_admin_token') || localStorage.getItem('raheeq_admin_token');
+      const token = getAdminAuthToken();
       const res = await fetch('/api/admin/cloudinary/delete', {
         method: 'POST',
         headers: {

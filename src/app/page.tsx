@@ -99,7 +99,13 @@ export default function HomePage() {
       window.addEventListener('touchstart', handleUserInteraction, { passive: true });
       window.addEventListener('click', handleUserInteraction, { passive: true });
 
+      // Automatically mount video after 2.5s if no interaction occurs, ensuring video plays for casual viewers
+      const mobileFallbackTimer = setTimeout(() => {
+        setMountVideo(true);
+      }, 2500);
+
       return () => {
+        clearTimeout(mobileFallbackTimer);
         window.removeEventListener('scroll', handleUserInteraction);
         window.removeEventListener('touchstart', handleUserInteraction);
         window.removeEventListener('click', handleUserInteraction);

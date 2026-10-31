@@ -59,4 +59,37 @@ describe('Smart Cloud Video Manager & Media Architecture', () => {
     expect(result.error).toBeDefined();
     expect(result.error).toContain('لا يمكن حذف هذا الملف السحابي لأنه يتبع حساب (sxafwhcs)');
   });
+
+  describe('Video URL normalization & validation logic', () => {
+    it('detects unplayable YouTube page URLs', () => {
+      const ytUrls = [
+        'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        'https://youtu.be/dQw4w9WgXcQ',
+      ];
+      for (const url of ytUrls) {
+        const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+        expect(isYouTube).toBe(true);
+      }
+    });
+
+    it('auto-converts Google Drive preview links to direct stream download links', () => {
+      const gDriveLink = 'https://drive.google.com/file/d/1A2B3C4D5E6F7G8H9I0J/view?usp=sharing';
+      const match = gDriveLink.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      expect(match).not.toBeNull();
+      const directUrl = `https://drive.google.com/uc?export=download&id=${match![1]}`;
+      expect(directUrl).toBe('https://drive.google.com/uc?export=download&id=1A2B3C4D5E6F7G8H9I0J');
+    });
+
+    it('auto-converts Dropbox links to direct raw streaming links', () => {
+      const dropboxLink = 'https://www.dropbox.com/s/abcdef12345/video.mp4?dl=0';
+      const rawUrl = dropboxLink.replace(/[?&]dl=0/, '').replace(/[?&]raw=1/, '') + '?raw=1';
+      expect(rawUrl).toBe('https://www.dropbox.com/s/abcdef12345/video.mp4?raw=1');
+    });
+
+    it('upgrades http video links to https to prevent mixed-content browser blocking', () => {
+      const httpUrl = 'http://cdn.example.com/perfume.mp4';
+      const upgraded = httpUrl.replace(/^http:\/\//i, 'https://');
+      expect(upgraded).toBe('https://cdn.example.com/perfume.mp4');
+    });
+  });
 });

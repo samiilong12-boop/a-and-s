@@ -14,6 +14,7 @@ import {
   Sparkles,
   Camera,
   AlertCircle,
+  AlertTriangle,
   FileVideo,
   ArrowRight,
   RefreshCw,
@@ -79,6 +80,8 @@ export default function AdminStorefrontContentPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [customVideoUrl, setCustomVideoUrl] = useState('');
+  const [previewVideoError, setPreviewVideoError] = useState<string | null>(null);
+  const [customUrlError, setCustomUrlError] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [bottleFileSizeInfo, setBottleFileSizeInfo] = useState<{
@@ -210,21 +213,157 @@ export default function AdminStorefrontContentPage() {
     }
   };
 
-  // Video Upload Handler with Vercel Serverless Size Safeguard
+  const handleApplyCustomVideoUrl = () => {
+    setCustomUrlError(null);
+    if (!customVideoUrl.trim()) {
+      setCustomUrlError('يرجى إدخال رابط الفيديو أولاً');
+      return;
+    }
+
+    const trimmed = customVideoUrl.trim();
+
+    // 1. YouTube detection & warning
+    if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be')) {
+      setCustomUrlError(
+        '⚠️ روابط يوتيوب (YouTube) هي صفحات مواقع ويب تمنع متصفحات الويب تشغيلها كخلفية فيديو مباشرة. لعرض الفيديو كخلفية، يرجى رفع ملف الفيديو (.mp4) مباشرة من جهازك عبر قسم Cloudinary بالأعلى.'
+      );
+      return;
+    }
+
+    // 2. Vimeo detection
+    if (trimmed.includes('vimeo.com') && !trimmed.includes('.mp4')) {
+      setCustomUrlError(
+        '⚠️ روابط صفحات Vimeo العادية لا تدعم التشغيل المباشر داخل خلفية المتصفح. استخدم رابط فيديو مباشر (.mp4) أو ارفع الملف من جهازك بالأعلى.'
+      );
+      return;
+    }
+
+    // 3. Social platforms
+    if (trimmed.includes('tiktok.com') || trimmed.includes('instagram.com')) {
+      setCustomUrlError(
+        '⚠️ روابط تيك توك وإنستغرام ليست ملفات فيديو مباشرة. يرجى تحميل ملف الفيديو إلى جهازك ثم رفعه سحابياً بالأعلى.'
+      );
+      return;
+    }
+
+    let finalUrl = trimmed;
+
+    // 4. Auto-convert Google Drive file link to direct stream URL
+    const gDriveMatch = finalUrl.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (gDriveMatch && gDriveMatch[1]) {
+      finalUrl = `https://drive.google.com/uc?export=download&id=${gDriveMatch[1]}`;
+    }
+
+    // 5. Auto-convert Dropbox share link
+    if (finalUrl.includes('dropbox.com')) {
+      finalUrl = finalUrl.replace(/[?&]dl=0/, '').replace(/[?&]raw=1/, '');
+      finalUrl += finalUrl.includes('?') ? '&raw=1' : '?raw=1';
+    }
+
+    // 6. Force HTTPS
+    if (finalUrl.startsWith('http://')) {
+      finalUrl = finalUrl.replace(/^http:\/\//i, 'https://');
+    }
+
+    setPreviewVideoError(null);
+    handleSaveConfig({
+      activeVideoUrl: finalUrl,
+      visualMode: 'video',
+      videoTitle: 'فيديو خارجي مباشر',
+    });
+    setCustomVideoUrl(finalUrl);
+    showNotification('تم تطبيق وتثبيت رابط الفيديو الجديد بنجاح! راجع شاشة المعاينة الحية بالأعلى.');
+  };
+
+  // Smart High-Capacity Video Upload Handler (Cloudinary Direct or Local Safeguard)
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check size limit for direct base64 encoding (Vercel payload limit ~4.5MB)
-    if (file.size > 3.5 * 1024 * 1024) {
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-      showNotification(`⚠️ حجم الفيديو (${sizeMb} MB) كبير لسيرفر Vercel السحابي (الحد الأقصى 3.5MB). يرجى ضغط الفيديو أو استخدام خانة "رابط فيديو خارجي" أدناه.`, 'error');
-      if (videoFileInputRef.current) videoFileInputRef.current.value = '';
-      return;
-    }
+    const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
 
     try {
       setUploadingVideo(true);
+      const token =
+        (typeof window !== 'undefined'
+          ? sessionStorage.getItem('a_and_s_admin_jwt_token') ||
+            localStorage.getItem('a_and_s_admin_jwt_token') ||
+            sessionStorage.getItem('raheeq_admin_token') ||
+            localStorage.getItem('raheeq_admin_token')
+          : null) || '';
+
+      // 1. Attempt Direct Cloudinary Upload (handles videos up to 100MB directly)
+      try {
+        const signRes = await fetch('/api/admin/cloudinary/sign', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ filename: file.name, resourceType: 'video' }),
+        });
+
+        if (signRes.ok) {
+          const signData = await signRes.json();
+          if (signData.signature && signData.apiKey) {
+            showNotification(`جاري رفع الفيديو (${sizeMb} MB) سحابياً بجودة فائقة السرعة...`);
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('api_key', signData.apiKey);
+            formData.append('timestamp', String(signData.timestamp));
+            formData.append('signature', signData.signature);
+            formData.append('folder', signData.folder);
+            formData.append('public_id', signData.publicId);
+            formData.append('eager', signData.eager);
+            formData.append('overwrite', 'false');
+
+            const uploadRes = await fetch(
+              `https://api.cloudinary.com/v1_1/${signData.cloudName}/video/upload`,
+              { method: 'POST', body: formData }
+            );
+
+            if (uploadRes.ok) {
+              const uploadJson = await uploadRes.json();
+              const secureUrl = uploadJson.secure_url || uploadJson.url;
+
+              // Publish and register video
+              await fetch('/api/admin/cloudinary/publish', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({
+                  directUrl: secureUrl,
+                  publicId: uploadJson.public_id,
+                }),
+              }).catch(() => {});
+
+              handleSaveConfig({
+                activeVideoUrl: secureUrl,
+                visualMode: 'video',
+                videoTitle: `فيديو سحابي مرفوع (${file.name})`,
+              });
+              showNotification(`تم رفع ونشر الفيديو (${file.name}) سحابياً بنجاح! 🎬`);
+              return;
+            }
+          }
+        }
+      } catch (cloudErr) {
+        console.warn('Cloudinary signed upload attempt bypassed, falling back:', cloudErr);
+      }
+
+      // 2. Fallback check for local direct upload (Vercel payload limit ~4.5MB)
+      if (file.size > 3.5 * 1024 * 1024) {
+        showNotification(
+          `⚠️ حجم الفيديو (${sizeMb} MB) كبير لرفعه مباشرة بدون سحابة (الحد 3.5MB). استخدم «مدير الفيديو السحابي الذكي» بالأعلى للرفع حتى 100MB أو استخدم رابط فيديو مباشر (.mp4).`,
+          'error'
+        );
+        if (videoFileInputRef.current) videoFileInputRef.current.value = '';
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
@@ -238,7 +377,7 @@ export default function AdminStorefrontContentPage() {
       };
       reader.readAsDataURL(file);
     } catch (err: any) {
-      showNotification('خطأ أثناء رفع ومعالجة الفيديو', 'error');
+      showNotification('خطأ أثناء رفع ومعالجة الفيديو: ' + (err.message || 'خطأ غير معروف'), 'error');
     } finally {
       setUploadingVideo(false);
       if (videoFileInputRef.current) videoFileInputRef.current.value = '';
@@ -936,19 +1075,34 @@ export default function AdminStorefrontContentPage() {
             <div className="p-6">
               <div className="relative aspect-video max-h-[380px] w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-300 shadow-inner flex items-center justify-center">
                 {config.visualMode === 'video' ? (
-                  <video
-                    ref={videoPreviewRef}
-                    key={config.activeVideoUrl}
-                    src={config.activeVideoUrl}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    style={{
-                      filter: `brightness(${config.heroBrightness ?? 1.0}) contrast(105%)`,
-                    }}
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    <video
+                      ref={videoPreviewRef}
+                      key={config.activeVideoUrl}
+                      src={config.activeVideoUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      onLoadedData={() => setPreviewVideoError(null)}
+                      onError={() => {
+                        setPreviewVideoError('⚠️ تعذر تشغيل الفيديو المحدد: الرابط ليس ملف فيديو مباشر (.mp4/.webm) أو خادم المصدر يمنع تضمينه. تأكد من أن الرابط مباشر أو استخدم الرفع السحابي الذكي بالأعلى.');
+                      }}
+                      style={{
+                        filter: `brightness(${config.heroBrightness ?? 1.0}) contrast(105%)`,
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                    {previewVideoError && (
+                      <div className="absolute top-4 inset-x-4 z-30 p-3 bg-rose-950/95 border border-rose-500 rounded-xl text-rose-200 text-xs flex items-start gap-2.5 backdrop-blur-md shadow-2xl animate-in fade-in">
+                        <AlertTriangle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+                        <div className="leading-relaxed">
+                          <p className="font-bold text-white mb-0.5">تنبيه: الرابط لا يعرض فيديو صالحاً</p>
+                          <p>{previewVideoError}</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <img
                     src={config.activePhotoUrl || '/images/campaign/as-signature-male-spray.jpg'}
@@ -1349,28 +1503,37 @@ export default function AdminStorefrontContentPage() {
                 <input
                   type="url"
                   value={customVideoUrl}
-                  onChange={(e) => setCustomVideoUrl(e.target.value)}
+                  onChange={(e) => {
+                    setCustomVideoUrl(e.target.value);
+                    if (customUrlError) setCustomUrlError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleApplyCustomVideoUrl();
+                    }
+                  }}
                   placeholder="https://example.com/perfume-video.mp4"
                   className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600 font-mono"
                 />
                 <button
                   type="button"
-                  onClick={() => {
-                    if (!customVideoUrl.trim()) return;
-                    handleSaveConfig({
-                      activeVideoUrl: customVideoUrl.trim(),
-                      visualMode: 'video',
-                      videoTitle: 'فيديو خارجي مباشر',
-                    });
-                    showNotification('تم تطبيق وتثبيت رابط الفيديو الجديد بالسيرفر بنجاح!');
-                  }}
+                  onClick={handleApplyCustomVideoUrl}
                   className="bg-teal-700 hover:bg-teal-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow transition-all cursor-pointer whitespace-nowrap"
                 >
                   تطبيق الرابط وحفظ
                 </button>
               </div>
-              <p className="text-[11px] text-slate-500">
-                💡 نصيحة احترافية: يمكنك رفع الفيديو على Cloudinary أو Google Drive أو أي استضافة سحابية ووضع الرابط المباشر هنا ليعمل بجودة عالية وسرعة فائقة دون استهلاك مساحة السيرفر.
+
+              {customUrlError && (
+                <div className="p-3 bg-rose-50 border border-rose-300 rounded-xl text-rose-900 text-xs flex items-start gap-2.5 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
+                  <div className="leading-relaxed font-medium">{customUrlError}</div>
+                </div>
+              )}
+
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                💡 <strong>تنبيه هام:</strong> يجب أن يكون الرابط لملف فيديو مباشر (ينتهي بـ <code className="bg-slate-100 px-1 py-0.5 rounded text-teal-800 font-mono">.mp4</code> أو <code className="bg-slate-100 px-1 py-0.5 rounded text-teal-800 font-mono">.webm</code>). صفحات الويب مثل يوتيوب تمنعها المتصفحات من العمل كخلفية فيديو. إذا كان لديك ملف فيديو، يمكنك رفعه مباشرة عبر <strong>«مدير الفيديو السحابي الذكي»</strong> بالأعلى بدون أي قيود على الحجم.
               </p>
             </div>
           </div>
