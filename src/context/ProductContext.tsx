@@ -31,6 +31,7 @@ interface ProductContextType {
     regularPrice100Egp?: number;
     salePrice100Egp?: number;
     stock100?: number;
+    variants?: ProductVariant[];
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string[] | string;
@@ -49,6 +50,7 @@ interface ProductContextType {
       regularPrice100Egp?: number;
       salePrice100Egp?: number;
       stock100?: number;
+      variants?: ProductVariant[];
     }
   ) => Promise<{ success: boolean; error?: string }>;
   deleteProduct: (productId: string) => Promise<void>;
@@ -150,6 +152,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       regularPrice100Egp?: number;
       salePrice100Egp?: number;
       stock100?: number;
+      variants?: ProductVariant[];
     }
   ) => {
     const updated = products.map((p) => {
@@ -170,7 +173,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         ];
       }
 
-      if (
+      if (updatedFields.variants && updatedFields.variants.length > 0) {
+        merged.variants = updatedFields.variants;
+      } else if (
         updatedFields.regularPriceEgp !== undefined ||
         updatedFields.salePriceEgp !== undefined ||
         updatedFields.costPriceEgp !== undefined ||
@@ -319,6 +324,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     regularPrice100Egp?: number;
     salePrice100Egp?: number;
     stock100?: number;
+    variants?: ProductVariant[];
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string[] | string;
@@ -334,42 +340,44 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     const p100 = data.regularPrice100Egp || data.regularPriceEgp || 2500;
     const concentrationName = data.concentration || 'EXTRAIT_DE_PARFUM';
 
-    const variants: ProductVariant[] = [
-      {
-        id: `${id}-var-50`,
-        productId: id,
-        sku: `RHQ-${String(nextIndex).padStart(3, '0')}-50ML`,
-        volumeMl: 50,
-        titleEn: `50ml ${String(concentrationName).replace(/_/g, ' ')}`,
-        titleAr: `50 مل إكستري دو بارفان`,
-        regularPriceInPiasters: Math.round(p50 * 100),
-        regularPriceEgp: p50,
-        salePriceInPiasters: data.salePrice50Egp ? Math.round(data.salePrice50Egp * 100) : null,
-        salePriceEgp: data.salePrice50Egp || null,
-        costPriceInPiasters: Math.round(p50 * 0.35 * 100),
-        costPriceEgp: Math.round(p50 * 0.35),
-        stockQuantity: data.stock50 ?? 30,
-        lowStockThreshold: 5,
-        isActive: true,
-      },
-      {
-        id: `${id}-var-100`,
-        productId: id,
-        sku: `RHQ-${String(nextIndex).padStart(3, '0')}-100ML`,
-        volumeMl: 100,
-        titleEn: `100ml ${String(concentrationName).replace(/_/g, ' ')}`,
-        titleAr: `100 مل إكستري دو بارفان`,
-        regularPriceInPiasters: Math.round(p100 * 100),
-        regularPriceEgp: p100,
-        salePriceInPiasters: (data.salePrice100Egp ?? data.salePriceEgp) ? Math.round((data.salePrice100Egp ?? data.salePriceEgp!) * 100) : null,
-        salePriceEgp: data.salePrice100Egp ?? data.salePriceEgp ?? null,
-        costPriceInPiasters: data.costPriceEgp ? Math.round(data.costPriceEgp * 100) : Math.round(p100 * 0.35 * 100),
-        costPriceEgp: data.costPriceEgp || Math.round(p100 * 0.35),
-        stockQuantity: data.stock100 ?? data.stockQuantity ?? 25,
-        lowStockThreshold: 5,
-        isActive: true,
-      },
-    ];
+    const variants: ProductVariant[] = data.variants && data.variants.length > 0
+      ? data.variants.map((v) => ({ ...v, productId: id }))
+      : [
+          {
+            id: `${id}-var-50`,
+            productId: id,
+            sku: `RHQ-${String(nextIndex).padStart(3, '0')}-50ML`,
+            volumeMl: 50,
+            titleEn: `50ml ${String(concentrationName).replace(/_/g, ' ')}`,
+            titleAr: `50 مل إكستري دو بارفان`,
+            regularPriceInPiasters: Math.round(p50 * 100),
+            regularPriceEgp: p50,
+            salePriceInPiasters: data.salePrice50Egp ? Math.round(data.salePrice50Egp * 100) : null,
+            salePriceEgp: data.salePrice50Egp || null,
+            costPriceInPiasters: Math.round(p50 * 0.35 * 100),
+            costPriceEgp: Math.round(p50 * 0.35),
+            stockQuantity: data.stock50 ?? 30,
+            lowStockThreshold: 5,
+            isActive: true,
+          },
+          {
+            id: `${id}-var-100`,
+            productId: id,
+            sku: `RHQ-${String(nextIndex).padStart(3, '0')}-100ML`,
+            volumeMl: 100,
+            titleEn: `100ml ${String(concentrationName).replace(/_/g, ' ')}`,
+            titleAr: `100 مل إكستري دو بارفان`,
+            regularPriceInPiasters: Math.round(p100 * 100),
+            regularPriceEgp: p100,
+            salePriceInPiasters: (data.salePrice100Egp ?? data.salePriceEgp) ? Math.round((data.salePrice100Egp ?? data.salePriceEgp!) * 100) : null,
+            salePriceEgp: data.salePrice100Egp ?? data.salePriceEgp ?? null,
+            costPriceInPiasters: data.costPriceEgp ? Math.round(data.costPriceEgp * 100) : Math.round(p100 * 0.35 * 100),
+            costPriceEgp: data.costPriceEgp || Math.round(p100 * 0.35),
+            stockQuantity: data.stock100 ?? data.stockQuantity ?? 25,
+            lowStockThreshold: 5,
+            isActive: true,
+          },
+        ];
 
     const inspiredBy = data.inspiredBy?.trim() || undefined;
     const inspirationNoteAr = inspiredBy
