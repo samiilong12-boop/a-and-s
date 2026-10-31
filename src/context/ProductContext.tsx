@@ -145,13 +145,15 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
     // Defer server sync until after initial paint & critical asset loading
     if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768;
+      const delay = isMobile ? 4500 : 2500;
       const timer = setTimeout(() => {
         if ('requestIdleCallback' in window) {
           (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(() => syncWithServer());
         } else {
           syncWithServer();
         }
-      }, 2500);
+      }, delay);
       return () => clearTimeout(timer);
     } else {
       syncWithServer();

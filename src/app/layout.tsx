@@ -20,28 +20,28 @@ const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
   variable: '--font-bodoni-moda',
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['600', '700'],
 });
 
 const jost = Jost({
   subsets: ['latin'],
   variable: '--font-jost',
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '600'],
 });
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
   variable: '--font-cairo',
   display: 'swap',
-  weight: ['400', '600', '700', '800'],
+  weight: ['400', '700'],
 });
 
 const amiri = Amiri({
-  subsets: ['arabic', 'latin'],
+  subsets: ['arabic'],
   variable: '--font-amiri',
   display: 'swap',
-  weight: ['400', '700'],
+  weight: ['700'],
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://a-and-s.vercel.app';

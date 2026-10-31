@@ -15,7 +15,24 @@ const configFilePath = path.join(process.cwd(), 'public', 'videos', 'hero-config
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
+function sanitizeConfigForPublic(config: SiteContentConfig): SiteContentConfig {
+  const sanitized = { ...config };
+  if (sanitized.brandLogoUrl && sanitized.brandLogoUrl.startsWith('data:image/') && sanitized.brandLogoUrl.length > 15000) {
+    sanitized.brandLogoUrl = '/images/raheeq-official-logo.webp';
+  }
+  if (sanitized.studioBottleLabelImage && sanitized.studioBottleLabelImage.length > 5000) {
+    sanitized.studioBottleLabelImage = '';
+  }
+  if (sanitized.studioCustomBottleImage && sanitized.studioCustomBottleImage.length > 5000) {
+    sanitized.studioCustomBottleImage = '';
+  }
+  return sanitized;
+}
+
+export async function GET(req: NextRequest) {
+  const isAdmin = await verifyAdminSession(req);
+  let resolvedConfig = inMemoryConfig;
+
   // 1. First priority: Cloud database (Prisma Postgres)
   try {
     const hasDb = await isDatabaseConnected();
@@ -26,25 +43,28 @@ export async function GET() {
       if (setting && setting.value) {
         const parsed = JSON.parse(setting.value);
         inMemoryConfig = { ...inMemoryConfig, ...parsed };
-        return NextResponse.json(inMemoryConfig);
+        resolvedConfig = inMemoryConfig;
       }
     }
   } catch (dbErr) {
     console.warn('Prisma get hero-config warning:', dbErr);
   }
 
-  // 2. Second priority: Local static config file
-  try {
-    if (fs.existsSync(configFilePath)) {
-      const data = fs.readFileSync(configFilePath, 'utf-8');
-      const parsed = JSON.parse(data);
-      inMemoryConfig = { ...inMemoryConfig, ...parsed };
-      return NextResponse.json(inMemoryConfig);
-    }
-  } catch {}
+  // 2. Second priority: Local static config file if DB didn't return
+  if (resolvedConfig === inMemoryConfig) {
+    try {
+      if (fs.existsSync(configFilePath)) {
+        const data = fs.readFileSync(configFilePath, 'utf-8');
+        const parsed = JSON.parse(data);
+        inMemoryConfig = { ...inMemoryConfig, ...parsed };
+        resolvedConfig = inMemoryConfig;
+      }
+    } catch {}
+  }
 
-  // 3. Fallback: Hot in-memory config
-  return NextResponse.json(inMemoryConfig);
+  // Serve full config to authorized admin dashboard, but lightweight payload to public visitors
+  const finalPayload = isAdmin ? resolvedConfig : sanitizeConfigForPublic(resolvedConfig);
+  return NextResponse.json(finalPayload);
 }
 
 export async function POST(req: NextRequest) {

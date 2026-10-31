@@ -61,13 +61,15 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
     // 2. Fetch latest from Cloud Database (Prisma Postgres) after initial paint
     let timer: NodeJS.Timeout | undefined;
     if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768;
+      const delay = isMobile ? 4500 : 2500;
       timer = setTimeout(() => {
         if ('requestIdleCallback' in window) {
           (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(() => refreshSiteContent());
         } else {
           refreshSiteContent();
         }
-      }, 3000);
+      }, delay);
     } else {
       refreshSiteContent();
     }
