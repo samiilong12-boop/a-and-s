@@ -265,7 +265,7 @@ export default function HomePage() {
             <span className="hidden sm:inline text-white/30">•</span>
             <span className="flex items-center gap-1.5 text-teal-300 font-bold">
               <Sparkles className="w-4 h-4 text-teal-300" />
-              <span>{isRtl ? 'تركيز 30% Extrait ثبات +14 ساعة' : '30% Extrait (+14h Sillage)'}</span>
+              <span>{isRtl ? 'تركيزات نيش Extrait de Parfum ثبات فائق' : 'Pure Extrait de Parfum Sillage'}</span>
             </span>
             <span className="hidden sm:inline text-white/30">•</span>
             <span className="flex items-center gap-1.5 text-amber-300 font-bold">
@@ -324,8 +324,8 @@ export default function HomePage() {
             </h2>
             <p className="text-xs sm:text-sm text-[#576563] mt-1 max-w-xl leading-relaxed">
               {isRtl
-                ? 'توليفات فرنسية نقية بتركيز 30% Extrait خالص وثبات يدوم طويلاً، مع ميزة فتح الطرد وفحص الزجاجة قبل الدفع كاش.'
-                : 'French oil extraits at 30% pure concentration lasting +14 hours with full doorstep cash inspection.'}
+                ? 'توليفات نقية بتركيزات إكستري دو بارفان نيش وثبات يدوم طويلاً، مع ميزة فتح الطرد وفحص الزجاجة قبل الدفع كاش.'
+                : 'Artisanal Extrait de Parfum formulations with full doorstep cash inspection.'}
             </p>
           </div>
           <Link
@@ -448,7 +448,7 @@ export default function HomePage() {
             </div>
             <div>
               <h4 className="font-serif font-bold text-sm text-slate-900">
-                {isRtl ? 'تركيز 30% Extrait ثبات +14 ساعة' : 'Pure 30% Extrait Sillage'}
+                {isRtl ? 'تركيزات نيش Extrait de Parfum' : 'Pure Extrait de Parfum'}
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
                 {isRtl ? 'زيوت نقية معتقة Extrait de Parfum تضاهي الدور الفرنسية الكبرى.' : 'Unadulterated rare oils lasting +14 hours on garments.'}

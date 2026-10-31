@@ -210,7 +210,7 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
                     </div>
                     <p className="text-[11px] text-amber-900/90 leading-relaxed">
                       {product.inspirationNoteAr ||
-                        `هذا العطر تركيبة مستقلة وخاصة صممتها دار رَحِيقْ (RAHEEQ) بتركيز 30% Extrait de Parfum مستوحاة من الهرم العطري لـ ${product.inspiredBy}. هذا المنتج أصيل وخاص برحيق وغير تابع للعلامة التجارية المذكورة.`}
+                        `هذا العطر تركيبة مستقلة وخاصة صممتها دار رَحِيقْ (RAHEEQ) بتركيز ${getLocalizedConcentration(product.concentration, isRtl)} مستوحاة من الهرم العطري لـ ${product.inspiredBy}. هذا المنتج أصيل وخاص برحيق وغير تابع للعلامة التجارية المذكورة.`}
                     </p>
                   </div>
                 )}
@@ -226,7 +226,7 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
                     </span>
                   )}
                   <span className="text-xs text-[#0D9488] bg-[#2DD4BF]/15 border border-[#2DD4BF]/40 px-2.5 py-1 rounded-md font-bold">
-                    {isRtl ? 'جنيه مصري (EGP) • شامل الضريبة' : 'EGP (Egyptian Pound)'}
+                    {isRtl ? 'جنيه مصري (EGP)' : 'EGP (Egyptian Pound)'}
                   </span>
                 </div>
 
@@ -235,11 +235,11 @@ export function ProductClientView({ product, relatedProducts }: ProductClientVie
                 </p>
               </div>
 
-              {/* Fragrance Performance Metrics (Verified 30% Extrait) */}
+              {/* Fragrance Performance Metrics */}
               <div className="grid grid-cols-3 gap-3 p-4 bg-[#FAF8F4] rounded-2xl border border-[#E6E1D5] text-center">
                 <div className="space-y-0.5">
                   <span className="text-[10px] text-[#788784] uppercase tracking-wider block font-bold">{isRtl ? 'التركيز' : 'Concentration'}</span>
-                  <span className="text-xs sm:text-sm font-bold text-[#0D9488]">30% Extrait</span>
+                  <span className="text-xs sm:text-sm font-bold text-[#0D9488]">{getLocalizedConcentration(product.concentration, isRtl)}</span>
                 </div>
                 <div className="space-y-0.5 border-x border-[#E6E1D5]">
                   <span className="text-[10px] text-[#788784] uppercase tracking-wider block font-bold">{isRtl ? 'الثبات' : 'Longevity'}</span>

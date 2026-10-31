@@ -261,10 +261,9 @@ export function CustomPerfumeRequestModal() {
                     onChange={(e) => setConcentration(e.target.value)}
                     className="w-full bg-[#141A19] border border-white/15 focus:border-[#54d1b2] rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-colors"
                   >
-                    <option value="EXTRAIT_DE_PARFUM">Extrait de Parfum (تركيز نيش فائق 25% - ثبات أسطوري لأكثر من 14 ساعة)</option>
-                    <option value="EXTRAIT_35">Extrait de Parfum مغلظ (تركيز 35% نيش ثقيل)</option>
-                    <option value="EAU_DE_PARFUM">Eau de Parfum (تركيز راقي 20%)</option>
-                    <option value="OIL_PERFUME">Pure Perfume Oil (زيت عطري نقي 100% خالٍ من الكحول)</option>
+                    <option value="EXTRAIT_DE_PARFUM">Extrait de Parfum (تركيز إكستري نيش فائق - ثبات طويل)</option>
+                    <option value="EAU_DE_PARFUM">Eau de Parfum (أو دو بارفام متوازن وأنيق)</option>
+                    <option value="OIL_PERFUME">Pure Perfume Oil (خلاصة زيت عطري معتق خالٍ من الكحول)</option>
                   </select>
                 </div>
               </div>

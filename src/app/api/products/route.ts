@@ -143,8 +143,8 @@ export async function GET(req: NextRequest) {
               isNewArrival: p.isNewArrival,
               isBestseller: p.isBestseller,
               isPublished: p.isPublished,
-              rating: p.rating || 5.0,
-              reviewCount: p.reviewCount || 1,
+              rating: p.rating || undefined,
+              reviewCount: p.reviewCount || undefined,
               images: p.images.map((img: any) => ({
                 id: img.id,
                 url: img.url,

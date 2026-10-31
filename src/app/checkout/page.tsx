@@ -490,7 +490,7 @@ export default function CheckoutPage() {
                       {formatPrice(financials.totalInPiasters)}
                     </span>
                     <span className="text-[10px] text-[#788784]">
-                      {isRtl ? 'شامل ضريبة القيمة المضافة والتوصيل' : 'Inclusive of VAT and delivery'}
+                      {isRtl ? 'إجمالي الحساب شامل مصاريف التوصيل' : 'Total order amount including delivery'}
                     </span>
                   </div>
                 </div>

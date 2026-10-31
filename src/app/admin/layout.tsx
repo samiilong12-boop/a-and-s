@@ -20,6 +20,7 @@ import {
   QrCode,
   BarChart3,
   Box,
+  Globe,
 } from 'lucide-react';
 import { AdminAuthGuard } from '@/components/AdminAuthGuard';
 import { useSiteContent } from '@/context/SiteContentContext';
@@ -36,6 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'طلبات العطور والخلطات (Bespoke)', href: '/admin/custom-requests', icon: Sparkles },
     { label: 'المنتجات والعطور (50+ Perfumes)', href: '/admin/products', icon: Package },
     { label: 'الواجهة والصور والكلام (CMS & Media)', href: '/admin/media', icon: Sparkles },
+    { label: 'مركز الظهور والنمو (SEO & Growth)', href: '/admin/seo', icon: Globe },
     { label: 'الزجاجة 3D والدوران (3D Studio)', href: '/admin/media?tab=studio3d', icon: Box },
     { label: 'كود QR والتغليف (QR Packaging)', href: '/admin/qr', icon: QrCode },
     { label: 'الطلبات وفواتير الدفع (Orders & COD)', href: '/admin/orders', icon: ShoppingBag },

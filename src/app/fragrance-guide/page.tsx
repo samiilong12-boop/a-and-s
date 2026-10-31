@@ -20,14 +20,14 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://a-and-s.vercel.app
 export const metadata: Metadata = {
   title: 'دليل النخبة لفنون العطور الملكية وتدرجات الثبات | دار رَحِيقْ',
   description:
-    'دليل شامل من خبراء دار رحيق: الفرق الحقيقي بين تركيزات العطور (30% Extrait vs EDP)، كيفية معاينة العطر عند الاستلام، وفهم الهرم العطري وأسرار بقاء الرائحة لأكثر من 14 ساعة.',
+    'دليل شامل من خبراء دار رحيق: الفرق الحقيقي بين تركيزات العطور (Extrait de Parfum vs EDP)، كيفية معاينة العطر عند الاستلام، وفهم الهرم العطري وأسرار بقاء الرائحة طويلاً.',
   alternates: {
     canonical: `${SITE_URL}/fragrance-guide`,
   },
   openGraph: {
     title: 'دليل النخبة لفنون العطور الملكية والتركيزات | دار رَحِيقْ',
     description:
-      'دليل تعليمي متكامل حول تركيزات العطور (30% Extrait)، الهرم العطري، وطريقة المعاينة الصحيحة عند الاستلام.',
+      'دليل تعليمي متكامل حول تركيزات العطور، الهرم العطري، وطريقة المعاينة الصحيحة عند الاستلام.',
     url: `${SITE_URL}/fragrance-guide`,
     siteName: 'دار رَحِيقْ للعطور الملكية',
     images: [{ url: '/images/raheeq-official-logo.png', width: 1200, height: 630 }],
@@ -152,10 +152,10 @@ export default function FragranceGuidePage() {
               <div className="absolute top-2 left-2 bg-[#2DD4BF] text-[#080A0A] text-[10px] font-bold px-2 py-0.5 rounded">
                 معيار دار رحيق
               </div>
-              <span className="text-xs font-mono font-bold text-[#2DD4BF] block">30% Extrait خالص</span>
+              <span className="text-xs font-mono font-bold text-[#2DD4BF] block">Extrait de Parfum نيش</span>
               <h3 className="font-serif font-bold text-base text-white">إكستري دو بارفان (Extrait de Parfum)</h3>
               <p className="text-xs text-slate-300 leading-relaxed">
-                أعلى درجات الفخامة النيش على الإطلاق. زيوت نقية وثقيلة تدوم لأكثر من 14 إلى 24 ساعة، مع فوحان أرستقراطي مهيب لا يختفي سريعاً.
+                أعلى درجات الفخامة النيش على الإطلاق. زيوت نقية وثقيلة تدوم لساعات طويلة، مع فوحان أرستقراطي مهيب لا يختفي سريعاً.
               </p>
             </div>
           </div>

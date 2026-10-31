@@ -17,6 +17,7 @@ import {
 import { Product, ProductVariant } from '@/types';
 import { formatPrice } from '@/lib/currency';
 import { validateEgyptianPhone } from '@/lib/phone-validation';
+import { getLocalizedConcentration } from '@/lib/fragrance-translations';
 
 interface ExpressOrderModalProps {
   isOpen: boolean;
@@ -263,7 +264,7 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                 />
                 <div className="flex-1 min-w-0">
                   <span className="text-[10px] text-teal-800 font-bold block uppercase tracking-wider font-mono">
-                    {product.fragranceFamily} • 25% Extrait
+                    {product.fragranceFamily} • {getLocalizedConcentration(product.concentration, true)}
                   </span>
                   <h4 className="font-serif font-bold text-sm text-slate-900 truncate">
                     {product.nameEn} {product.nameAr ? `(${product.nameAr})` : ''}
@@ -272,12 +273,11 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                     <span className="text-base font-extrabold text-[#080A0A]">
                       {formatPrice(finalPriceInPiasters)}
                     </span>
-                    <span className="text-xs text-slate-400 line-through">
-                      EGP 1,850.00
-                    </span>
-                    <span className="text-[9px] bg-rose-50 text-rose-700 border border-rose-200 px-1.5 py-0.5 rounded font-bold">
-                      وفر 75%
-                    </span>
+                    {salePrice && salePrice < regularPrice && (
+                      <span className="text-xs text-slate-400 line-through">
+                        {formatPrice(regularPrice)}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

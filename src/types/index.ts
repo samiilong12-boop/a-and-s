@@ -61,6 +61,10 @@ export interface Product {
   reviewCount?: number;
   images?: ProductImage[];
   imageUrl?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  ogImageUrl?: string;
   variants: ProductVariant[];
   createdAt: string;
   updatedAt?: string;

@@ -17,7 +17,7 @@ export const FRAGRANCE_FAMILY_ARABIC: Record<string, string> = {
 };
 
 export const CONCENTRATION_ARABIC: Record<string, string> = {
-  'EXTRAIT_DE_PARFUM': 'إكستري دي بارفام (تركيز 25–35%)',
+  'EXTRAIT_DE_PARFUM': 'إكستري دي بارفام (Extrait de Parfum)',
   'EAU_DE_PARFUM': 'أو دو بارفام (Eau de Parfum)',
   'EAU_DE_TOILETTE': 'أو دو تواليت (Eau de Toilette)',
   'PARFUM': 'بارفام نقي (Pure Parfum)',

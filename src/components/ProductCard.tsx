@@ -127,7 +127,7 @@ export function ProductCard({ product, onExpressOrder }: ProductCardProps) {
           <div className="flex items-center gap-1.5 mt-2">
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0D9488] bg-[#2DD4BF]/10 px-2 py-0.5 rounded">
               <Sparkles className="w-3 h-3 text-[#0D9488]" />
-              <span>{isRtl ? 'تركيز 30% Extrait' : '30% Extrait de Parfum'}</span>
+              <span>{getLocalizedConcentration(product.concentration, isRtl)}</span>
             </span>
             <span className="text-[11px] text-[#788784] font-medium">
               {isRtl ? '• معاينة عند الباب' : '• Doorstep COD'}

@@ -145,19 +145,42 @@ export default async function ProductDetailPage({ params }: PageProps) {
           name: 'RAHEEQ',
         },
         category: product.fragranceFamily,
-        offers: {
-          '@type': 'Offer',
-          url: canonicalUrl,
-          priceCurrency: 'EGP',
-          price: priceEgp,
-          priceValidUntil: '2027-12-31',
-          itemCondition: 'https://schema.org/NewCondition',
-          availability: 'https://schema.org/InStock',
-          seller: {
-            '@type': 'Organization',
-            name: 'دار رَحِيقْ للعطور الملكية',
-          },
-        },
+        offers: (product.variants && product.variants.length > 0)
+          ? product.variants.map((v) => {
+              const vPrice = v.regularPriceEgp || (v.regularPriceInPiasters ? v.regularPriceInPiasters / 100 : priceEgp);
+              return {
+                '@type': 'Offer',
+                url: `${canonicalUrl}?volume=${v.volumeMl || 100}ml`,
+                name: `${product.nameAr || product.nameEn} - عبوة ${v.volumeMl || 100}ml`,
+                sku: v.sku || `${product.slug}-${v.volumeMl || 100}`,
+                priceCurrency: 'EGP',
+                price: vPrice,
+                priceValidUntil: '2027-12-31',
+                itemCondition: 'https://schema.org/NewCondition',
+                availability: (v.stockQuantity && v.stockQuantity > 0)
+                  ? 'https://schema.org/InStock'
+                  : 'https://schema.org/InStock',
+                seller: {
+                  '@type': 'Organization',
+                  name: 'دار رَحِيقْ للعطور الملكية',
+                },
+              };
+            })
+          : [
+              {
+                '@type': 'Offer',
+                url: canonicalUrl,
+                priceCurrency: 'EGP',
+                price: priceEgp,
+                priceValidUntil: '2027-12-31',
+                itemCondition: 'https://schema.org/NewCondition',
+                availability: 'https://schema.org/InStock',
+                seller: {
+                  '@type': 'Organization',
+                  name: 'دار رَحِيقْ للعطور الملكية',
+                },
+              },
+            ],
       },
     ],
   };

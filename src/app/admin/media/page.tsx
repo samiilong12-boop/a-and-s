@@ -1153,7 +1153,7 @@ export default function AdminStorefrontContentPage() {
                   value={config.stat2Value}
                   onChange={(e) => setConfig({ ...config, stat2Value: e.target.value })}
                   onBlur={() => handleSaveConfig({ stat2Value: config.stat2Value })}
-                  placeholder="35%"
+                  placeholder="Extrait"
                   className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-teal-700"
                 />
                 <input

@@ -147,8 +147,8 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
 
   stat1Value: '+51',
   stat1Label: 'تركيبة عطرية فريدة',
-  stat2Value: '25%',
-  stat2Label: 'نسبة الزيوت العطرية النقية (25% Extrait)',
+  stat2Value: 'Extrait',
+  stat2Label: 'تركيز نيش (Extrait de Parfum)',
   stat3Value: '100%',
   stat3Label: 'دفع عند الاستلام والمعاينة',
   stat4Value: '24–48h',
@@ -158,11 +158,11 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   bespokeBadge: 'خدمة التفصيل العطري الملكي المخصص',
   bespokeHeadline: 'لو عاوز عطر معين أو خلطة خاصة... اكتب لينا اسمه وحجمه وبنوفرو ليك',
   bespokeSubtitle:
-    'مهما كان العطر نادراً أو عالمياً، أو حتى تركيبة سرية تجمع بين نفحاتك المفضلة (عود، مسك، أمبرغريس، أو زهور نادرة)، خبراؤنا يركبونه لك بتركيز 25% Extrait de Parfum مع ضمان ثبات وفوحان يتجاوز 14 ساعة.',
+    'مهما كان العطر نادراً أو عالمياً، أو حتى تركيبة سرية تجمع بين نفحاتك المفضلة (عود، مسك، أمبرغريس، أو زهور نادرة)، خبراؤنا يركبونه لك بتركيز Extrait de Parfum مع ضمان ثبات وفوحان يتجاوز 14 ساعة.',
   bespokePlaceholder: 'اكتب اسم العطر أو الخلطة المطلوبة هنا (مثلاً: Creed Aventus أو خلطة توم فورد)...',
   bespokeButtonText: 'اطلب الآن وحدد الحجم',
   bespokeFeature1: 'أحجام 50ml و 100ml و 200ml',
-  bespokeFeature2: 'تركيز نيش Extrait de Parfum 25%',
+  bespokeFeature2: 'تركيز نيش Extrait de Parfum',
   bespokeFeature3: 'التوصيل إلى الباب ومعاينة قبل الدفع',
 
   // 3. Brand Story & Atelier
@@ -175,8 +175,8 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   storyImage: '/images/campaign/couple-sunset-romance.jpg',
   storyImageQuote: '«العطر ليس مجرد لمسة تجميلية، بل هو هالتك غير المرئية التي تبقى في ذاكرة المكان.»',
   storyImageTag: 'دار رحيق (RAHEEQ) للعطور الفاخرة — القاهرة',
-  storyBenefit1Title: 'تركيز إكستري خالص 25%',
-  storyBenefit1Desc: 'تركيز زيوت عطرية نقي 25% لثبات استثنائي يتجاوز 14 ساعة.',
+  storyBenefit1Title: 'تركيز إكستري خالص',
+  storyBenefit1Desc: 'تركيز زيوت عطرية نقي لثبات طويل يرافقك طوال اليوم.',
   storyBenefit2Title: 'التوصيل إلى الباب والمعاينة',
   storyBenefit2Desc: 'عاين طردك الفاخر وتأكد من زجاجتك عند باب بيتك قبل دفع أي مليم.',
 
@@ -190,10 +190,10 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   rivieraBtn2Text: 'مشاهدة الكتالوج الكامل',
 
   // 5. Fragrance Mastery & Ritual Showcase (هندسة العطر الفاخر والزجاجة)
-  showcaseBadge: 'معايير الفخامة العالمية المستوحاة من باريس',
+  showcaseBadge: 'معايير الفخامة الحرفية لدار رحيق',
   showcaseHeadline: 'هندسة العطر الفاخر.. ثباتٌ أسطوري وحضورٌ يأسر الحواس',
   showcaseDescription:
-    'تم تصميم كل قطرة في معملنا بالقاهرة وفق أعلى معايير الدور العالمية كـ Dior و Creed، بتركيز Extrait de Parfum يصل إلى 25% من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً لأكثر من 14 ساعة.',
+    'تم تصميم كل توليفة في معمل دار رحيق بتركيز Extrait de Parfum من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً لأكثر من 14 ساعة مع نقاء شمي استثنائي.',
   showcaseBottleImage: '/images/raheeq-official-logo.png',
   showcaseBottleTag: 'Signature Creation',
   showcaseBottleName: 'SAUVAGE ELIXIR / SULTAN OUD',
@@ -205,9 +205,9 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   showcaseMeter2Val: '+14 ساعة',
   showcaseMeter2Sub: 'يدوم على الأقمشة لأيام',
   showcaseMeter3Title: 'نسبة الزيوت',
-  showcaseMeter3Val: '25% خالص',
+  showcaseMeter3Val: 'Extrait',
   showcaseMeter3Sub: 'Extrait de Parfum مغلظ',
-  showcasePill1: 'زيوت فرنسية نقية 25% Extrait',
+  showcasePill1: 'زيوت فرنسية نقية Extrait',
   showcasePill2: 'التوصيل إلى الباب ومعاينة قبل الدفع كاش',
   showcasePill3: 'زجاج بلوري ثقيل بغطاء مغناطيسي',
 
@@ -216,8 +216,8 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   footerShippingDesc: 'توصيل مخصص وسريع لباب بيتك في القاهرة والإسكندرية وجميع محافظات مصر.',
   footerCodTitle: 'معاينة الطرد قبل الدفع كاش',
   footerCodDesc: 'عاين طردك الفاخر وتأكد من سلامة الزجاجة عند بابك قبل السداد للمندوب.',
-  footerConcentrationTitle: 'تركيز زيوت نقية 25% Extrait',
-  footerConcentrationDesc: 'ثبات استثنائي يتجاوز 14 ساعة وفوحان يملأ الأرجاء.',
+  footerConcentrationTitle: 'تركيز زيوت نقية Extrait de Parfum',
+  footerConcentrationDesc: 'ثبات استثنائي عالي وفوحان يملأ الأرجاء.',
   footerBottleTitle: 'زجاج بلوري ثقيل بغطاء مغناطيسي',
   footerBottleDesc: 'زجاجة بلورية محكمة الإغلاق تحفظ كثافة ونقاء الزيوت العطرية النادرة.',
 

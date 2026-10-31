@@ -41,7 +41,7 @@ describe('Fragrance Arabic Localization Suite', () => {
     expect(getLocalizedFragranceFamily('Fresh Citrus', true)).toBe('حمضيات منعشة');
     expect(getLocalizedFragranceFamily('Woody', false)).toBe('Woody');
 
-    expect(getLocalizedConcentration('EXTRAIT_DE_PARFUM', true)).toBe('إكستري دي بارفام (تركيز 25–35%)');
+    expect(getLocalizedConcentration('EXTRAIT_DE_PARFUM', true)).toBe('إكستري دي بارفام (Extrait de Parfum)');
     expect(getLocalizedConcentration('EXTRAIT_DE_PARFUM', false)).toBe('EXTRAIT DE PARFUM');
   });
 

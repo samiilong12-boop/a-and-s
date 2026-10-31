@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     template: '%s | دار رَحِيقْ للعطور',
   },
   description:
-    'دار رحيق للعطور الفاخرة — توليفات نيش مستقلة بتركيز 30% Extrait de Parfum مستوحاة من أرقى الخطوط العطرية العالمية بأندر الزيوت المعتقة، مع فتح الشحنة والمعاينة عند الاستلام في مصر.',
+    'دار رحيق للعطور الفاخرة — توليفات نيش مستقلة بتركيز Extrait de Parfum مستوحاة من أرقى الخطوط العطرية العالمية بأندر الزيوت المعتقة، مع فتح الشحنة والمعاينة عند الاستلام في مصر.',
   keywords: [
     'عطور رحيق',
     'Raheeq perfume',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'رَحِيق (RAHEEQ) — دار العطور الملكية الفاخرة',
     description:
-      'توليفات نيش مستقلة بتركيز 30% Extrait de Parfum مع المعاينة عند الاستلام قبل الدفع.',
+      'توليفات نيش مستقلة بتركيز Extrait de Parfum مع المعاينة عند الاستلام قبل الدفع.',
     url: SITE_URL,
     siteName: 'دار رَحِيقْ للعطور الملكية',
     images: [
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'رَحِيق (RAHEEQ) — دار العطور الملكية الفاخرة',
-    description: 'عطور نيش ملكية بتركيز 30% Extrait de Parfum مع المعاينة عند الباب.',
+    description: 'عطور نيش ملكية بتركيز Extrait de Parfum مع المعاينة عند الباب.',
     images: ['/images/raheeq-official-logo.png'],
   },
   verification: {
@@ -91,7 +91,7 @@ const organizationAndWebsiteSchema = {
       alternateName: ['RAHEEQ Haute Parfumerie', 'Raheeq Perfumes', 'دار رحيق'],
       url: SITE_URL,
       logo: `${SITE_URL}/images/raheeq-official-logo.png`,
-      description: 'دار عطور نيش مصرية مستقلة متخصصة في ابتكار توليفات عطرية بتركيز 30% Extrait de Parfum مستوحاة من أرقى الخطوط العطرية العالمية مع فحص الشحنة عند الباب قبل السداد.',
+      description: 'دار عطور نيش مصرية مستقلة متخصصة في ابتكار توليفات عطرية بتركيز Extrait de Parfum مستوحاة من أرقى الخطوط العطرية العالمية مع فحص الشحنة عند الباب قبل السداد.',
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Cairo',

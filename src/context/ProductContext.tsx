@@ -46,7 +46,7 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const PRODUCTS_STORAGE_KEY = 'a_and_s_ready_perfumes_v3';
+const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v4';
 const TOKEN_KEY = 'a_and_s_admin_jwt_token';
 
 function getAdminAuthHeaders(): Record<string, string> {
@@ -87,8 +87,14 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Preserve the merchant's saved catalog, regardless of count (e.g. 5, 9, or 50)
-          setProducts(parsed);
+          // Preserve the merchant's saved catalog with brand RAHEEQ and no fake ratings
+          const sanitized = parsed.map((p: Product) => ({
+            ...p,
+            brand: 'RAHEEQ',
+            rating: undefined,
+            reviewCount: undefined,
+          }));
+          setProducts(sanitized);
         } else {
           setProducts(FAMOUS_50_PERFUMES);
           localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(FAMOUS_50_PERFUMES));
@@ -268,8 +274,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       isNewArrival: true,
       isBestseller: false,
       isPublished: true,
-      rating: 5.0,
-      reviewCount: 1,
       images: [
         {
           id: `${id}-img-1`,
