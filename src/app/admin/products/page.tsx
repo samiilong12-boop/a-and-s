@@ -659,8 +659,8 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Products Table (Desktop) */}
-      <div className="hidden md:block bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      {/* Products Table */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-[10px] border-b border-slate-200 font-bold">
@@ -798,121 +798,6 @@ export default function AdminProductsPage() {
           </table>
         </div>
       </div>
-      {/* Mobile Products Cards View (Phones & Tablets) */}
-      <div className="block md:hidden space-y-3">
-        {filtered.map((product) => {
-          if (!product) return null;
-          const safeVariants = Array.isArray(product.variants) ? product.variants.filter(Boolean) : [];
-          const defaultVariant = safeVariants[0];
-          const totalStock = safeVariants.reduce((sum, v) => sum + (v?.stockQuantity || 0), 0);
-          const isLow = totalStock <= 10;
-          return (
-            <div
-              key={product.id}
-              className="bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3"
-            >
-              <div className="flex items-start gap-3">
-                <img
-                  src={product.images?.[0]?.url || product.imageUrl || getDemoBottleSvg(product.nameEn || 'perfume')}
-                  alt=""
-                  className="w-16 h-20 object-cover bg-slate-900 rounded-xl border border-slate-200 shadow-xs shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="font-serif font-bold text-slate-900 text-sm truncate">{product.nameEn}</p>
-                    {product.nameAr && product.nameAr !== product.nameEn && (
-                      <span className="text-xs text-slate-600 font-bold">({product.nameAr})</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-wrap mt-1">
-                    <span className="text-[10px] bg-teal-50 text-teal-800 font-bold px-2 py-0.5 rounded border border-teal-200">
-                      {product.fragranceFamily}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      {(product.concentration || 'EXTRAIT').replace(/_/g, ' ')}
-                    </span>
-                    {product.longevityAr && (
-                      <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-1.5 py-0.5 rounded border border-emerald-200">
-                        ⏱️ {product.longevityAr}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-sm font-bold text-slate-900">
-                      {formatPrice(
-                        defaultVariant?.regularPriceInPiasters ?? ((defaultVariant?.regularPriceEgp ?? 0) * 100)
-                      )}
-                    </span>
-                    {defaultVariant?.salePriceEgp && (
-                      <span className="text-[10px] text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-                        خصم: {defaultVariant.salePriceEgp} EGP
-                      </span>
-                    )}
-                    {isLow ? (
-                      <span className="text-[10px] text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mr-auto">
-                        {totalStock} متبقية
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 mr-auto">
-                        {totalStock} متوفر
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Variants Info */}
-              {safeVariants.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-slate-100 text-[11px] text-slate-600">
-                  <span className="font-semibold text-slate-400">الأحجام:</span>
-                  {safeVariants.map((v) => (
-                    <span key={v.id || v.sku} className="bg-slate-50 border border-slate-200 px-2 py-0.5 rounded font-mono">
-                      {v.volumeMl}ml: <strong className="text-teal-700">{v.regularPriceEgp || (v.regularPriceInPiasters ? v.regularPriceInPiasters / 100 : 0)} EGP</strong>
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="grid grid-cols-4 gap-1.5 pt-2 border-t border-slate-100">
-                <button
-                  onClick={() => handleOpenEditModal(product)}
-                  className="col-span-2 py-2 px-2 text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-slate-200"
-                >
-                  <Edit3 className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-                  <span>تعديل سريع</span>
-                </button>
-                <Link
-                  href={`/admin/products/${encodeURIComponent(product.id)}/edit`}
-                  className="col-span-1 py-2 px-1 text-teal-800 bg-teal-50 hover:bg-teal-100 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition-colors border border-teal-200"
-                  title="الاستوديو"
-                >
-                  <Sparkles className="w-3 h-3 text-teal-600 shrink-0" />
-                  <span>الاستوديو</span>
-                </Link>
-                <div className="col-span-1 flex items-center gap-1">
-                  <Link
-                    href={`/product/${encodeURIComponent(product.slug)}`}
-                    target="_blank"
-                    className="flex-1 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center transition-colors border border-slate-200"
-                    title="معاينة بالمتجر"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                  </Link>
-                  <button
-                    onClick={() => setDeleteConfirmId(product.id)}
-                    className="flex-1 py-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg flex items-center justify-center transition-colors border border-rose-200"
-                    title="حذف العطر"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">

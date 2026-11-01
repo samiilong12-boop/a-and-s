@@ -29,12 +29,6 @@ export interface ShippingZone {
 export const SHIPPING_ZONES: ShippingZone[] = [
   { governorateEn: 'Cairo', governorateAr: 'القاهرة', rateInPiasters: 10000, estimatedDeliveryDays: '1-2 days' },
   { governorateEn: 'Giza', governorateAr: 'الجيزة', rateInPiasters: 6500, estimatedDeliveryDays: '1-2 days' },
-  { governorateEn: 'Alexandria', governorateAr: 'الإسكندرية (برا — حسب المكان)', rateInPiasters: 8000, estimatedDeliveryDays: '2-3 days' },
-  { governorateEn: 'Delta', governorateAr: 'محافظات الدلتا والوجه البحري (برا — حسب المكان)', rateInPiasters: 8500, estimatedDeliveryDays: '2-4 days' },
-  { governorateEn: 'Canal', governorateAr: 'مدن القناة (السويس، الإسماعيلية، بورسعيد) (برا — حسب المكان)', rateInPiasters: 8500, estimatedDeliveryDays: '2-4 days' },
-  { governorateEn: 'Upper Egypt', governorateAr: 'محافظات الصعيد (برا — حسب المكان)', rateInPiasters: 9500, estimatedDeliveryDays: '3-5 days' },
-  { governorateEn: 'Red Sea & Sinai', governorateAr: 'البحر الأحمر وشرم الشيخ وسيناء (برا — حسب المكان)', rateInPiasters: 12000, estimatedDeliveryDays: '4-6 days' },
-  { governorateEn: 'Other Governorates', governorateAr: 'باقي المحافظات (برا — حسب المكان)', rateInPiasters: 8500, estimatedDeliveryDays: '2-4 days' },
 ];
 
 // Helper to generate elegant bottle SVG for ready-made luxury perfumes

@@ -30,12 +30,11 @@ describe('Fragrance Catalog & Seeding Verification (Official Luxury Perfumes)', 
     }
   });
 
-  it('verifies Egyptian shipping zones include Cairo, Giza, Alexandria, and Delta', () => {
+  it('verifies Egyptian shipping zones include Cairo and Giza only', () => {
     const governorates = SHIPPING_ZONES.map((z) => z.governorateEn);
     expect(governorates).toContain('Cairo');
     expect(governorates).toContain('Giza');
-    expect(governorates).toContain('Alexandria');
-    expect(SHIPPING_ZONES.length).toBeGreaterThanOrEqual(7);
+    expect(SHIPPING_ZONES.length).toBe(2);
   });
 
   it('guarantees smart related products recommendation returns complementary perfumes without self-match', () => {

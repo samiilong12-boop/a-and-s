@@ -148,16 +148,11 @@ export function ProductCard({ product: propProduct, onExpressOrder }: ProductCar
           </p>
 
           {/* Quality & Longevity Trust Badge */}
-          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+          <div className="flex items-center gap-1.5 mt-2">
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0D9488] bg-[#2DD4BF]/10 px-2 py-0.5 rounded">
               <Sparkles className="w-3 h-3 text-[#0D9488]" />
               <span>{getLocalizedConcentration(product.concentration, isRtl)}</span>
             </span>
-            {product.longevityAr && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded font-mono">
-                <span>⏱️ {isRtl ? (product.longevityAr.startsWith('ثبات') || product.longevityAr.startsWith('دوام') ? product.longevityAr : `ثبات ${product.longevityAr}`) : (product.longevityEn || `${product.longevityAr} Longevity`)}</span>
-              </span>
-            )}
             <span className="text-[11px] text-[#788784] font-medium">
               {isRtl ? '• معاينة عند الباب' : '• Doorstep COD'}
             </span>
