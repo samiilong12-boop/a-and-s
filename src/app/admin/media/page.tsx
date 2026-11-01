@@ -394,7 +394,10 @@ export default function AdminStorefrontContentPage() {
     if (!file) return;
 
     try {
-      const compressed = await compressImageFile(file);
+      const isLogo = String(field).toLowerCase().includes('logo');
+      const maxDim = isLogo ? 280 : 1000;
+      const quality = isLogo ? 0.85 : 0.80;
+      const compressed = await compressImageFile(file, maxDim, quality);
       handleSaveConfig({
         [field]: compressed,
       });

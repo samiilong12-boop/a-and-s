@@ -77,7 +77,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "sauvage-50",
         "sku": "AS-DIOR-SAV-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1850,
+        "regularPriceEgp": 450,
         "costPriceEgp": 750,
         "stockQuantity": 45,
         "lowStockThreshold": 5
@@ -86,7 +86,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "sauvage-100",
         "sku": "AS-DIOR-SAV-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2750,
+        "regularPriceEgp": 846,
         "costPriceEgp": 1100,
         "stockQuantity": 60,
         "lowStockThreshold": 5
@@ -145,7 +145,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "bdc-50",
         "sku": "AS-CHN-BDC-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1950,
+        "regularPriceEgp": 450,
         "costPriceEgp": 800,
         "stockQuantity": 35,
         "lowStockThreshold": 5
@@ -154,7 +154,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "bdc-100",
         "sku": "AS-CHN-BDC-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2950,
+        "regularPriceEgp": 799,
         "costPriceEgp": 1200,
         "stockQuantity": 50,
         "lowStockThreshold": 5
@@ -210,7 +210,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "jpg-50",
         "sku": "AS-JPG-LMP-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1750,
+        "regularPriceEgp": 450,
         "costPriceEgp": 720,
         "stockQuantity": 30,
         "lowStockThreshold": 4
@@ -219,7 +219,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "jpg-100",
         "sku": "AS-JPG-LMP-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2650,
+        "regularPriceEgp": 800,
         "costPriceEgp": 1100,
         "stockQuantity": 45,
         "lowStockThreshold": 4
@@ -340,7 +340,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "savage-edp-50",
         "sku": "AS-RAH-SAV-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1750,
+        "regularPriceEgp": 450,
         "costPriceEgp": 720,
         "stockQuantity": 45,
         "lowStockThreshold": 5
@@ -349,7 +349,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "savage-edp-100",
         "sku": "AS-RAH-SAV-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2650,
+        "regularPriceEgp": 820,
         "costPriceEgp": 1100,
         "stockQuantity": 60,
         "lowStockThreshold": 5
@@ -406,7 +406,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "azzaro-50",
         "sku": "AS-AZZ-MW-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1750,
+        "regularPriceEgp": 400,
         "costPriceEgp": 720,
         "stockQuantity": 35,
         "lowStockThreshold": 4
@@ -415,7 +415,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "azzaro-100",
         "sku": "AS-AZZ-MW-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2650,
+        "regularPriceEgp": 820,
         "costPriceEgp": 1100,
         "stockQuantity": 50,
         "lowStockThreshold": 4
@@ -472,7 +472,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "khmrah-50",
         "sku": "AS-RAH-KHM-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1750,
+        "regularPriceEgp": 450,
         "costPriceEgp": 720,
         "stockQuantity": 40,
         "lowStockThreshold": 5
@@ -481,7 +481,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "khmrah-100",
         "sku": "AS-RAH-KHM-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2650,
+        "regularPriceEgp": 800,
         "costPriceEgp": 1100,
         "stockQuantity": 55,
         "lowStockThreshold": 5
@@ -534,7 +534,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "rumman-50",
         "sku": "AS-RAH-RUM-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1750,
+        "regularPriceEgp": 400,
         "costPriceEgp": 700,
         "stockQuantity": 50,
         "lowStockThreshold": 5
@@ -543,7 +543,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "rumman-100",
         "sku": "AS-RAH-RUM-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2650,
+        "regularPriceEgp": 820,
         "costPriceEgp": 1050,
         "stockQuantity": 65,
         "lowStockThreshold": 5
@@ -598,7 +598,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "shroty-50",
         "sku": "AS-CER-SHR-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1750,
+        "regularPriceEgp": 420,
         "costPriceEgp": 720,
         "stockQuantity": 30,
         "lowStockThreshold": 4
@@ -607,7 +607,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "shroty-100",
         "sku": "AS-CER-SHR-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2650,
+        "regularPriceEgp": 820,
         "costPriceEgp": 1100,
         "stockQuantity": 45,
         "lowStockThreshold": 4
@@ -663,7 +663,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "phantom-50",
         "sku": "AS-PR-PHN-50",
         "volumeMl": 50,
-        "regularPriceEgp": 1750,
+        "regularPriceEgp": 450,
         "costPriceEgp": 720,
         "stockQuantity": 35,
         "lowStockThreshold": 4
@@ -672,7 +672,7 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
         "id": "phantom-100",
         "sku": "AS-PR-PHN-100",
         "volumeMl": 100,
-        "regularPriceEgp": 2650,
+        "regularPriceEgp": 810,
         "costPriceEgp": 1100,
         "stockQuantity": 50,
         "lowStockThreshold": 4

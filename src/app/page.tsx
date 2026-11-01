@@ -789,18 +789,15 @@ export default function HomePage() {
             
             {/* Visual Image */}
             <div className="lg:col-span-7 relative min-h-[420px] lg:min-h-[500px]">
-              <picture className="absolute inset-0 w-full h-full">
-                <source srcSet="/images/campaign/female-coastal-spray.webp" type="image/webp" />
-                <img
-                  src={siteContent.rivieraImage || '/images/campaign/female-coastal-spray.webp'}
-                  alt="Raheeq Riviera Campaign"
-                  loading="lazy"
-                  decoding="async"
-                  width={1024}
-                  height={585}
-                  className="absolute inset-0 w-full h-full object-cover filter brightness-[0.9] contrast-105"
-                />
-              </picture>
+              <img
+                src={siteContent.rivieraImage || '/images/campaign/female-coastal-spray.webp'}
+                alt="Raheeq Riviera Campaign"
+                loading="lazy"
+                decoding="async"
+                width={1024}
+                height={585}
+                className="absolute inset-0 w-full h-full object-cover filter brightness-[0.9] contrast-105"
+              />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 via-black/35 to-transparent" />
             </div>
 
@@ -910,31 +907,39 @@ export default function HomePage() {
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-[#080A0A] leading-tight">
               {isRtl ? (siteContent.storyTitle || t('section.story_title')) : t('section.story_title')}
             </h2>
-            <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
-              {isRtl ? (siteContent.storyParagraph1 || t('section.story_p1')) : t('section.story_p1')}
-            </p>
-            <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
-              {isRtl ? (siteContent.storyParagraph2 || t('section.story_p2')) : t('section.story_p2')}
-            </p>
+            {siteContent.storyParagraph1 ? (
+              <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
+                {siteContent.storyParagraph1}
+              </p>
+            ) : (
+              <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
+                {isRtl ? t('section.story_p1') : t('section.story_p1')}
+              </p>
+            )}
+            {siteContent.storyParagraph2 ? (
+              <p className="text-sm sm:text-base text-[#576563] leading-relaxed">
+                {siteContent.storyParagraph2}
+              </p>
+            ) : null}
 
             <div className="grid grid-cols-2 gap-6 pt-4">
               <div className="p-4 bg-white border border-[#E6E1D5] rounded-2xl shadow-sm hover:border-[#2DD4BF] transition-colors">
                 <Droplets className="w-5 h-5 text-[#0D9488] mb-2" />
                 <h4 className="font-serif font-bold text-sm text-[#080A0A]">
-                  {isRtl ? (siteContent.storyBenefit1Title || 'تركيز إكستري خالص 30%') : 'Pure 30% Extrait Concentration'}
+                  {isRtl ? (siteContent.storyBenefit1Title || 'تركيز إكستري خالص 35%') : (siteContent.storyBenefit1Title || 'Pure 35% Extrait Concentration')}
                 </h4>
                 <p className="text-xs text-[#576563] mt-1">
-                  {isRtl ? (siteContent.storyBenefit1Desc || 'تركيز زيوت عطرية يصل إلى 30% لثبات يتجاوز 14 ساعة.') : 'Up to 30% concentration offering over 14 hours of persistent trail.'}
+                  {isRtl ? (siteContent.storyBenefit1Desc || 'تركيز زيوت عطرية نقي 35% لثبات استثنائي يدوم طويلاً.') : (siteContent.storyBenefit1Desc || 'Pure 35% oil concentration offering enduring sillage.')}
                 </p>
               </div>
 
               <div className="p-4 bg-white border border-[#E6E1D5] rounded-2xl shadow-sm hover:border-[#2DD4BF] transition-colors">
                 <ShieldCheck className="w-5 h-5 text-[#C6A66B] mb-2" />
                 <h4 className="font-serif font-bold text-sm text-[#080A0A]">
-                  {isRtl ? (siteContent.storyBenefit2Title || 'معاينة ودفع عند الاستلام') : 'Inspection Before Payment'}
+                  {isRtl ? (siteContent.storyBenefit2Title || 'التوصيل إلى الباب والمعاينة') : (siteContent.storyBenefit2Title || 'Doorstep Inspection & Delivery')}
                 </h4>
                 <p className="text-xs text-[#576563] mt-1">
-                  {isRtl ? (siteContent.storyBenefit2Desc || 'عاين طردك الفاخر عند وصول المندوب قبل دفع أي مليم.') : 'Door-to-door insured delivery with visual inspection before cash payment.'}
+                  {isRtl ? (siteContent.storyBenefit2Desc || 'عاين طردك الفاخر وتأكد من زجاجتك عند باب بيتك قبل دفع.') : (siteContent.storyBenefit2Desc || 'Inspect your flacon upon arrival before payment.')}
                 </p>
               </div>
             </div>
@@ -942,18 +947,15 @@ export default function HomePage() {
 
           {/* Visual Showcase Block */}
           <div className="relative aspect-square sm:aspect-[4/3] bg-[#080A0A] rounded-2xl border border-[#2DD4BF]/40 p-8 flex flex-col justify-end overflow-hidden shadow-2xl text-white">
-            <picture className="absolute inset-0 w-full h-full">
-              <source srcSet="/images/campaign/couple-sunset-romance.webp" type="image/webp" />
-              <img
-                src={siteContent.storyImage || '/images/campaign/couple-sunset-romance.webp'}
-                alt="Raheeq Artisanal Heritage"
-                loading="lazy"
-                decoding="async"
-                width={1024}
-                height={585}
-                className="absolute inset-0 w-full h-full object-cover filter brightness-[0.55] contrast-110"
-              />
-            </picture>
+            <img
+              src={siteContent.storyImage || '/images/campaign/couple-sunset-romance.webp'}
+              alt="Raheeq Artisanal Heritage"
+              loading="lazy"
+              decoding="async"
+              width={1024}
+              height={585}
+              className="absolute inset-0 w-full h-full object-cover filter brightness-[0.75] contrast-105"
+            />
             <div className={`absolute top-6 ${isRtl ? 'left-6' : 'right-6'}`}>
               <span className="font-serif text-5xl text-[#2DD4BF]/20 font-bold">RAHEEQ</span>
             </div>

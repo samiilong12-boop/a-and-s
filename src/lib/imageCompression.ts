@@ -59,8 +59,16 @@ export async function compressImageFile(
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to JPEG format with chosen compression quality
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        // Convert to WebP format if supported, fallback to JPEG
+        let compressedDataUrl = '';
+        try {
+          compressedDataUrl = canvas.toDataURL('image/webp', quality);
+          if (!compressedDataUrl.startsWith('data:image/webp')) {
+            compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+        } catch {
+          compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
         resolve(compressedDataUrl);
       };
       img.src = result;

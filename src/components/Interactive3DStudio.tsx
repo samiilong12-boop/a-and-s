@@ -471,7 +471,7 @@ export function Interactive3DStudio() {
                 </li>
                 <li className="flex items-center justify-between">
                   <span>الغطاء:</span>
-                  <strong className="text-[#D4AF37]">مغناطيسي مطلي 24K</strong>
+                  <strong className="text-[#D4AF37]">أنيق وعصري محكم الإغلاق</strong>
                 </li>
                 <li className="flex items-center justify-between">
                   <span>مضخة الرش (Atomizer):</span>

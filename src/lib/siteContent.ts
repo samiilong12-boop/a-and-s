@@ -169,31 +169,30 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   storyBadge: 'أصالة الحرفة والرؤية',
   storyTitle: 'صُنعت في القاهرة لأصحاب الذوق الرفيع.',
   storyParagraph1:
-    'في دار رحيق (Raheeq) نرفض الروائح الاصطناعية العابرة ونعتمد على البناء العطري الأصيل. انطلقت دارنا من القاهرة لتمزج تراث النباتات والعطور المصرية العريقة مع أرقى أسرار صناعة العطور الفرنسية.',
-  storyParagraph2:
-    'يمر كل عطر بمرحلة تعتيق دقيقة تتجاوز 60 يوماً، لتمتزج نفحات الورد الدمشقي مع العود المدخن المعتق والعنبر النادر في توازن متناغم وساحر.',
+    'بعض العطور تُشم وتُنسى... أما رحيق، فتُترك لتُروى حكايتها. من قلب القاهرة، نصنع عالماً من الروائح المتفرّدة، بمزيج من أجود المكونات المحلية وفن التركيب العطري، لتمنحك حضوراً لا يُشبه سواك.',
+  storyParagraph2: '',
   storyImage: '/images/campaign/couple-sunset-romance.webp',
   storyImageQuote: '«العطر ليس مجرد لمسة تجميلية، بل هو هالتك غير المرئية التي تبقى في ذاكرة المكان.»',
   storyImageTag: 'دار رحيق (RAHEEQ) للعطور الفاخرة — القاهرة',
-  storyBenefit1Title: 'تركيز إكستري خالص',
-  storyBenefit1Desc: 'تركيز زيوت عطرية نقي لثبات طويل يرافقك طوال اليوم.',
+  storyBenefit1Title: 'تركيز إكستري خالص 35%',
+  storyBenefit1Desc: 'تركيز زيوت عطرية نقي 35% لثبات استثنائي يدوم طويلاً.',
   storyBenefit2Title: 'التوصيل إلى الباب والمعاينة',
-  storyBenefit2Desc: 'عاين طردك الفاخر وتأكد من زجاجتك عند باب بيتك قبل دفع أي مليم.',
+  storyBenefit2Desc: 'عاين طردك الفاخر وتأكد من زجاجتك عند باب بيتك قبل دفع.',
 
   // 4. Riviera Campaign Banner
   rivieraImage: '/images/campaign/female-coastal-spray.webp',
-  rivieraBadge: 'حملة صيف الريفييرا المتوسطية',
-  rivieraHeadline: 'رذاذ البحر الفيروزي.. وانتعاش الحمضيات الذهبية',
+  rivieraBadge: 'أزارو ذا موست وانتند',
+  rivieraHeadline: 'خشب الأرز الأطلسي • خشب الصندل الميسوري • عنبر ملكي دافئ',
   rivieraDescription:
-    'مستوحاة من دفء شمس الأصيل على شواطئ البحر المتوسط، حيث تلتقي نفحات البرغموت الإيطالي النادر برحيق أزهار البرتقال ورذاذ النسيم الفيروزي العليل.',
-  rivieraBtn1Text: 'اكتشف عطور الريفييرا',
+    'عطر التحدي والجاذبية القصوى من دار رحيق بطابع أزارو ذا موست وانتند. يجمع بين التوابل الحارة كالهيل والفلفل الأسود مع لمسة خشب الأرز والجلد الفاخر.',
+  rivieraBtn1Text: 'اكتشف عطور أزارو ذا موست وانتند',
   rivieraBtn2Text: 'مشاهدة الكتالوج الكامل',
 
   // 5. Fragrance Mastery & Ritual Showcase (هندسة العطر الفاخر والزجاجة)
   showcaseBadge: 'معايير الفخامة الحرفية لدار رحيق',
   showcaseHeadline: 'هندسة العطر الفاخر.. ثباتٌ أسطوري وحضورٌ يأسر الحواس',
   showcaseDescription:
-    'تم تصميم كل توليفة في معمل دار رحيق بتركيز Extrait de Parfum من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً لأكثر من 14 ساعة مع نقاء شمي استثنائي.',
+    'تم تصميم كل توليفة في معمل دار رحيق بتركيز Extrait de Parfum من أندر الزيوت الطبيعية النقية لضمان بقاء أثرك العطري حياً مع نقاء شمي استثنائي.',
   showcaseBottleImage: '/images/raheeq-official-logo.webp',
   showcaseBottleTag: 'Signature Creation',
   showcaseBottleName: 'SAUVAGE ELIXIR / SULTAN OUD',
@@ -202,14 +201,14 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   showcaseMeter1Val: '9.8 / 10',
   showcaseMeter1Sub: 'هالة قوية تملأ الأرجاء',
   showcaseMeter2Title: 'الثبات (Longevity)',
-  showcaseMeter2Val: '+14 ساعة',
+  showcaseMeter2Val: 'ثبات يدوم طويلاً',
   showcaseMeter2Sub: 'يدوم على الأقمشة لأيام',
   showcaseMeter3Title: 'نسبة الزيوت',
   showcaseMeter3Val: 'Extrait',
   showcaseMeter3Sub: 'Extrait de Parfum مغلظ',
   showcasePill1: 'زيوت فرنسية نقية Extrait',
   showcasePill2: 'التوصيل إلى الباب ومعاينة قبل الدفع كاش',
-  showcasePill3: 'زجاج بلوري ثقيل بغطاء مغناطيسي',
+  showcasePill3: 'زجاج بلوري ثقيل بغطاء محكم',
 
   // 6. Footer Values Bar (شريط مميزات المتجر والتوصيل)
   footerShippingTitle: 'التوصيل إلى الباب',
@@ -218,7 +217,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   footerCodDesc: 'عاين طردك الفاخر وتأكد من سلامة الزجاجة عند بابك قبل السداد للمندوب.',
   footerConcentrationTitle: 'تركيز زيوت نقية Extrait de Parfum',
   footerConcentrationDesc: 'ثبات استثنائي عالي وفوحان يملأ الأرجاء.',
-  footerBottleTitle: 'زجاج بلوري ثقيل بغطاء مغناطيسي',
+  footerBottleTitle: 'زجاج بلوري ثقيل بغطاء محكم',
   footerBottleDesc: 'زجاجة بلورية محكمة الإغلاق تحفظ كثافة ونقاء الزيوت العطرية النادرة.',
 
   // 7. Social Media Links (روابط منصات التواصل الاجتماعي الرسمية)

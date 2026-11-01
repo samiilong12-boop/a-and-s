@@ -17,13 +17,14 @@ export const revalidate = 0;
 
 function sanitizeConfigForPublic(config: SiteContentConfig): SiteContentConfig {
   const sanitized = { ...config };
-  if (sanitized.brandLogoUrl && sanitized.brandLogoUrl.startsWith('data:image/') && sanitized.brandLogoUrl.length > 15000) {
+  // Allow compressed WebP images up to 300KB
+  if (sanitized.brandLogoUrl && sanitized.brandLogoUrl.startsWith('data:image/') && sanitized.brandLogoUrl.length > 300000) {
     sanitized.brandLogoUrl = '/images/raheeq-official-logo.webp';
   }
-  if (sanitized.studioBottleLabelImage && sanitized.studioBottleLabelImage.length > 5000) {
+  if (sanitized.studioBottleLabelImage && sanitized.studioBottleLabelImage.length > 300000) {
     sanitized.studioBottleLabelImage = '';
   }
-  if (sanitized.studioCustomBottleImage && sanitized.studioCustomBottleImage.length > 5000) {
+  if (sanitized.studioCustomBottleImage && sanitized.studioCustomBottleImage.length > 300000) {
     sanitized.studioCustomBottleImage = '';
   }
   return sanitized;

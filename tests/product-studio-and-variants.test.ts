@@ -20,9 +20,9 @@ describe('Advanced Perfume Product Management Studio & Data Consistency', () => 
     // Ensure dual variants 50ml and 100ml
     expect(sauvage.variants).toHaveLength(2);
     expect(sauvage.variants[0].volumeMl).toBe(50);
-    expect(sauvage.variants[0].regularPriceEgp).toBe(1850);
+    expect(sauvage.variants[0].regularPriceEgp).toBe(450);
     expect(sauvage.variants[1].volumeMl).toBe(100);
-    expect(sauvage.variants[1].regularPriceEgp).toBe(2750);
+    expect(sauvage.variants[1].regularPriceEgp).toBe(846);
   });
 
   it('verifies misk-al-rumman is configured as a dedicated luxury product', () => {
