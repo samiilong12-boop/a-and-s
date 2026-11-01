@@ -24,10 +24,10 @@ export function Footer() {
               </div>
               <div>
                 <h4 className="font-serif font-bold text-sm text-[#FFFFFF]">
-                  {isRtl ? (content.footerShippingTitle || 'التوصيل إلى الباب') : 'Door-to-Door Delivery Across Egypt'}
+                  {isRtl ? (content.footerShippingTitle || 'التوصيل إلى الباب') : 'Door-to-Door Delivery in Cairo & Giza'}
                 </h4>
                 <p className="text-xs text-[#9EABA7] mt-0.5">
-                  {isRtl ? (content.footerShippingDesc || 'توصيل مخصص وسريع لباب بيتك في القاهرة والإسكندرية وجميع محافظات مصر.') : 'Dedicated express door-to-door courier delivery across Egypt.'}
+                  {isRtl ? (content.footerShippingDesc || 'توصيل مخصص وسريع لباب بيتك في القاهرة والجيزة.') : 'Dedicated express door-to-door courier delivery in Cairo and Giza.'}
                 </p>
               </div>
             </div>

@@ -213,7 +213,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
 
   // 6. Footer Values Bar (شريط مميزات المتجر والتوصيل)
   footerShippingTitle: 'التوصيل إلى الباب',
-  footerShippingDesc: 'توصيل مخصص وسريع لباب بيتك في القاهرة والإسكندرية وجميع محافظات مصر.',
+  footerShippingDesc: 'توصيل مخصص وسريع لباب بيتك في القاهرة والجيزة.',
   footerCodTitle: 'معاينة الطرد قبل الدفع كاش',
   footerCodDesc: 'عاين طردك الفاخر وتأكد من سلامة الزجاجة عند بابك قبل السداد للمندوب.',
   footerConcentrationTitle: 'تركيز زيوت نقية Extrait de Parfum',
