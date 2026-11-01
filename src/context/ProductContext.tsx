@@ -82,9 +82,9 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v6';
+const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v7';
 const CATALOG_VERSION_KEY = 'raheeq_catalog_version_sig';
-const CURRENT_CATALOG_VERSION = '2026.10.31.v6_official_10_clean';
+const CURRENT_CATALOG_VERSION = '2026.11.01.v7_official_live_sync';
 const TOKEN_KEY = 'a_and_s_admin_jwt_token';
 
 function getAdminAuthHeaders(): Record<string, string> {
@@ -171,21 +171,8 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
     setIsLoaded(true);
 
-    // Defer server sync until after initial paint & critical asset loading
-    if (typeof window !== 'undefined') {
-      const isMobile = window.innerWidth < 768;
-      const delay = isMobile ? 3500 : 2000;
-      const timer = setTimeout(() => {
-        if ('requestIdleCallback' in window) {
-          (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(() => syncWithServer());
-        } else {
-          syncWithServer();
-        }
-      }, delay);
-      return () => clearTimeout(timer);
-    } else {
-      syncWithServer();
-    }
+    // Immediately sync with server database (authoritative source of truth)
+    syncWithServer();
   }, [syncWithServer]);
 
   const saveProductsLocally = (updatedList: Product[]) => {

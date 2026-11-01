@@ -58,21 +58,8 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       }
     } catch {}
 
-    // 2. Fetch latest from Cloud Database (Prisma Postgres) after initial paint
-    let timer: NodeJS.Timeout | undefined;
-    if (typeof window !== 'undefined') {
-      const isMobile = window.innerWidth < 768;
-      const delay = isMobile ? 4500 : 2500;
-      timer = setTimeout(() => {
-        if ('requestIdleCallback' in window) {
-          (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(() => refreshSiteContent());
-        } else {
-          refreshSiteContent();
-        }
-      }, delay);
-    } else {
-      refreshSiteContent();
-    }
+    // 2. Fetch latest from Cloud Database (Prisma Postgres) immediately
+    refreshSiteContent();
 
     // 3. Listen to local storage events across tabs
     const handleStorageChange = (e: StorageEvent) => {
@@ -98,7 +85,6 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
     window.addEventListener('raheeq_site_content_updated', handleCustomUpdate);
 
     return () => {
-      if (timer) clearTimeout(timer);
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('raheeq_site_content_updated', handleCustomUpdate);
     };

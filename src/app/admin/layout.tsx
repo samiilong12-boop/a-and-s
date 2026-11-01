@@ -69,16 +69,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link
             href="/"
-            className="text-xs text-slate-600 hover:text-teal-700 font-medium flex items-center gap-1.5 transition-colors bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200"
+            className="text-xs text-slate-600 hover:text-teal-700 font-medium flex items-center gap-1.5 transition-colors bg-slate-50 hover:bg-slate-100 px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-200"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Return to Storefront</span>
+            <span className="hidden sm:inline">Return to Storefront</span>
+            <span className="sm:hidden text-[11px] font-bold">المتجر</span>
           </Link>
 
-          <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
+          <div className="flex items-center gap-2 pl-2 sm:pl-3 border-l border-slate-200">
             <div className="w-8 h-8 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs font-bold shadow-sm">
               AS
             </div>
@@ -91,6 +92,67 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       <div className="flex-1 flex">
+        {/* Mobile Slide-Over Drawer */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 md:hidden flex">
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+              onClick={() => setSidebarOpen(false)}
+            />
+            {/* Drawer */}
+            <aside className="relative z-50 w-72 max-w-[85vw] bg-white h-full border-r border-slate-200 flex flex-col p-4 space-y-4 shadow-2xl overflow-y-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div className="flex items-center gap-2">
+                  <img src={logoUrl} alt="Raheeq" className="w-7 h-7 object-cover rounded-full border border-[#D4AF37]/40 shadow-xs" />
+                  <span className="font-serif font-bold text-slate-900 text-sm">لوحة إدارة دار رَحِيقْ</span>
+                </div>
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-1 flex-1">
+                <span className="text-[10px] tracking-[0.2em] uppercase text-slate-400 font-bold px-3 block mb-2">
+                  أقسام الإدارة والتحكم
+                </span>
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                        isActive
+                          ? 'bg-teal-50 text-teal-800 border border-teal-300 font-bold shadow-xs'
+                          : 'text-slate-700 hover:text-slate-900 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 text-teal-700 shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <div className="pt-3 border-t border-slate-200 space-y-2">
+                <Link
+                  href="/"
+                  onClick={() => setSidebarOpen(false)}
+                  className="w-full text-xs text-slate-700 hover:text-teal-800 font-bold flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>العودة للمتجر الرئيسي</span>
+                </Link>
+              </div>
+            </aside>
+          </div>
+        )}
         {/* Desktop Sidebar (Clean White & Slate) */}
         <aside className="hidden md:flex w-64 bg-white border-r border-slate-200 flex-col p-4 space-y-6 shadow-sm">
           <div className="space-y-1">
