@@ -84,7 +84,7 @@ export default function OrderConfirmationPage({
               </span>
               <p className="font-bold text-[#080A0A]">الشحن السريع المؤمن</p>
               <p className="text-[#4A5553] text-[11px] leading-relaxed">
-                تغليف ملوكي داخل علبة مغناطيسية مبطنة وشحن مبرد للحفاظ على الزيوت العطرية.
+                تغليف ملوكي فاخر داخل علبة ملكية مبطنة وشحن مبرد ومحمي للحفاظ على الزيوت العطرية.
               </p>
             </div>
 

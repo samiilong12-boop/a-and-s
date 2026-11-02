@@ -421,8 +421,8 @@ export default function TermsAndPoliciesPage() {
               </h3>
               <p>
                 {isRtl
-                  ? 'إذا واجهتك أي مشكلة فنية نادرة في مضخة الرش (البخاخ) أو تلف في الغطاء المغناطيسي خلال 30 يوماً، يتم استبدال الزجاجة فوراً بزجاجة جديدة مجاناً وبدون أي رسوم شحن إضافية.'
-                  : 'In the rare event of an atomizer or magnetic cap manufacturing defect within 30 days, we replace your bottle free of charge including shipping.'}
+                  ? 'إذا واجهتك أي مشكلة فنية نادرة في مضخة الرش (البخاخ) أو تلف في الغطاء الفاخر خلال 30 يوماً، يتم استبدال الزجاجة فوراً بزجاجة جديدة مجاناً وبدون أي رسوم شحن إضافية.'
+                  : 'In the rare event of an atomizer or cap manufacturing defect within 30 days, we replace your bottle free of charge including shipping.'}
               </p>
 
               <h3 className="font-serif text-base font-bold text-slate-900 pt-2">

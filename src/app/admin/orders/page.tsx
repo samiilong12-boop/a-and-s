@@ -594,6 +594,21 @@ function AdminOrdersContent() {
                     colorClass: 'text-amber-400 bg-amber-400/10',
                   };
                   const isArchived = activeTab === 'archive';
+                  let paymentMethodBadge = {
+                    label: 'الدفع عند الاستلام',
+                    colorClass: 'text-amber-700 bg-amber-50 border-amber-200',
+                  };
+                  if (order.paymentMethod === 'VODAFONE_CASH' || order.shippingAddress?.deliveryNotes?.includes('فودافون كاش') || order.deliveryNotes?.includes('فودافون كاش')) {
+                    paymentMethodBadge = {
+                      label: '🔴 فودافون كاش',
+                      colorClass: 'text-rose-700 bg-rose-50 border-rose-200',
+                    };
+                  } else if (order.paymentMethod === 'ETISALAT_CASH' || order.shippingAddress?.deliveryNotes?.includes('اتصالات كاش') || order.deliveryNotes?.includes('اتصالات كاش')) {
+                    paymentMethodBadge = {
+                      label: '🟢 اتصالات كاش',
+                      colorClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+                    };
+                  }
 
                   return (
                     <tr
@@ -626,8 +641,8 @@ function AdminOrdersContent() {
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className={`text-[11px] font-bold ${payMeta?.colorClass || 'text-amber-400 bg-amber-400/10'}`}>
-                          {payMeta?.labelAr || payMeta?.labelEn || 'الدفع عند الاستلام'}
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${paymentMethodBadge.colorClass}`}>
+                          {paymentMethodBadge.label}
                         </span>
                       </td>
                       <td className="p-4 text-slate-600">
@@ -792,6 +807,39 @@ function AdminOrdersContent() {
                       </a>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Payment Details Card */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div>
+                  <span className="text-slate-500 font-semibold block">طريقة الدفع:</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    {selectedOrder.paymentMethod === 'VODAFONE_CASH' || selectedOrder.shippingAddress?.deliveryNotes?.includes('فودافون كاش') || selectedOrder.deliveryNotes?.includes('فودافون كاش') ? (
+                      <span className="font-bold text-rose-700 bg-rose-100 border border-rose-200 px-2.5 py-1 rounded-md inline-flex items-center gap-1.5">
+                        🔴 فودافون كاش (Vodafone Cash)
+                      </span>
+                    ) : selectedOrder.paymentMethod === 'ETISALAT_CASH' || selectedOrder.shippingAddress?.deliveryNotes?.includes('اتصالات كاش') || selectedOrder.deliveryNotes?.includes('اتصالات كاش') ? (
+                      <span className="font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-md inline-flex items-center gap-1.5">
+                        🟢 اتصالات كاش (Etisalat Cash)
+                      </span>
+                    ) : (
+                      <span className="font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-md inline-flex items-center gap-1.5">
+                        💵 الدفع نقداً عند الاستلام والمعاينة
+                      </span>
+                    )}
+                  </div>
+                  {selectedOrder.senderWalletPhone && (
+                    <p className="text-slate-700 font-mono mt-1.5 font-bold">
+                      رقم محفظة العميل المحول منها: {selectedOrder.senderWalletPhone}
+                    </p>
+                  )}
+                </div>
+                <div className="text-left">
+                  <span className="text-slate-500 block">إجمالي الطلب:</span>
+                  <strong className="text-base text-slate-900 font-mono">
+                    {formatPrice(selectedOrder.totalInPiasters || selectedOrder.totalAmountInPiasters || 0)}
+                  </strong>
                 </div>
               </div>
 

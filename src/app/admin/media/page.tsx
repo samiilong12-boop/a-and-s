@@ -3071,13 +3071,13 @@ export default function AdminStorefrontContentPage() {
 
               {/* Card 4: Bottle */}
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <span className="text-xs font-bold text-amber-800 block">البطاقة 4: الزجاجة والغطاء المغناطيسي</span>
+                <span className="text-xs font-bold text-amber-800 block">البطاقة 4: الزجاجة والغطاء الفاخر</span>
                 <input
                   type="text"
                   value={config.footerBottleTitle}
                   onChange={(e) => setConfig({ ...config, footerBottleTitle: e.target.value })}
                   onBlur={() => handleSaveConfig({ footerBottleTitle: config.footerBottleTitle })}
-                  placeholder="عنوان الزجاجة (مثلاً: زجاج بلوري ثقيل بغطاء مغناطيسي)"
+                  placeholder="عنوان الزجاجة (مثلاً: زجاج بلوري ثقيل بغطاء أنيق ومحكم)"
                   className="w-full bg-white border border-slate-300 rounded px-3 py-2 text-xs font-bold"
                 />
                 <textarea

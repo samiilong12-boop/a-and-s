@@ -62,14 +62,14 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Crystal Flacon & Magnetic Cap */}
+            {/* Crystal Flacon & Luxury Cap */}
             <div className="flex items-center justify-center md:justify-start gap-4">
               <div className="w-12 h-12 rounded-full bg-[#141A19] border border-[#C6A66B]/50 flex items-center justify-center text-[#C6A66B] flex-shrink-0 shadow-lg">
                 <Sparkles className="w-6 h-6 text-[#54d1b2]" />
               </div>
               <div>
                 <h4 className="font-serif font-bold text-sm text-[#FFFFFF]">
-                  {isRtl ? (content.footerBottleTitle || 'زجاج بلوري ثقيل بغطاء مغناطيسي') : 'Weighted Crystal & Magnetic Cap'}
+                  {isRtl ? (content.footerBottleTitle || 'زجاج بلوري ثقيل بغطاء أنيق ومحكم') : 'Weighted Crystal & Luxury Cap'}
                 </h4>
                 <p className="text-xs text-[#9EABA7] mt-0.5">
                   {isRtl ? (content.footerBottleDesc || 'زجاجة بلورية محكمة الإغلاق تحفظ كثافة ونقاء الزيوت العطرية النادرة.') : 'Heavy beveled crystal flacon sealing the density of rare perfume oils.'}

@@ -471,7 +471,7 @@ export function Interactive3DStudio() {
                 </li>
                 <li className="flex items-center justify-between">
                   <span>الغطاء:</span>
-                  <strong className="text-[#D4AF37]">أنيق وعصري محكم الإغلاق</strong>
+                  <strong className="text-[#D4AF37]">{siteContent.studioCapSpec || 'أنيق وعصري محكم الإغلاق'}</strong>
                 </li>
                 <li className="flex items-center justify-between">
                   <span>مضخة الرش (Atomizer):</span>
@@ -479,7 +479,7 @@ export function Interactive3DStudio() {
                 </li>
                 <li className="flex items-center justify-between">
                   <span>نسبة التركيز:</span>
-                  <strong className="text-[#2DD4BF] font-mono">25% Extrait de Parfum</strong>
+                  <strong className="text-[#2DD4BF] font-mono">35% Extrait de Parfum</strong>
                 </li>
               </ul>
             </div>

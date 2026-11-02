@@ -69,8 +69,15 @@ export default function HomePage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const isMobileDevice = window.innerWidth < 768;
-    const activeUrl = heroConfig.activeVideoUrl || '/videos/campaign-hero.mp4';
+    const activeUrl = heroConfig.activeVideoUrl || 'https://res.cloudinary.com/sxafwhcs/video/upload/v1793560503/raheeq/hero-videos/raheeq/hero-videos/raheeq_hero_1793560497386_xjxr6.mp4';
     setVideoSource(getOptimizedVideoUrl(activeUrl, isMobileDevice));
+
+    // If admin set visual mode to photo, do not mount video
+    if (heroConfig.visualMode === 'photo') {
+      setMountVideo(false);
+      setVideoReady(false);
+      return;
+    }
 
     // Check user data-saver & reduced motion preferences
     const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -81,7 +88,7 @@ export default function HomePage() {
       nav.connection?.effectiveType === '2g'
     );
 
-    if (isReducedMotion || isSaveData || heroConfig.visualMode === 'photo') {
+    if (isReducedMotion || isSaveData) {
       return;
     }
 
@@ -205,22 +212,23 @@ export default function HomePage() {
         {/* Background Visual Layer: Real Raheeq Campaign Visuals & Ultra-Luxury HD Video */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* Main Editorial Image (Hero LCP Anchor - Image-First Architecture) */}
-          <picture className="w-full h-full object-cover">
-            <source media="(max-width: 767px)" srcSet="/images/campaign/as-signature-male-spray-mobile.webp" type="image/webp" />
-            <source srcSet="/images/campaign/as-signature-male-spray.webp" type="image/webp" />
-            <img
-              src={heroConfig.activePhotoUrl || '/images/campaign/as-signature-male-spray.webp'}
-              alt="Raheeq Haute Parfumerie Campaign"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              width={1024}
-              height={585}
-              className="w-full h-full object-cover"
-            />
-          </picture>
+          <img
+            src={heroConfig.activePhotoUrl || '/images/campaign/raheeq-hero-poster.webp'}
+            alt="Raheeq Haute Parfumerie Campaign"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            width={1024}
+            height={585}
+            className={`w-full h-full object-cover transition-opacity duration-1000 ${
+              heroConfig.visualMode === 'video' && videoReady ? 'opacity-0' : 'opacity-100'
+            }`}
+            style={{
+              filter: `brightness(${heroConfig.heroBrightness || 1.0}) contrast(105%)`,
+            }}
+          />
 
-          {/* Cinematic Background Video (Attached only after critical LCP is locked, single source) */}
+          {/* Cinematic Background Video (Attached only in video mode and after critical LCP is locked) */}
           {mountVideo && heroConfig.visualMode === 'video' && (
             <video
               ref={videoRef}
@@ -234,12 +242,6 @@ export default function HomePage() {
               onCanPlay={() => {
                 if (videoRef.current) {
                   videoRef.current.play().catch(() => {});
-                }
-              }}
-              onError={() => {
-                // Reliable local fallback if remote video fails
-                if (videoSource !== '/videos/campaign-hero.mp4') {
-                  setVideoSource('/videos/campaign-hero.mp4');
                 }
               }}
               style={{
@@ -737,7 +739,7 @@ export default function HomePage() {
                   <div className="w-7 h-7 rounded-full bg-[#141A19] flex items-center justify-center text-[#C6A66B]">
                     ★
                   </div>
-                  <span className="text-[#D5D1C7]">{isRtl ? (siteContent.showcasePill3 || 'زجاج بلوري ثقيل بغطاء مغناطيسي') : 'Weighted glass flacon with magnetic cap'}</span>
+                  <span className="text-[#D5D1C7]">{isRtl ? (siteContent.showcasePill3 || 'زجاج بلوري ثقيل بغطاء أنيق ومحكم') : 'Weighted glass flacon with luxury cap'}</span>
                 </div>
               </div>
             </div>

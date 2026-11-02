@@ -18,6 +18,9 @@ import {
   Sparkles,
   MessageSquare,
   Gift,
+  Wallet,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -45,6 +48,15 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreedToDeliveryFee, setAgreedToDeliveryFee] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState<'CASH_ON_DELIVERY' | 'VODAFONE_CASH' | 'ETISALAT_CASH'>('CASH_ON_DELIVERY');
+  const [senderWalletPhone, setSenderWalletPhone] = useState('');
+  const [copiedNumber, setCopiedNumber] = useState<string | null>(null);
+
+  const handleCopyNumber = (num: string) => {
+    navigator.clipboard?.writeText(num);
+    setCopiedNumber(num);
+    setTimeout(() => setCopiedNumber(null), 2500);
+  };
 
   // Selected Shipping Zone
   const selectedZone = SHIPPING_ZONES.find((z) => z.governorateEn === formData.governorate) || SHIPPING_ZONES[0];
@@ -115,11 +127,21 @@ export default function CheckoutPage() {
       const now = new Date();
       const orderNumber = `AS-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+      let fullDeliveryNotes = formData.deliveryNotes.trim();
+      if (paymentMethod === 'VODAFONE_CASH') {
+        const walletNote = `[الدفع: فودافون كاش 01011800245${senderWalletPhone ? ` - رقم المحفظة المحول منها: ${senderWalletPhone}` : ''}]`;
+        fullDeliveryNotes = fullDeliveryNotes ? `${fullDeliveryNotes} | ${walletNote}` : walletNote;
+      } else if (paymentMethod === 'ETISALAT_CASH') {
+        const walletNote = `[الدفع: اتصالات كاش 01131068790${senderWalletPhone ? ` - رقم المحفظة المحول منها: ${senderWalletPhone}` : ''}]`;
+        fullDeliveryNotes = fullDeliveryNotes ? `${fullDeliveryNotes} | ${walletNote}` : walletNote;
+      }
+
       const orderPayload = {
         orderNumber,
         status: 'PENDING_CONFIRMATION',
-        paymentStatus: 'PENDING_COLLECTION',
-        paymentMethod: 'CASH_ON_DELIVERY',
+        paymentStatus: paymentMethod === 'CASH_ON_DELIVERY' ? 'PENDING_COLLECTION' : 'PAID_PENDING_CONFIRMATION',
+        paymentMethod: paymentMethod,
+        senderWalletPhone: senderWalletPhone.trim() || undefined,
         currency: 'EGP',
         customerName: formData.customerName.trim(),
         customerPhone: validateEgyptianPhone(formData.customerPhone).normalizedPhone,
@@ -129,7 +151,7 @@ export default function CheckoutPage() {
           city: formData.city.trim(),
           streetAddress: formData.streetAddress.trim(),
           buildingDetails: formData.buildingDetails.trim() || undefined,
-          deliveryNotes: formData.deliveryNotes.trim() || undefined,
+          deliveryNotes: fullDeliveryNotes || undefined,
         },
         subtotalInPiasters: financials.subtotalInPiasters,
         discountInPiasters: financials.discountInPiasters,
@@ -390,45 +412,196 @@ export default function CheckoutPage() {
             {/* Payment Method Accordion */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E7E3D6] shadow-sm space-y-4">
               <h2 className="font-serif text-lg font-bold text-[#080A0A] flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#0D9488]" />
-                <span>{t('checkout.payment_method')}</span>
+                <Wallet className="w-4 h-4 text-[#0D9488]" />
+                <span>{isRtl ? 'اختر طريقة الدفع' : 'Select Payment Method'}</span>
               </h2>
 
-              <div className="p-4 bg-[#FAF9F5] rounded-2xl border-2 border-[#2DD4BF] space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-4 h-4 rounded-full bg-[#0D9488] flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
+              <div className="space-y-3">
+                {/* 1. Cash on Delivery */}
+                <label
+                  onClick={() => setPaymentMethod('CASH_ON_DELIVERY')}
+                  className={`block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    paymentMethod === 'CASH_ON_DELIVERY'
+                      ? 'border-[#2DD4BF] bg-[#FAF9F5]'
+                      : 'border-[#E7E3D6] bg-white hover:border-[#2DD4BF]/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                        paymentMethod === 'CASH_ON_DELIVERY' ? 'border-[#0D9488] bg-[#0D9488]' : 'border-slate-300'
+                      }`}>
+                        {paymentMethod === 'CASH_ON_DELIVERY' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                      <span className="text-sm font-bold text-[#080A0A]">
+                        {isRtl ? 'الدفع نقداً عند الاستلام والمعاينة' : 'Cash on Delivery & Inspection'}
+                      </span>
                     </div>
-                    <span className="text-sm font-bold text-[#080A0A]">
-                      {t('checkout.cod_title')}
+                    <span className="text-[11px] font-bold text-[#0D9488] bg-[#2DD4BF]/20 px-2.5 py-0.5 rounded-full font-mono">
+                      {isRtl ? 'نقداً للمندوب' : 'EGP Cash'}
                     </span>
                   </div>
-                  <span className="text-[11px] font-bold text-[#0D9488] bg-[#2DD4BF]/20 px-2.5 py-0.5 rounded-full font-mono">
-                    {isRtl ? 'نقداً عند الاستلام' : 'EGP Cash'}
-                  </span>
-                </div>
-                <p className="text-xs text-[#4A5553] pr-6">
-                  {t('checkout.cod_desc')}
-                </p>
-
-                {/* Doorstep Inspection & Delivery Fee Policy Box */}
-                <div className="mt-3 p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1.5 text-xs">
-                  <div className="flex items-center gap-2 font-bold text-amber-950">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                    <span>{isRtl ? 'سياسة المعاينة ورسوم الشحن عند الإلغاء:' : 'Doorstep Inspection & Delivery Fee Policy:'}</span>
-                  </div>
-                  <p className="text-[11px] leading-relaxed text-amber-900">
+                  <p className="text-xs text-[#4A5553] pr-6 mt-1.5">
                     {isRtl
-                      ? 'لك كامل الحق في فتح كرتونة الشحن وفحص الزجاجة والتأكد من سلامتها قبل الدفع. في حال تم فحص الطرد ورفض الاستلام أو الإلغاء بعد وصول مندوب الشحن، يلتزم العميل بسداد قيمة مصاريف الشحن والتوصيل المقررة فقط للمندوب نظير مشوار الانتقال.'
-                      : 'You have full right to open and inspect the package before payment. If the order is refused or cancelled upon courier arrival, the customer is responsible only for paying the courier delivery fee.'}
+                      ? 'الدفع نقداً بالجنيه المصري للمندوب بعد فتح الشحنة والتأكد التام من سلامة ومطابقة الزجاجة عند باب بيتك.'
+                      : 'Pay cash upon delivery after opening and inspecting your perfume bottle at your doorstep.'}
                   </p>
-                </div>
+
+                  {paymentMethod === 'CASH_ON_DELIVERY' && (
+                    <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1 text-xs">
+                      <div className="flex items-center gap-2 font-bold text-amber-950">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>{isRtl ? 'سياسة المعاينة ورسوم الشحن عند الإلغاء:' : 'Doorstep Inspection Policy:'}</span>
+                      </div>
+                      <p className="text-[11px] leading-relaxed text-amber-900">
+                        {isRtl
+                          ? 'لك كامل الحق في فتح كرتونة الشحن وفحص الزجاجة والتأكد من سلامتها قبل الدفع. في حال تم فحص الطرد ورفض الاستلام أو الإلغاء عند الباب، يلتزم العميل بسداد قيمة مصاريف التوصيل المقررة فقط للمندوب نظير مشوار الانتقال.'
+                          : 'You have full right to open and inspect the package before payment. If cancelled upon arrival, the customer pays only the courier delivery fee.'}
+                      </p>
+                    </div>
+                  )}
+                </label>
+
+                {/* 2. Vodafone Cash */}
+                <label
+                  onClick={() => setPaymentMethod('VODAFONE_CASH')}
+                  className={`block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    paymentMethod === 'VODAFONE_CASH'
+                      ? 'border-rose-500 bg-rose-50/30'
+                      : 'border-[#E7E3D6] bg-white hover:border-rose-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                        paymentMethod === 'VODAFONE_CASH' ? 'border-rose-600 bg-rose-600' : 'border-slate-300'
+                      }`}>
+                        {paymentMethod === 'VODAFONE_CASH' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-[#080A0A]">
+                          {isRtl ? 'فودافون كاش (Vodafone Cash)' : 'Vodafone Cash'}
+                        </span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block animate-pulse" />
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-full font-mono">
+                      {isRtl ? 'محفظة إلكترونية' : 'Vodafone Wallet'}
+                    </span>
+                  </div>
+
+                  {paymentMethod === 'VODAFONE_CASH' && (
+                    <div className="mt-3 p-3.5 bg-rose-50/90 border border-rose-200 rounded-xl space-y-3 text-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-lg border border-rose-200">
+                        <div>
+                          <span className="text-[11px] text-slate-500 block">رقم محفظة فودافون كاش الرسمية للدار:</span>
+                          <strong className="text-sm font-mono text-rose-700 tracking-wider">01011800245</strong>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyNumber('01011800245');
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] flex items-center gap-1.5 self-start sm:self-auto cursor-pointer shadow-sm transition-all"
+                        >
+                          {copiedNumber === '01011800245' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          <span>{copiedNumber === '01011800245' ? 'تم النسخ بنجاح' : 'نسخ الرقم'}</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-700 block">
+                          {isRtl ? 'رقم المحفظة التي قمت بالتحويل منها (لتأكيد وتوثيق السداد فوراً):' : 'Sender Vodafone Cash Number (Optional):'}
+                        </label>
+                        <input
+                          type="tel"
+                          maxLength={11}
+                          value={senderWalletPhone}
+                          onChange={(e) => setSenderWalletPhone(e.target.value.replace(/\D/g, ''))}
+                          placeholder="010XXXXXXXX"
+                          className="w-full bg-white border border-rose-300 rounded-xl px-3.5 py-2 text-xs font-mono text-[#080A0A] placeholder-slate-400 focus:outline-none focus:border-rose-600"
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        💡 بمجرد إتمام الحجز، يتم تأكيد التحويل واعتماد تجهيز وتغليف شحنتك فوراً.
+                      </p>
+                    </div>
+                  )}
+                </label>
+
+                {/* 3. Etisalat Cash */}
+                <label
+                  onClick={() => setPaymentMethod('ETISALAT_CASH')}
+                  className={`block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    paymentMethod === 'ETISALAT_CASH'
+                      ? 'border-emerald-500 bg-emerald-50/30'
+                      : 'border-[#E7E3D6] bg-white hover:border-emerald-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                        paymentMethod === 'ETISALAT_CASH' ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300'
+                      }`}>
+                        {paymentMethod === 'ETISALAT_CASH' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-[#080A0A]">
+                          {isRtl ? 'اتصالات كاش (Etisalat Cash)' : 'Etisalat Cash'}
+                        </span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block animate-pulse" />
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full font-mono">
+                      {isRtl ? 'محفظة إلكترونية' : 'Etisalat Wallet'}
+                    </span>
+                  </div>
+
+                  {paymentMethod === 'ETISALAT_CASH' && (
+                    <div className="mt-3 p-3.5 bg-emerald-50/90 border border-emerald-200 rounded-xl space-y-3 text-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-lg border border-emerald-200">
+                        <div>
+                          <span className="text-[11px] text-slate-500 block">رقم محفظة اتصالات كاش الرسمية للدار:</span>
+                          <strong className="text-sm font-mono text-emerald-800 tracking-wider">01131068790</strong>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyNumber('01131068790');
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] flex items-center gap-1.5 self-start sm:self-auto cursor-pointer shadow-sm transition-all"
+                        >
+                          {copiedNumber === '01131068790' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          <span>{copiedNumber === '01131068790' ? 'تم النسخ بنجاح' : 'نسخ الرقم'}</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-700 block">
+                          {isRtl ? 'رقم المحفظة التي قمت بالتحويل منها (لتأكيد وتوثيق السداد فوراً):' : 'Sender Etisalat Cash Number (Optional):'}
+                        </label>
+                        <input
+                          type="tel"
+                          maxLength={11}
+                          value={senderWalletPhone}
+                          onChange={(e) => setSenderWalletPhone(e.target.value.replace(/\D/g, ''))}
+                          placeholder="011XXXXXXXX"
+                          className="w-full bg-white border border-emerald-300 rounded-xl px-3.5 py-2 text-xs font-mono text-[#080A0A] placeholder-slate-400 focus:outline-none focus:border-emerald-600"
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        💡 بمجرد إتمام الحجز، يتم تأكيد التحويل واعتماد تجهيز وتغليف شحنتك فوراً.
+                      </p>
+                    </div>
+                  )}
+                </label>
               </div>
 
               <div className="pt-2 flex items-center gap-2 text-xs text-[#788784]">
                 <ShieldCheck className="w-4 h-4 text-[#0D9488]" />
-                <span>{isRtl ? 'الدفع نقداً بالجنيه المصري للمندوب بعد التأكد التام من مطابقة العطر.' : 'Payment is collected in cash after full package inspection.'}</span>
+                <span>{isRtl ? 'معاملات آمنة وموثقة 100% — دار رحيق للعطور الملكية الفاخرة.' : '100% verified and secure transactions — RAHEEQ Haute Parfumerie.'}</span>
               </div>
             </div>
           </div>

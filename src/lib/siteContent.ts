@@ -115,6 +115,7 @@ export interface SiteContentConfig {
   studioTheme3Notes: string;
   studioTheme4NameAr: string;
   studioTheme4Notes: string;
+  studioCapSpec?: string;
 
   updatedAt?: string;
 }
@@ -135,8 +136,8 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
 
   // 1. Hero & Stats
   visualMode: 'video',
-  activeVideoUrl: '/videos/campaign-hero.mp4',
-  activePhotoUrl: '/images/campaign/as-signature-male-spray.jpg',
+  activeVideoUrl: 'https://res.cloudinary.com/sxafwhcs/video/upload/v1793560503/raheeq/hero-videos/raheeq/hero-videos/raheeq_hero_1793560497386_xjxr6.mp4',
+  activePhotoUrl: '/images/campaign/raheeq-hero-poster.webp',
   videoTitle: 'فيديو الحملة الإعلانية الأصلي — رحيق (Raheeq)',
   heroBadge: 'دار العطور الملكية الخاصة • رحيق (Raheeq)',
   heroHeadline: 'عِـطْـرٌ يَـسْـبِـقُ حُـضُـورَكَ.. وَأَثَـرٌ لَا يَـمْـحُـوهُ الـزَّمَـانْ',
@@ -147,12 +148,12 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
 
   stat1Value: '+51',
   stat1Label: 'تركيبة عطرية فريدة',
-  stat2Value: 'Extrait',
+  stat2Value: '35%',
   stat2Label: 'تركيز نيش (Extrait de Parfum)',
   stat3Value: '100%',
   stat3Label: 'دفع عند الاستلام والمعاينة',
   stat4Value: '24–48h',
-  stat4Label: 'التوصيل إلى الباب (القاهرة وجميع المحافظات)',
+  stat4Label: 'التوصيل إلى الباب (القاهرة والجيزة)',
 
   // 2. Bespoke Blend Banner
   bespokeBadge: 'خدمة التفصيل العطري الملكي المخصص',
@@ -162,7 +163,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   bespokePlaceholder: 'اكتب اسم العطر أو الخلطة المطلوبة هنا (مثلاً: Creed Aventus أو خلطة توم فورد)...',
   bespokeButtonText: 'اطلب الآن وحدد الحجم',
   bespokeFeature1: 'أحجام 50ml و 100ml و 200ml',
-  bespokeFeature2: 'تركيز نيش Extrait de Parfum',
+  bespokeFeature2: 'تركيز نيش Extrait de Parfum 35%',
   bespokeFeature3: 'التوصيل إلى الباب ومعاينة قبل الدفع',
 
   // 3. Brand Story & Atelier
@@ -171,7 +172,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   storyParagraph1:
     'بعض العطور تُشم وتُنسى... أما رحيق، فتُترك لتُروى حكايتها. من قلب القاهرة، نصنع عالماً من الروائح المتفرّدة، بمزيج من أجود المكونات المحلية وفن التركيب العطري، لتمنحك حضوراً لا يُشبه سواك.',
   storyParagraph2: '',
-  storyImage: '/images/campaign/couple-sunset-romance.webp',
+  storyImage: '/images/campaign/raheeq-heritage-box.webp',
   storyImageQuote: '«العطر ليس مجرد لمسة تجميلية، بل هو هالتك غير المرئية التي تبقى في ذاكرة المكان.»',
   storyImageTag: 'دار رحيق (RAHEEQ) للعطور الفاخرة — القاهرة',
   storyBenefit1Title: 'تركيز إكستري خالص 35%',
@@ -180,7 +181,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   storyBenefit2Desc: 'عاين طردك الفاخر وتأكد من زجاجتك عند باب بيتك قبل دفع.',
 
   // 4. Riviera Campaign Banner
-  rivieraImage: '/images/campaign/female-coastal-spray.webp',
+  rivieraImage: '/images/campaign/azzaro-banner.webp',
   rivieraBadge: 'أزارو ذا موست وانتند',
   rivieraHeadline: 'خشب الأرز الأطلسي • خشب الصندل الميسوري • عنبر ملكي دافئ',
   rivieraDescription:
@@ -204,20 +205,20 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   showcaseMeter2Val: 'ثبات يدوم طويلاً',
   showcaseMeter2Sub: 'يدوم على الأقمشة لأيام',
   showcaseMeter3Title: 'نسبة الزيوت',
-  showcaseMeter3Val: 'Extrait',
+  showcaseMeter3Val: '35% Extrait',
   showcaseMeter3Sub: 'Extrait de Parfum مغلظ',
-  showcasePill1: 'زيوت فرنسية نقية Extrait',
+  showcasePill1: 'زيوت فرنسية نقية Extrait 35%',
   showcasePill2: 'التوصيل إلى الباب ومعاينة قبل الدفع كاش',
-  showcasePill3: 'زجاج بلوري ثقيل بغطاء محكم',
+  showcasePill3: 'زجاج بلوري ثقيل بغطاء أنيق ومحكم',
 
   // 6. Footer Values Bar (شريط مميزات المتجر والتوصيل)
   footerShippingTitle: 'التوصيل إلى الباب',
   footerShippingDesc: 'توصيل مخصص وسريع لباب بيتك في القاهرة والجيزة.',
-  footerCodTitle: 'معاينة الطرد قبل الدفع كاش',
+  footerCodTitle: 'معاينة الطرد قبل الدفع',
   footerCodDesc: 'عاين طردك الفاخر وتأكد من سلامة الزجاجة عند بابك قبل السداد للمندوب.',
-  footerConcentrationTitle: 'تركيز زيوت نقية Extrait de Parfum',
+  footerConcentrationTitle: 'تركيز زيوت نقية Extrait de Parfum 35%',
   footerConcentrationDesc: 'ثبات استثنائي عالي وفوحان يملأ الأرجاء.',
-  footerBottleTitle: 'زجاج بلوري ثقيل بغطاء محكم',
+  footerBottleTitle: 'زجاج بلوري ثقيل بغطاء أنيق ومحكم',
   footerBottleDesc: 'زجاجة بلورية محكمة الإغلاق تحفظ كثافة ونقاء الزيوت العطرية النادرة.',
 
   // 7. Social Media Links (روابط منصات التواصل الاجتماعي الرسمية)
@@ -244,4 +245,5 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   studioTheme3Notes: 'ورد طائفي ودمشقي قطفة أولى • مسك أبيض خالص • فانيليا بوربون',
   studioTheme4NameAr: 'إكسير الليل الأسود (Obsidian Noir)',
   studioTheme4Notes: 'لافندر عضوي مقطر • هيل غواتيمالي • توابل حارة وخشب الأرز',
+  studioCapSpec: 'أنيق وعصري محكم الإغلاق',
 };

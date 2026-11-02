@@ -317,7 +317,7 @@ export async function POST(req: NextRequest) {
           taxInPiasters: orderData.taxInPiasters || 0,
           totalInPiasters: orderData.totalInPiasters || 0,
           status: 'PENDING_CONFIRMATION',
-          paymentMethod: 'CASH_ON_DELIVERY',
+          paymentMethod: (orderData.paymentMethod === 'VODAFONE_CASH' || orderData.paymentMethod === 'ETISALAT_CASH') ? 'DIGITAL_WALLET' : 'CASH_ON_DELIVERY',
           paymentStatus: 'PENDING_COLLECTION',
           isArchived: false,
         },
