@@ -52,8 +52,11 @@ export async function isDatabaseConnected(): Promise<boolean> {
       return false;
     }
 
-    // Ping PostgreSQL
-    await prisma.$queryRaw`SELECT 1 as ping`;
+    // Fast ping with 1.5s timeout to prevent hanging when offline or without local Postgres
+    await Promise.race([
+      prisma.$queryRaw`SELECT 1 as ping`,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('DB Connection Timeout')), 1500)),
+    ]);
 
     // Ensure the StoreSetting table exists automatically in PostgreSQL
     await prisma.$executeRawUnsafe(`

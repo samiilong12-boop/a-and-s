@@ -29,7 +29,7 @@ import { FRAGRANCE_FAMILIES } from '@/lib/data/products';
 import { ProductCard } from '@/components/ProductCard';
 import { ExpressOrderModal } from '@/components/ExpressOrderModal';
 import { Product } from '@/types';
-import { getOptimizedVideoUrl } from '@/lib/videoOptimizer';
+import { getOptimizedVideoUrl, getOptimizedPosterUrl } from '@/lib/videoOptimizer';
 
 const Interactive3DStudio = dynamic(
   () => import('@/components/Interactive3DStudio').then((m) => m.Interactive3DStudio),
@@ -135,6 +135,7 @@ export default function HomePage() {
   // Handle video autoplay once mounted
   useEffect(() => {
     if (videoRef.current && mountVideo && heroConfig.visualMode === 'video') {
+      videoRef.current.defaultMuted = true;
       videoRef.current.muted = isMuted;
       videoRef.current.playsInline = true;
       const playPromise = videoRef.current.play();
@@ -207,28 +208,26 @@ export default function HomePage() {
     <div className="w-full max-w-full overflow-x-hidden space-y-24 sm:space-y-32 bg-[#F6F3EC]">
       
       {/* 1. CINEMATIC ROYAL HERO SECTION: MODEL SPRAYING A AND S PERFUME */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 border-b border-[#E6E1D5]">
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 border-b border-[#E6E1D5] bg-[#080A0A]">
         
         {/* Background Visual Layer: Real Raheeq Campaign Visuals & Ultra-Luxury HD Video */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Main Editorial Image (Hero LCP Anchor - Image-First Architecture) */}
+        <div className="absolute inset-0 z-0 overflow-hidden bg-[#080A0A]">
+          {/* Main Editorial Image (Hero LCP Anchor - Image-First Zero-Blink Foundation) */}
           <img
-            src={heroConfig.activePhotoUrl || '/images/campaign/raheeq-hero-poster.webp'}
+            src={getOptimizedPosterUrl(heroConfig.activePhotoUrl || heroConfig.activeVideoUrl)}
             alt="Raheeq Haute Parfumerie Campaign"
             loading="eager"
             fetchPriority="high"
             decoding="async"
             width={1024}
             height={585}
-            className={`w-full h-full object-cover transition-opacity duration-1000 ${
-              heroConfig.visualMode === 'video' && videoReady ? 'opacity-0' : 'opacity-100'
-            }`}
+            className="w-full h-full object-cover"
             style={{
               filter: `brightness(${heroConfig.heroBrightness || 1.0}) contrast(105%)`,
             }}
           />
 
-          {/* Cinematic Background Video (Attached only in video mode and after critical LCP is locked) */}
+          {/* Cinematic Background Video (Overlaid seamlessly at z-10 once playing, zero-flicker) */}
           {mountVideo && heroConfig.visualMode === 'video' && (
             <video
               ref={videoRef}
@@ -247,8 +246,8 @@ export default function HomePage() {
               style={{
                 filter: `brightness(${heroConfig.heroBrightness || 1.0}) contrast(105%)`,
               }}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                videoReady ? 'opacity-100' : 'opacity-0'
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 z-10 ${
+                videoReady ? 'opacity-100' : 'opacity-0 pointer-events-none'
               }`}
             />
           )}

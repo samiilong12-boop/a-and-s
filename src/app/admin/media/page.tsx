@@ -46,6 +46,7 @@ import {
 } from '@/lib/siteContent';
 import { compressImageFile } from '@/lib/imageCompression';
 import { CloudVideoManager } from '@/components/admin/CloudVideoManager';
+import { getOptimizedPosterUrl } from '@/lib/videoOptimizer';
 
 type TabType = 'logo' | 'hero' | 'studio3d' | 'bespoke' | 'showcase' | 'riviera' | 'story' | 'footer';
 
@@ -155,6 +156,12 @@ export default function AdminStorefrontContentPage() {
   const handleSaveConfig = async (newFields: Partial<SiteContentConfig>) => {
     try {
       setSaving(true);
+
+      // Auto-extract and sync instant poster snapshot whenever video is updated
+      if (newFields.activeVideoUrl && !newFields.activePhotoUrl) {
+        newFields.activePhotoUrl = getOptimizedPosterUrl(newFields.activeVideoUrl);
+      }
+
       const updated: SiteContentConfig = {
         ...config,
         ...newFields,

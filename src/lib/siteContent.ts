@@ -137,7 +137,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   // 1. Hero & Stats
   visualMode: 'video',
   activeVideoUrl: 'https://res.cloudinary.com/sxafwhcs/video/upload/v1793560503/raheeq/hero-videos/raheeq/hero-videos/raheeq_hero_1793560497386_xjxr6.mp4',
-  activePhotoUrl: '/images/campaign/raheeq-hero-poster.webp',
+  activePhotoUrl: 'https://res.cloudinary.com/sxafwhcs/video/upload/so_0,f_auto,q_auto,w_1024/v1793560503/raheeq/hero-videos/raheeq/hero-videos/raheeq_hero_1793560497386_xjxr6.jpg',
   videoTitle: 'فيديو الحملة الإعلانية الأصلي — رحيق (Raheeq)',
   heroBadge: 'دار العطور الملكية الخاصة • رحيق (Raheeq)',
   heroHeadline: 'عِـطْـرٌ يَـسْـبِـقُ حُـضُـورَكَ.. وَأَثَـرٌ لَا يَـمْـحُـوهُ الـزَّمَـانْ',

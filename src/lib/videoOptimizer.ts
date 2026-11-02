@@ -35,3 +35,38 @@ export function getOptimizedVideoUrl(url: string | undefined | null, isMobile: b
 
   return cleanUrl.replace('/upload/', `/upload/${transform}`);
 }
+
+/**
+ * Extracts an instant, ultra-fast WebP/JPG poster snapshot from any Cloudinary video URL
+ * or returns the existing optimized poster.
+ */
+export function getOptimizedPosterUrl(url: string | undefined | null): string {
+  if (!url || typeof url !== 'string') {
+    return '/images/campaign/raheeq-hero-poster.webp';
+  }
+
+  const cleanUrl = url.trim();
+
+  // If already a valid static image or base64 data URL
+  if (
+    cleanUrl.startsWith('data:image/') ||
+    cleanUrl.endsWith('.webp') ||
+    cleanUrl.endsWith('.jpg') ||
+    cleanUrl.endsWith('.jpeg') ||
+    cleanUrl.endsWith('.png') ||
+    cleanUrl.endsWith('.avif')
+  ) {
+    return cleanUrl;
+  }
+
+  // If Cloudinary video URL, dynamically extract frame 0 as an optimized snapshot
+  if (cleanUrl.includes('cloudinary.com') && cleanUrl.includes('/upload/')) {
+    const withoutMp4 = cleanUrl.replace(/\.mp4$/i, '.jpg');
+    if (!withoutMp4.includes('/so_0')) {
+      return withoutMp4.replace('/upload/', '/upload/so_0,f_auto,q_auto,w_1024/');
+    }
+    return withoutMp4;
+  }
+
+  return '/images/campaign/raheeq-hero-poster.webp';
+}
