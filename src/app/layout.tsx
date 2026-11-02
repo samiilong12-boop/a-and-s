@@ -91,7 +91,7 @@ export const metadata: Metadata = {
     images: ['/images/raheeq-official-logo.png'],
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'google-site-verification-raheeq',
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '5DtHEJRjcPvF7x7CVtj3e6XZ_vz85AJQuO1j7Ryd-W4',
   },
 };
 
@@ -144,6 +144,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${amiri.variable} ${bodoniModa.variable} ${jost.variable}`}>
       <head>
+        <meta name="google-site-verification" content="5DtHEJRjcPvF7x7CVtj3e6XZ_vz85AJQuO1j7Ryd-W4" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationAndWebsiteSchema) }}

@@ -38,7 +38,7 @@ export interface SeoGrowthConfig {
 const DEFAULT_SEO_CONFIG: SeoGrowthConfig = {
   productSeo: {},
   categorySeo: {},
-  googleVerificationCode: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+  googleVerificationCode: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '5DtHEJRjcPvF7x7CVtj3e6XZ_vz85AJQuO1j7Ryd-W4',
   articles: [
     {
       id: 'guide-1',

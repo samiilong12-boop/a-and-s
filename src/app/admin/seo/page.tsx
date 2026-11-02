@@ -53,7 +53,7 @@ export default function AdminSeoGrowthPage() {
   const [seoConfig, setSeoConfig] = useState<any>({
     productSeo: {},
     categorySeo: {},
-    googleVerificationCode: '',
+    googleVerificationCode: '5DtHEJRjcPvF7x7CVtj3e6XZ_vz85AJQuO1j7Ryd-W4',
     articles: [],
   });
 
@@ -75,9 +75,17 @@ export default function AdminSeoGrowthPage() {
   const handleSaveSeoConfig = async (updatedConfig: any) => {
     setIsSaving(true);
     try {
+      const token =
+        typeof window !== 'undefined'
+          ? sessionStorage.getItem('a_and_s_admin_jwt_token') ||
+            localStorage.getItem('a_and_s_admin_jwt_token')
+          : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch('/api/admin/seo', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(updatedConfig),
       });
       if (res.ok) {
