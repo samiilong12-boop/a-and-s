@@ -691,6 +691,799 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
     ],
     "createdAt": "2026-10-31T16:49:53.450Z",
     "updatedAt": "2026-10-31T16:49:53.450Z"
+  },
+  {
+    "id": "la-belle",
+    "slug": "la-belle",
+    "nameEn": "La Belle",
+    "nameAr": "لا بيل",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Jean Paul Gaultier La Belle",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Jean Paul Gaultier La Belle. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Jean Paul Gaultier La Belle. Not affiliated with or endorsed by original brand holders.",
+    "gender": "WOMEN",
+    "fragranceFamily": "Gourmand",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "An extraordinarily sensual, addictive gourmand fragrance by RAHEEQ inspired by La Belle. Opening with juicy green pear and fresh bergamot, leading to an alluring heart of warm vanilla and spices, anchored by earthy vetiver.",
+    "descriptionAr": "عطر الأنوثة الطاغية والجاذبية الإدمانية من دار رحيق بطابع لا بيل. يفتتح بانتعاش الكمثرى العصيرية والبرغموت، يليه قلب دافئ من الفانيليا والتوابل مع لمسات نجيل الهند والجاذبية الشرقية.",
+    "topNotes": [
+      "Green Pear",
+      "Bergamot",
+      "Cinnamon"
+    ],
+    "heartNotes": [
+      "Warm Vanilla",
+      "White Floral Accord",
+      "Spices"
+    ],
+    "baseNotes": [
+      "Vetiver",
+      "Amber",
+      "Tonka Bean"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "labelle-50",
+        "sku": "AS-JPG-LBL-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "labelle-100",
+        "sku": "AS-JPG-LBL-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/la-belle.webp",
+    "images": [
+      {
+        "id": "img-la-belle-1",
+        "url": "/images/products/la-belle.webp",
+        "altTextAr": "عطر لا بيل من دار رحيق",
+        "altTextEn": "La Belle by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "musk-silk",
+    "slug": "musk-silk",
+    "nameEn": "Musk Silk",
+    "nameAr": "مسك سيلك",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Ajmal Musk Silk",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Ajmal Musk Silk. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Ajmal Musk Silk. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Floral",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "A silky, smooth, and ultra-sensual musky creation by RAHEEQ. Delicate white flowers and luminous ylang ylang blend into velvety cashmere and creamy sandalwood, resting on a pure silk musk base.",
+    "descriptionAr": "توليفة مسكية حريرية ناعمة وشديدة النقاء والجاذبية من دار رحيق. تمتزج فيها الزهور البيضاء الرقيقة وزهر اليلانج يلانج مع نعومة الكشمير وخشب الصندل الكريمي على قاعدة من أنقى مسك الحرير.",
+    "topNotes": [
+      "White Flowers",
+      "Lily of the Valley",
+      "Silk Accord"
+    ],
+    "heartNotes": [
+      "Ylang Ylang",
+      "Cashmere Wood",
+      "White Rose"
+    ],
+    "baseNotes": [
+      "Silk Musk",
+      "Creamy Sandalwood",
+      "White Amber"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "musksilk-50",
+        "sku": "AS-AJM-MSK-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "musksilk-100",
+        "sku": "AS-AJM-MSK-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/musk-silk.webp",
+    "images": [
+      {
+        "id": "img-musk-silk-1",
+        "url": "/images/products/musk-silk.webp",
+        "altTextAr": "عطر مسك سيلك من دار رحيق",
+        "altTextEn": "Musk Silk by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "musk-noir-rose",
+    "slug": "musk-noir-rose",
+    "nameEn": "Musc Noir Rose",
+    "nameAr": "مسك نوار روز",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Narciso Rodriguez Musc Noir Rose",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Narciso Rodriguez Musc Noir Rose. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Narciso Rodriguez Musc Noir Rose. Not affiliated with or endorsed by original brand holders.",
+    "gender": "WOMEN",
+    "fragranceFamily": "Floral",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "A sensual, mysterious, and romantic blooming harmony by RAHEEQ inspired by Musc Noir Rose. Rich voluptuous Damask rose meets intoxicating black musk, spiced bergamot, deep earthy patchouli, and warm amber.",
+    "descriptionAr": "سيمفونية رومانسية غامضة وآسرة من دار رحيق بطابع مسك نوار روز. تلتقي بتلات الورد الدمشقي الغني مع سحر المسك الأسود ونفحات البرغموت والبتشولي الترابي والعنبر الدافئ.",
+    "topNotes": [
+      "Bergamot",
+      "Plum",
+      "Pink Pepper"
+    ],
+    "heartNotes": [
+      "Damask Rose",
+      "Black Musk",
+      "Tuberose"
+    ],
+    "baseNotes": [
+      "Patchouli",
+      "Warm Amber",
+      "Vanilla"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "musknoirrose-50",
+        "sku": "AS-NR-MNR-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "musknoirrose-100",
+        "sku": "AS-NR-MNR-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/musk-noir-rose.webp",
+    "images": [
+      {
+        "id": "img-musk-noir-rose-1",
+        "url": "/images/products/musk-noir-rose.webp",
+        "altTextAr": "عطر مسك نوار روز من دار رحيق",
+        "altTextEn": "Musc Noir Rose by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "white-musk-montale",
+    "slug": "white-musk-montale",
+    "nameEn": "White Musk Montale",
+    "nameAr": "وايت مسك مونتال",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Montale White Musk",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Montale White Musk. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Montale White Musk. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Floral",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "A clean, pure, and heavenly ethereal scent by RAHEEQ inspired by Montale White Musk. Crystal-clear white musk harmonizes with fresh lily of the valley, pure white flowers, creamy cashmere wood, and ambergris.",
+    "descriptionAr": "عطر النقاء والصفاء السماوي من دار رحيق بطابع وايت مسك مونتال. يجمع بين كريستالات المسك الأبيض الناصع وزنبق الوادي والزهور البيضاء المنعشة مع لمسات خشب الكشمير الكريمي والعنبر الرمادي.",
+    "topNotes": [
+      "White Musk",
+      "Lily of the Valley",
+      "Crisp Bergamot"
+    ],
+    "heartNotes": [
+      "White Flowers",
+      "Delicate Rose",
+      "Ylang Ylang"
+    ],
+    "baseNotes": [
+      "Cashmere Wood",
+      "Ambergris",
+      "Dry Amber"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "wmmontale-50",
+        "sku": "AS-MON-WM-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "wmmontale-100",
+        "sku": "AS-MON-WM-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/white-musk-montale.webp",
+    "images": [
+      {
+        "id": "img-white-musk-montale-1",
+        "url": "/images/products/white-musk-montale.webp",
+        "altTextAr": "عطر وايت مسك مونتال من دار رحيق",
+        "altTextEn": "White Musk Montale by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "white-musk",
+    "slug": "white-musk",
+    "nameEn": "White Musk",
+    "nameAr": "وايت مسك",
+    "brand": "RAHEEQ",
+    "inspiredBy": "The Body Shop White Musk",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Classic White Musk. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the classic olfactory accord of White Musk. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Floral",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "The quintessential essence of clean, comforting purity by RAHEEQ. Velvety white musk, tender lily of the valley, soft white roses, warm comforting amber, and sweet comforting vanilla.",
+    "descriptionAr": "أيقونة النظافة والانتعاش البودري الهادئ من دار رحيق. توليفة ساحرة تجمع المسك الأبيض المخملي وزنبق الوادي والورد الأبيض النقي مع دفء العنبر ولمسات الفانيليا الرقيقة.",
+    "topNotes": [
+      "White Musk",
+      "Lily of the Valley",
+      "Cotton Flower"
+    ],
+    "heartNotes": [
+      "White Rose",
+      "Jasmine Petals",
+      "Powdery Notes"
+    ],
+    "baseNotes": [
+      "Sensual Amber",
+      "Sweet Vanilla",
+      "Clean Musk"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "whitemusk-50",
+        "sku": "AS-WM-CLS-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "whitemusk-100",
+        "sku": "AS-WM-CLS-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/white-musk.webp",
+    "images": [
+      {
+        "id": "img-white-musk-1",
+        "url": "/images/products/white-musk.webp",
+        "altTextAr": "عطر وايت مسك من دار رحيق",
+        "altTextEn": "White Musk by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "original-musk",
+    "slug": "original-musk",
+    "nameEn": "Original Musk",
+    "nameAr": "أوريجينال مسك",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Kiehl's Original Musk",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Kiehl's Original Musk. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Kiehl's Original Musk. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Oriental",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "A timeless, warm, and deeply sensual classic by RAHEEQ. Opulent musk accented with intoxicating ylang ylang, lily of the valley, velvety tonka bean, civet accord, and creamy sandalwood.",
+    "descriptionAr": "العطر الكلاسيكي الدافئ ذو الطابع الحسي الراقي من دار رحيق. عبير المسك الأصيل المطعم بزهر اليلانج يلانج وزنبق الوادي مع حبوب التونكا الدافئة وخشب الصندل المعتق.",
+    "topNotes": [
+      "Bergamot Nectar",
+      "Orange Blossom",
+      "Warm Musk"
+    ],
+    "heartNotes": [
+      "Ylang Ylang",
+      "Lily of the Valley",
+      "Neroli",
+      "Rose"
+    ],
+    "baseNotes": [
+      "Classic Musk",
+      "Tonka Bean",
+      "Sandalwood",
+      "Patchouli"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "origmusk-50",
+        "sku": "AS-KHL-OM-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "origmusk-100",
+        "sku": "AS-KHL-OM-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/original-musk.webp",
+    "images": [
+      {
+        "id": "img-original-musk-1",
+        "url": "/images/products/original-musk.webp",
+        "altTextAr": "عطر أوريجينال مسك من دار رحيق",
+        "altTextEn": "Original Musk by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "musk-al-tahara",
+    "slug": "musk-al-tahara",
+    "nameEn": "Musk Al Tahara",
+    "nameAr": "مسك الطهارة",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Arabian Musk Al Tahara",
+    "inspirationNoteAr": "عطر تراثي مستقل من إبداع دار رحيق مستوحى من عبق مسك الطهارة العربي الأصيل. إنتاج وتوليف دار رحيق الخاصة.",
+    "inspirationNoteEn": "Original heritage formulation by RAHEEQ inspired by traditional Arabian Musk Al Tahara. Handcrafted in RAHEEQ private ateliers.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Oriental",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Pure, serene, and purifying. The sacred essence of traditional White Musk fused with lotus flower, white amber, delicate jasmine, and soothing sandalwood.",
+    "descriptionAr": "نقي ... هادئ ... مطهر. جوهر النقاء والسكينة من دار رحيق بعبير المسك الأبيض الصافي وزهرة اللوتس والعنبر الأبيض والياسمين الرقيق مع هدوء خشب الصندل.",
+    "topNotes": [
+      "Pure White Musk",
+      "Lotus Flower",
+      "Citrus Breeze"
+    ],
+    "heartNotes": [
+      "Delicate Jasmine",
+      "White Amber",
+      "Lavender"
+    ],
+    "baseNotes": [
+      "Subtle Sandalwood",
+      "Soft Vanilla",
+      "Touch of Oud"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "musktahara-50",
+        "sku": "AS-MSK-THR-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "musktahara-100",
+        "sku": "AS-MSK-THR-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/musk-al-tahara.webp",
+    "images": [
+      {
+        "id": "img-musk-al-tahara-1",
+        "url": "/images/products/musk-al-tahara.webp",
+        "altTextAr": "عطر مسك الطهارة من دار رحيق",
+        "altTextEn": "Musk Al Tahara by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "ysl-libre",
+    "slug": "ysl-libre",
+    "nameEn": "Libre",
+    "nameAr": "ليبر",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Yves Saint Laurent Libre",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ YSL Libre. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Yves Saint Laurent Libre. Not affiliated with or endorsed by original brand holders.",
+    "gender": "WOMEN",
+    "fragranceFamily": "Floral",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Sensual, captivating, and passionately free by RAHEEQ inspired by Libre. French aromatic lavender intertwines with luminous Moroccan orange blossom, warm Madagascar vanilla, and radiant musk.",
+    "descriptionAr": "حسي ... آسر ... حر. عطر الحرية والأنوثة الجريئة من دار رحيق بطابع ليبر. يجمع بين انتعاش اللافندر الفرنسي وزهر البرتقال المغربي المشرق مع دفء الفانيليا والمسك الحسي.",
+    "topNotes": [
+      "French Lavender",
+      "Mandarin Orange",
+      "Blackcurrant"
+    ],
+    "heartNotes": [
+      "Moroccan Orange Blossom",
+      "Jasmine",
+      "Lavender"
+    ],
+    "baseNotes": [
+      "Madagascar Vanilla",
+      "Clean Musk",
+      "Cedarwood",
+      "Ambergris"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "ysllibre-50",
+        "sku": "AS-YSL-LBR-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "ysllibre-100",
+        "sku": "AS-YSL-LBR-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/ysl-libre.webp",
+    "images": [
+      {
+        "id": "img-ysl-libre-1",
+        "url": "/images/products/ysl-libre.webp",
+        "altTextAr": "عطر ليبر من دار رحيق",
+        "altTextEn": "Libre by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "la-vie-est-belle",
+    "slug": "la-vie-est-belle",
+    "nameEn": "La Vie Est Belle",
+    "nameAr": "لافي إي بيل",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Lancôme La Vie Est Belle",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Lancôme La Vie Est Belle. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Lancôme La Vie Est Belle. Not affiliated with or endorsed by original brand holders.",
+    "gender": "WOMEN",
+    "fragranceFamily": "Gourmand",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Joyful, elegant, and captivating by RAHEEQ inspired by La Vie Est Belle. Precious iris pallida harmonizes with indulgent sweet praline, creamy vanilla, and luminous orange blossom on an earthy patchouli foundation.",
+    "descriptionAr": "مبهج ... أنيق ... آسر. ابتسامة الحياة والأناقة المشعة من دار رحيق بطابع لافي إي بيل. تلتقي زهرة السوسن النبيلة مع حلاوة البرالين والفانيليا الكريمية وزهر البرتقال على قاعدة غنية من الباتشولي.",
+    "topNotes": [
+      "Blackcurrant",
+      "Ripe Pear",
+      "Orange Blossom"
+    ],
+    "heartNotes": [
+      "Iris Pallida",
+      "Jasmine Sambac",
+      "Orange Blossom"
+    ],
+    "baseNotes": [
+      "Sweet Praline",
+      "Warm Vanilla",
+      "Patchouli",
+      "Tonka Bean"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "lavieestbelle-50",
+        "sku": "AS-LAN-LVB-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "lavieestbelle-100",
+        "sku": "AS-LAN-LVB-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/la-vie-est-belle.webp",
+    "images": [
+      {
+        "id": "img-la-vie-est-belle-1",
+        "url": "/images/products/la-vie-est-belle.webp",
+        "altTextAr": "عطر لافي إي بيل من دار رحيق",
+        "altTextEn": "La Vie Est Belle by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "good-girl",
+    "slug": "good-girl",
+    "nameEn": "Good Girl",
+    "nameAr": "جود جيرل",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Carolina Herrera Good Girl",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Carolina Herrera Good Girl. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Carolina Herrera Good Girl. Not affiliated with or endorsed by original brand holders.",
+    "gender": "WOMEN",
+    "fragranceFamily": "Oriental",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Sensual, daring, and unapologetically bold by RAHEEQ inspired by Good Girl. Intoxicating tuberose and fresh white jasmine clash with dark, seductive roasted cocoa, sweet tonka bean, rich coffee, and almond.",
+    "descriptionAr": "حسي ... جريء ... غامض. تناقض الأنوثة الفاتنة والجرأة من دار رحيق بطابع جود جيرل. يجمع بين رقة مسك الروم والياسمين مع غموض الكاكاو الغني والقهوة المحمصة واللوز وحبوب التونكا الدافئة.",
+    "topNotes": [
+      "Almond",
+      "Coffee",
+      "Bergamot",
+      "Lemon"
+    ],
+    "heartNotes": [
+      "Tuberose",
+      "Jasmine Sambac",
+      "Orange Blossom",
+      "Orris"
+    ],
+    "baseNotes": [
+      "Tonka Bean",
+      "Cacao",
+      "Vanilla",
+      "Praline",
+      "Sandalwood"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "goodgirl-50",
+        "sku": "AS-CH-GG-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "goodgirl-100",
+        "sku": "AS-CH-GG-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/good-girl.webp",
+    "images": [
+      {
+        "id": "img-good-girl-1",
+        "url": "/images/products/good-girl.webp",
+        "altTextAr": "عطر جود جيرل من دار رحيق",
+        "altTextEn": "Good Girl by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "jadore",
+    "slug": "jadore",
+    "nameEn": "J'adore",
+    "nameAr": "جادور",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Dior J'adore",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Dior J'adore. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Dior J'adore. Not affiliated with or endorsed by original brand holders.",
+    "gender": "WOMEN",
+    "fragranceFamily": "Floral",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Luminous, sensual, and exquisitely floral by RAHEEQ inspired by J'adore. An iconic golden floral bouquet blending exotic ylang ylang, romantic Damask rose, and radiant jasmine sambac with sweet melon and pear.",
+    "descriptionAr": "مضيء ... حسي ... زهري. باقة الذهب والأنوثة الخالدة من دار رحيق بطابع جادور. مزيج مشرق يجمع أزهار اليلانج يلانج الاستوائية والورد الدمشقي والياسمين مع لمسات الكمثرى والشمام والمسك الفاخر.",
+    "topNotes": [
+      "Pear",
+      "Melon",
+      "Magnolia",
+      "Peach",
+      "Mandarin"
+    ],
+    "heartNotes": [
+      "Ylang Ylang",
+      "Damask Rose",
+      "Jasmine Sambac",
+      "Lily of the Valley",
+      "Tuberose"
+    ],
+    "baseNotes": [
+      "Sensual Musk",
+      "Vanilla",
+      "Cedarwood",
+      "Blackberry"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "jadore-50",
+        "sku": "AS-DIOR-JAD-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "jadore-100",
+        "sku": "AS-DIOR-JAD-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/jadore.webp",
+    "images": [
+      {
+        "id": "img-jadore-1",
+        "url": "/images/products/jadore.webp",
+        "altTextAr": "عطر جادور من دار رحيق",
+        "altTextEn": "J'adore by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "musk-kashmir",
+    "slug": "musk-kashmir",
+    "nameEn": "Musk Kashmir",
+    "nameAr": "مسك كشمير",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Attar Collection Musk Kashmir",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Musk Kashmir. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Musk Kashmir. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Floral",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Soft, clean, and ethereal by RAHEEQ inspired by Musk Kashmir. Second-skin elegance featuring cloud-like white musk, fresh white flowers, soft cashmere wood, amber, and delicate lily of the valley.",
+    "descriptionAr": "ناعم ... نظيف ... سماوي. سحر النعومة المخملية وأناقة الصفاء من دار رحيق بطابع مسك كشمير. سحابة بيضاء من أنقى مسك مع خشب الكشمير والزهور البيضاء وزنبق الوادي والعنبر الشفاف.",
+    "topNotes": [
+      "White Musk",
+      "White Pepper",
+      "Clean Breeze"
+    ],
+    "heartNotes": [
+      "White Flowers",
+      "Lily of the Valley",
+      "Gardenia"
+    ],
+    "baseNotes": [
+      "Cashmere Wood",
+      "Sandalwood",
+      "Sensual Amber"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "muskkashmir-50",
+        "sku": "AS-ATT-MK-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "muskkashmir-100",
+        "sku": "AS-ATT-MK-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/musk-kashmir.webp",
+    "images": [
+      {
+        "id": "img-musk-kashmir-1",
+        "url": "/images/products/musk-kashmir.webp",
+        "altTextAr": "عطر مسك كشمير من دار رحيق",
+        "altTextEn": "Musk Kashmir by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:00:00.000Z",
+    "updatedAt": "2026-11-14T10:00:00.000Z"
   }
 ];
 
