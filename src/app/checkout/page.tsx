@@ -38,7 +38,7 @@ export default function CheckoutPage() {
     customerName: '',
     customerPhone: '',
     customerEmail: '',
-    governorate: 'Cairo',
+    governorate: 'Giza',
     city: '',
     streetAddress: '',
     buildingDetails: '',
@@ -314,10 +314,15 @@ export default function CheckoutPage() {
 
             {/* Shipping Address */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E7E3D6] shadow-sm space-y-5">
-              <h2 className="font-serif text-lg font-bold text-[#080A0A] flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#0D9488]" />
-                <span>{t('checkout.shipping_address')}</span>
-              </h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <h2 className="font-serif text-lg font-bold text-[#080A0A] flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#0D9488]" />
+                  <span>{t('checkout.shipping_address')}</span>
+                </h2>
+                <span className="text-[11px] font-bold text-teal-800 bg-teal-50 border border-teal-200/80 px-2.5 py-1 rounded-full flex items-center gap-1.5 self-start">
+                  <span>📍 التوصيل متاح حالياً داخل مدينة 6 أكتوبر والشيخ زايد فقط</span>
+                </span>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">

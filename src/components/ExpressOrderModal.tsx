@@ -25,52 +25,26 @@ interface ExpressOrderModalProps {
   product: Product | null;
 }
 
-const EGYPT_GOVERNORATES = [
-  '6 أكتوبر والشيخ زايد (6th of October & Zayed)',
-  'الجيزة (Giza)',
-  'القاهرة (Cairo)',
-  'الإسكندرية (Alexandria)',
-  'القليوبية (Qalyubia)',
-  'الدقهلية (Mansoura)',
-  'الشرقية (Sharqia)',
-  'الغربية (Tanta)',
-  'المنوفية (Menofia)',
-  'البحيرة (Beheira)',
-  'كفر الشيخ (Kafr El Sheikh)',
-  'دمياط (Damietta)',
-  'بورسعيد (Port Said)',
-  'الإسماعيلية (Ismailia)',
-  'السويس (Suez)',
-  'الفيوم (Fayoum)',
-  'بني سويف (Beni Suef)',
-  'المنيا (Minya)',
-  'أسيوط (Asyut)',
-  'سوهاج (Sohag)',
-  'قنا (Qena)',
-  'الأقصر (Luxor)',
-  'أسوان (Aswan)',
-  'البحر الأحمر (Hurghada)',
-  'مطروح والساحل الشمالي (Matrouh)',
+const OCTOBER_AREAS = [
+  'مدينة 6 أكتوبر (الأحياء من 1 إلى 12)',
+  'مدينة 6 أكتوبر (الحي المتميز وغرب سوميد)',
+  'مدينة 6 أكتوبر (حدائق أكتوبر والفردوس ودريم لاند)',
+  'مدينة 6 أكتوبر (التوسعات الشمالية وأكتوبر الجديدة)',
+  'مدينة الشيخ زايد (كافة الأحياء والمجاورات والكمبوندات)',
 ];
 
 function getShippingRateInPiasters(gov: string, subtotalInPiasters: number): number {
   if (subtotalInPiasters >= FREE_SHIPPING_THRESHOLD_PIASTERS) {
     return 0; // Complimentary free shipping for orders >= 1000 EGP
   }
-  const clean = gov.toLowerCase();
-  if (clean.includes('cairo') || clean.includes('القاهرة')) return 6500; // 65.00 EGP
-  if (clean.includes('أكتوبر') || clean.includes('october') || clean.includes('زايد') || clean.includes('zayed') || clean.includes('giza') || clean.includes('الجيزة')) return 6500; // 65.00 EGP
-  if (clean.includes('alexandria') || clean.includes('الإسكندرية') || clean.includes('الساحل')) return 7500; // 75.00 EGP
-  if (clean.includes('صعيد') || clean.includes('أسيوط') || clean.includes('سوهاج') || clean.includes('قنا') || clean.includes('الأقصر') || clean.includes('أسوان') || clean.includes('المنيا') || clean.includes('سويف')) return 9500; // 95.00 EGP
-  if (clean.includes('بحر أحمر') || clean.includes('hurghada') || clean.includes('مطروح') || clean.includes('شرم') || clean.includes('سيناء')) return 11000; // 110.00 EGP
-  return 8000; // 80.00 EGP default for Delta/Canal
+  return 6500; // 65.00 EGP standard delivery exclusively inside 6th of October & Zayed
 }
 
 export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModalProps) {
   const [selectedVariantId, setSelectedVariantId] = useState<string>('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
-  const [governorate, setGovernorate] = useState(EGYPT_GOVERNORATES[0]);
+  const [governorate, setGovernorate] = useState(OCTOBER_AREAS[0]);
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -205,8 +179,7 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
 
   const handleWhatsAppRedirect = () => {
     if (!orderSuccess) return;
-    const cleanGov = governorate.replace(/\s*\([^)]*\)/g, '').trim();
-    const msg = `مرحباً دار رحيق للعطور 👑%0Aأرغب في تأكيد طلب الشراء السريع الخاص بي:%0A• رقم الطلب: ${orderSuccess.orderNumber}%0A• العطر: ${product.nameEn} ${product.nameAr ? `(${product.nameAr})` : ''}%0A• الحجم: ${variantVolume}%0A• الاسم: ${customerName}%0A• الهاتف: ${customerPhone}%0A• العنوان: ${cleanGov} - ${address}%0A• سعر العطر: ${formatPrice(finalPriceInPiasters)}%0A• مصاريف التوصيل: ${shippingInPiasters === 0 ? 'مجاني' : formatPrice(shippingInPiasters)}%0A• القيمة المطلوبة كاش عند الاستلام: ${orderSuccess.totalAmount}%0Aشكراً لكم!`;
+    const msg = `مرحباً دار رحيق للعطور 👑%0Aأرغب في تأكيد طلب الشراء السريع الخاص بي:%0A• رقم الطلب: ${orderSuccess.orderNumber}%0A• العطر: ${product.nameEn} ${product.nameAr ? `(${product.nameAr})` : ''}%0A• الحجم: ${variantVolume}%0A• الاسم: ${customerName}%0A• الهاتف: ${customerPhone}%0A• العنوان: 6 أكتوبر - ${address}%0A• سعر العطر: ${formatPrice(finalPriceInPiasters)}%0A• مصاريف التوصيل داخل أكتوبر: ${shippingInPiasters === 0 ? 'مجاني' : formatPrice(shippingInPiasters)}%0A• القيمة المطلوبة كاش عند الاستلام: ${orderSuccess.totalAmount}%0Aشكراً لكم!`;
     window.open(`https://wa.me/201131068790?text=${msg}`, '_blank');
   };
 
@@ -373,19 +346,24 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                   />
                 </div>
 
-                {/* Governorate */}
+                {/* Area Selector in October */}
                 <div>
-                  <label className="text-xs font-bold text-slate-800 block mb-1">
-                    المحافظة: <span className="text-rose-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-slate-800 block">
+                      المنطقة داخل 6 أكتوبر: <span className="text-rose-500">*</span>
+                    </label>
+                    <span className="text-[10px] bg-teal-50 text-teal-800 border border-teal-200/80 px-2 py-0.5 rounded-full font-bold">
+                      التوصيل حصرياً داخل 6 أكتوبر
+                    </span>
+                  </div>
                   <select
                     value={governorate}
                     onChange={(e) => setGovernorate(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-colors"
                   >
-                    {EGYPT_GOVERNORATES.map((gov) => (
-                      <option key={gov} value={gov}>
-                        {gov}
+                    {OCTOBER_AREAS.map((area) => (
+                      <option key={area} value={area}>
+                        {area}
                       </option>
                     ))}
                   </select>
@@ -394,14 +372,14 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                 {/* Address */}
                 <div>
                   <label className="text-xs font-bold text-slate-800 block mb-1">
-                    العنوان بالتفصيل (المنطقة، الشارع، العمارة): <span className="text-rose-500">*</span>
+                    العنوان بالتفصيل داخل أكتوبر (الحي، الشارع، العمارة): <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="مثال: 6 أكتوبر، الحي السادس، عمارة 14 أو التجمع..."
+                    placeholder="مثال: الحي السادس، المجاورة الثانية، عمارة 14 شقة 3"
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-colors"
                   />
                 </div>
@@ -414,7 +392,7 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                   <span className="font-bold font-mono text-slate-900">{formatPrice(finalPriceInPiasters)}</span>
                 </div>
                 <div className="flex justify-between items-center text-slate-700">
-                  <span>مصاريف الشحن والتوصيل ({governorate.replace(/\s*\([^)]*\)/g, '').trim()}):</span>
+                  <span>مصاريف التوصيل (داخل 6 أكتوبر والشيخ زايد):</span>
                   <span className="font-bold font-mono text-teal-800">
                     {shippingInPiasters === 0 ? 'شحن مجاني (عرض خاص)' : formatPrice(shippingInPiasters)}
                   </span>

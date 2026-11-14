@@ -24,10 +24,10 @@ export function Footer() {
               </div>
               <div>
                 <h4 className="font-serif font-bold text-sm text-[#FFFFFF]">
-                  {isRtl ? (content.footerShippingTitle || 'التوصيل إلى الباب') : 'Door-to-Door Delivery in Cairo & Giza'}
+                  {isRtl ? (content.footerShippingTitle || 'التوصيل السريع لباب بيتك') : 'Door-to-Door Delivery in 6th of October'}
                 </h4>
                 <p className="text-xs text-[#9EABA7] mt-0.5">
-                  {isRtl ? (content.footerShippingDesc || 'توصيل مخصص وسريع لباب بيتك في القاهرة والجيزة.') : 'Dedicated express door-to-door courier delivery in Cairo and Giza.'}
+                  {isRtl ? (content.footerShippingDesc || 'توصيل مخصص وسريع لباب بيتك في مدينة 6 أكتوبر والشيخ زايد.') : 'Dedicated express door-to-door courier delivery in 6th of October and Zayed.'}
                 </p>
               </div>
             </div>
@@ -351,7 +351,7 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-6">
             <span className="text-[#9EABA7]">{isRtl ? 'العملة: الجنيه المصري (EGP)' : 'Currency: Egyptian Pound (EGP)'}</span>
-            <span className="text-[#9EABA7]">{isRtl ? 'التوصيل: جميع محافظات مصر' : 'Delivery: Across All Egypt Governorates'}</span>
+            <span className="text-[#9EABA7]">{isRtl ? 'التوصيل: حصرياً داخل مدينة 6 أكتوبر والشيخ زايد' : 'Delivery: Exclusively in 6th of October & Zayed'}</span>
           </div>
         </div>
       </div>
