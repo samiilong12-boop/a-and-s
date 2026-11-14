@@ -1484,6 +1484,268 @@ export const OFFICIAL_10_PERFUMES: Product[] = [
     ],
     "createdAt": "2026-11-14T10:00:00.000Z",
     "updatedAt": "2026-11-14T10:00:00.000Z"
+  },
+  {
+    "id": "oud-royal",
+    "slug": "oud-royal",
+    "nameEn": "Oud Royal",
+    "nameAr": "عود رويال",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Armani Privé Oud Royal",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Armani Privé Oud Royal. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Armani Privé Oud Royal. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Oriental",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Royal, deep, and timeless by RAHEEQ inspired by Oud Royal. A majestic oriental harmony weaving precious Cambodian agarwood, velvety sandalwood, noble Damask rose, warm amber, and mystical smoky incense.",
+    "descriptionAr": "ملكي ... عميق ... خالد. جوهر الفخامة الشرقية الملكية من دار رحيق بطابع عود رويال. توليفة تجمع بين خشب العود المعتق، وخشب الصندل الكريمي، ونفحات الورد النبيل، ودفء العنبر، والبخور الأسطوري.",
+    "topNotes": [
+      "Saffron",
+      "Incense Smoke",
+      "Cardamom"
+    ],
+    "heartNotes": [
+      "Damask Rose",
+      "Oud Wood",
+      "Creamy Sandalwood"
+    ],
+    "baseNotes": [
+      "Precious Agarwood",
+      "Warm Amber",
+      "Sensual Musk"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "oudroyal-50",
+        "sku": "AS-ARM-OR-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "oudroyal-100",
+        "sku": "AS-ARM-OR-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/oud-royal.webp",
+    "images": [
+      {
+        "id": "img-oud-royal-1",
+        "url": "/images/products/oud-royal.webp",
+        "altTextAr": "عطر عود رويال من دار رحيق",
+        "altTextEn": "Oud Royal by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:30:00.000Z",
+    "updatedAt": "2026-11-14T10:30:00.000Z"
+  },
+  {
+    "id": "oud-ispahan",
+    "slug": "oud-ispahan",
+    "nameEn": "Oud Ispahan",
+    "nameAr": "عود أصفهان",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Dior Oud Ispahan",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Dior Oud Ispahan. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Dior Oud Ispahan. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Oriental",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Intense, luxurious, and regal by RAHEEQ inspired by Oud Ispahan. An unforgettable meeting of opulent velvet rose and intense woody oud, framed by spicy saffron, warm labdanum, and sensual golden amber.",
+    "descriptionAr": "فخامة ... ملكية ... عمق. العطر الشرقي الأيقوني الآسر من دار رحيق بطابع عود أصفهان. لقاء مهيب بين مخملية الورد الدمشقي وقوة خشب العود والزعفران الدافئ واللابدانوم والعنبر الحسي الفاخر.",
+    "topNotes": [
+      "Labdanum",
+      "Spicy Saffron",
+      "Pink Pepper"
+    ],
+    "heartNotes": [
+      "Damask Rose",
+      "Indonesian Patchouli",
+      "Woody Oud"
+    ],
+    "baseNotes": [
+      "Laotian Oud",
+      "Sandalwood",
+      "Golden Amber"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "oudispahan-50",
+        "sku": "AS-DIOR-OI-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "oudispahan-100",
+        "sku": "AS-DIOR-OI-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/oud-ispahan.webp",
+    "images": [
+      {
+        "id": "img-oud-ispahan-1",
+        "url": "/images/products/oud-ispahan.webp",
+        "altTextAr": "عطر عود أصفهان من دار رحيق",
+        "altTextEn": "Oud Ispahan by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:30:00.000Z",
+    "updatedAt": "2026-11-14T10:30:00.000Z"
+  },
+  {
+    "id": "gucci-oud",
+    "slug": "gucci-oud",
+    "nameEn": "Gucci Oud",
+    "nameAr": "غوتشي عود",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Gucci Oud",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Gucci Oud. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Gucci Oud. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Oriental",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Modern, mysterious, and richly opulent by RAHEEQ inspired by Gucci Oud. Juicy pear and wild raspberry blend into spicy saffron, Bulgarian rose, and natural oud essence on a base of deep patchouli and musk.",
+    "descriptionAr": "غموض ... عصري ... ثري. عطر النخبة المعاصر من دار رحيق بطابع غوتشي عود. يفتتح بانتعاش الكمثرى والتوت والزعفران، يعقبه قلب من الورد البلغاري والعود الطبيعي مع دفء البتشولي والمسك.",
+    "topNotes": [
+      "Raspberry",
+      "Pear",
+      "Saffron"
+    ],
+    "heartNotes": [
+      "Bulgarian Rose",
+      "Orange Blossom",
+      "Spicy Oud"
+    ],
+    "baseNotes": [
+      "Natural Agarwood",
+      "Rich Patchouli",
+      "Amber",
+      "Sensual Musk"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "guccioud-50",
+        "sku": "AS-GUC-OUD-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "guccioud-100",
+        "sku": "AS-GUC-OUD-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/gucci-oud.webp",
+    "images": [
+      {
+        "id": "img-gucci-oud-1",
+        "url": "/images/products/gucci-oud.webp",
+        "altTextAr": "عطر غوتشي عود من دار رحيق",
+        "altTextEn": "Gucci Oud by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:30:00.000Z",
+    "updatedAt": "2026-11-14T10:30:00.000Z"
+  },
+  {
+    "id": "rose-oud",
+    "slug": "rose-oud",
+    "nameEn": "Rose Oud",
+    "nameAr": "روز عود",
+    "brand": "RAHEEQ",
+    "inspiredBy": "Kilian Rose Oud",
+    "inspirationNoteAr": "عطر مستقل من إبداع دار رحيق مستوحى من الطابع الشمّي لـ Kilian Rose Oud. إنتاج وتوليف دار رحيق الخاصة دون أي تبعية أو ترخيص من العلامة الأصلية.",
+    "inspirationNoteEn": "Independent artisan formulation by RAHEEQ inspired by the olfactory accord of Kilian Rose Oud. Not affiliated with or endorsed by original brand holders.",
+    "gender": "UNISEX",
+    "fragranceFamily": "Oriental",
+    "concentration": "EAU_DE_PARFUM",
+    "descriptionEn": "Romantic, deep, and extraordinarily sensual by RAHEEQ inspired by Rose Oud. A burning, intoxicating clash of Turkish Damask rose and dark woody agarwood, spiced with saffron and enveloped in mystical incense and patchouli.",
+    "descriptionAr": "رومانسي ... عميق ... حسي. العناق الحريري الفاخر بين الورد والعود من دار رحيق بطابع روز عود. يجمع عبير الورد الدمشقي المركز وخشب العود المعتق مع الزعفران المتقد والبخور الصوفي والبتشولي والعنبر.",
+    "topNotes": [
+      "Saffron",
+      "Damask Rose Petals",
+      "Cinnamon Bark"
+    ],
+    "heartNotes": [
+      "Centifolia Rose",
+      "Smoky Incense",
+      "Agarwood"
+    ],
+    "baseNotes": [
+      "Dark Oud",
+      "Patchouli",
+      "Sandalwood",
+      "Warm Amber"
+    ],
+    "isBestseller": true,
+    "isNewArrival": true,
+    "variants": [
+      {
+        "id": "roseoud-50",
+        "sku": "AS-KLN-RO-50",
+        "volumeMl": 50,
+        "regularPriceEgp": 450,
+        "costPriceEgp": 720,
+        "stockQuantity": 35,
+        "lowStockThreshold": 4
+      },
+      {
+        "id": "roseoud-100",
+        "sku": "AS-KLN-RO-100",
+        "volumeMl": 100,
+        "regularPriceEgp": 810,
+        "costPriceEgp": 1100,
+        "stockQuantity": 50,
+        "lowStockThreshold": 4
+      }
+    ],
+    "imageUrl": "/images/products/rose-oud.webp",
+    "images": [
+      {
+        "id": "img-rose-oud-1",
+        "url": "/images/products/rose-oud.webp",
+        "altTextAr": "عطر روز عود من دار رحيق",
+        "altTextEn": "Rose Oud by RAHEEQ",
+        "isPrimary": true,
+        "sortOrder": 0
+      }
+    ],
+    "createdAt": "2026-11-14T10:30:00.000Z",
+    "updatedAt": "2026-11-14T10:30:00.000Z"
   }
 ];
 

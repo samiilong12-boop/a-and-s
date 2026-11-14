@@ -82,9 +82,9 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v8';
+const PRODUCTS_STORAGE_KEY = 'raheeq_official_catalog_v9';
 const CATALOG_VERSION_KEY = 'raheeq_catalog_version_sig';
-const CURRENT_CATALOG_VERSION = '2026.11.14.v8_official_22_perfumes';
+const CURRENT_CATALOG_VERSION = '2026.11.14.v9_official_26_perfumes';
 const TOKEN_KEY = 'a_and_s_admin_jwt_token';
 
 function getAdminAuthHeaders(): Record<string, string> {
@@ -139,9 +139,10 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     try {
       const storedVersion = localStorage.getItem(CATALOG_VERSION_KEY);
       if (storedVersion !== CURRENT_CATALOG_VERSION) {
-        // Upgrade cache to official WebP version: purge stale v4/v7 storage
+        // Upgrade cache to official WebP version: purge stale v4/v7/v8 storage
         localStorage.removeItem('raheeq_official_catalog_v4');
         localStorage.removeItem('raheeq_official_catalog_v7');
+        localStorage.removeItem('raheeq_official_catalog_v8');
         localStorage.removeItem(PRODUCTS_STORAGE_KEY);
         localStorage.setItem(CATALOG_VERSION_KEY, CURRENT_CATALOG_VERSION);
         setProducts(FAMOUS_50_PERFUMES);
