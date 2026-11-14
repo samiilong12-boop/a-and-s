@@ -31,10 +31,24 @@ export function FloatingContact() {
   )}`;
 
   return (
-    <div className={`fixed bottom-6 ${isRtl ? 'left-6' : 'right-6'} z-50 flex flex-col items-end`}>
+    <div className={`fixed top-20 sm:top-24 ${isRtl ? 'left-4 sm:left-6' : 'right-4 sm:right-6'} z-40 flex flex-col items-start print:hidden`}>
+      {/* Main Trigger Button (Positioned at top so it never covers form fields or checkout buttons) */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="group relative flex items-center gap-2 bg-[#080A0A]/95 hover:bg-[#111716] backdrop-blur-md text-white py-2 px-3.5 rounded-full border border-[#2DD4BF]/60 shadow-[0_4px_20px_rgba(45,212,191,0.25)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+        aria-label="Contact Concierge"
+      >
+        <span className="w-2 h-2 rounded-full bg-[#2DD4BF] animate-ping absolute top-0.5 right-0.5" />
+        <span className="w-2 h-2 rounded-full bg-[#2DD4BF] absolute top-0.5 right-0.5" />
+        <MessageSquare className="w-3.5 h-3.5 text-[#2DD4BF] group-hover:scale-110 transition-transform" />
+        <span className="text-[11px] font-bold tracking-wide">
+          {isOpen ? (isRtl ? 'إغلاق' : 'Close') : (isRtl ? 'المستشار العطري' : 'Fragrance Concierge')}
+        </span>
+      </button>
+
       {/* Expanded Quick Contact Card */}
       {isOpen && (
-        <div className="mb-3 w-80 bg-[#080A0A]/95 backdrop-blur-xl border border-[#2DD4BF]/50 rounded-2xl p-5 shadow-2xl text-[#FAF9F5] animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="mt-2 w-80 max-w-[calc(100vw-2rem)] bg-[#080A0A]/95 backdrop-blur-xl border border-[#2DD4BF]/50 rounded-2xl p-5 shadow-2xl text-[#FAF9F5] animate-in fade-in slide-in-from-top-3 duration-200">
           <div className="flex justify-between items-start pb-3 border-b border-[#1A2624]">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-[#2DD4BF] animate-pulse shadow-[0_0_8px_#2DD4BF]" />
@@ -44,7 +58,7 @@ export function FloatingContact() {
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-[#9EABA7] hover:text-white p-0.5 transition-colors"
+              className="text-[#9EABA7] hover:text-white p-0.5 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -103,20 +117,6 @@ export function FloatingContact() {
           </div>
         </div>
       )}
-
-      {/* Main Trigger Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="group relative flex items-center gap-2.5 bg-[#080A0A] hover:bg-[#111716] text-white py-3.5 px-5 rounded-full border border-[#2DD4BF]/60 shadow-[0_4px_25px_rgba(45,212,191,0.35)] transition-all duration-300 hover:scale-105 active:scale-95"
-        aria-label="Contact Concierge"
-      >
-        <span className="w-2.5 h-2.5 rounded-full bg-[#2DD4BF] animate-ping absolute top-1 right-1" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#2DD4BF] absolute top-1 right-1" />
-        <MessageSquare className="w-4 h-4 text-[#2DD4BF] group-hover:scale-110 transition-transform" />
-        <span className="text-xs font-bold tracking-wide">
-          {isOpen ? (isRtl ? 'إغلاق' : 'Close') : (isRtl ? 'المستشار العطري' : 'Fragrance Concierge')}
-        </span>
-      </button>
     </div>
   );
 }

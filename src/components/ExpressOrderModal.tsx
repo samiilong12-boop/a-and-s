@@ -15,7 +15,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { Product, ProductVariant } from '@/types';
-import { formatPrice } from '@/lib/currency';
+import { formatPrice, FREE_SHIPPING_THRESHOLD_PIASTERS } from '@/lib/currency';
 import { validateEgyptianPhone } from '@/lib/phone-validation';
 import { getLocalizedConcentration } from '@/lib/fragrance-translations';
 
@@ -26,8 +26,9 @@ interface ExpressOrderModalProps {
 }
 
 const EGYPT_GOVERNORATES = [
-  'القاهرة (Cairo)',
+  '6 أكتوبر والشيخ زايد (6th of October & Zayed)',
   'الجيزة (Giza)',
+  'القاهرة (Cairo)',
   'الإسكندرية (Alexandria)',
   'القليوبية (Qalyubia)',
   'الدقهلية (Mansoura)',
@@ -52,6 +53,19 @@ const EGYPT_GOVERNORATES = [
   'مطروح والساحل الشمالي (Matrouh)',
 ];
 
+function getShippingRateInPiasters(gov: string, subtotalInPiasters: number): number {
+  if (subtotalInPiasters >= FREE_SHIPPING_THRESHOLD_PIASTERS) {
+    return 0; // Complimentary free shipping for orders >= 1000 EGP
+  }
+  const clean = gov.toLowerCase();
+  if (clean.includes('cairo') || clean.includes('القاهرة')) return 6500; // 65.00 EGP
+  if (clean.includes('أكتوبر') || clean.includes('october') || clean.includes('زايد') || clean.includes('zayed') || clean.includes('giza') || clean.includes('الجيزة')) return 6500; // 65.00 EGP
+  if (clean.includes('alexandria') || clean.includes('الإسكندرية') || clean.includes('الساحل')) return 7500; // 75.00 EGP
+  if (clean.includes('صعيد') || clean.includes('أسيوط') || clean.includes('سوهاج') || clean.includes('قنا') || clean.includes('الأقصر') || clean.includes('أسوان') || clean.includes('المنيا') || clean.includes('سويف')) return 9500; // 95.00 EGP
+  if (clean.includes('بحر أحمر') || clean.includes('hurghada') || clean.includes('مطروح') || clean.includes('شرم') || clean.includes('سيناء')) return 11000; // 110.00 EGP
+  return 8000; // 80.00 EGP default for Delta/Canal
+}
+
 export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModalProps) {
   const [selectedVariantId, setSelectedVariantId] = useState<string>('');
   const [customerName, setCustomerName] = useState('');
@@ -66,10 +80,19 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
     totalAmount: string;
   } | null>(null);
 
+  // Sync selected variant when product changes
+  React.useEffect(() => {
+    if (product?.variants && product.variants.length > 0) {
+      setSelectedVariantId(product.variants[0].id);
+    }
+  }, [product?.id]);
+
   if (!isOpen || !product) return null;
 
   const variants = product.variants && product.variants.length > 0 ? product.variants : [];
   const activeVariant = variants.find((v) => v.id === selectedVariantId) || variants[0];
+  const variantVolume = activeVariant?.volumeMl ? `${activeVariant.volumeMl}ml` : (activeVariant?.titleEn || '50ml');
+  const variantVolumeAr = activeVariant?.volumeMl ? `${activeVariant.volumeMl} مل` : (activeVariant?.titleAr || '50 مل');
 
   const primaryImage =
     product.images?.find((img) => img.isPrimary)?.url ||
@@ -84,6 +107,10 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
     activeVariant?.salePriceInPiasters ??
     (activeVariant?.salePriceEgp ? activeVariant.salePriceEgp * 100 : null);
   const finalPriceInPiasters = salePrice || regularPrice;
+
+  // Real Shipping & Total Calculation
+  const shippingInPiasters = getShippingRateInPiasters(governorate, finalPriceInPiasters);
+  const totalInPiasters = finalPriceInPiasters + shippingInPiasters;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,15 +155,15 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
         },
         subtotalInPiasters: finalPriceInPiasters,
         discountInPiasters: 0,
-        shippingInPiasters: 0,
-        totalInPiasters: finalPriceInPiasters,
+        shippingInPiasters: shippingInPiasters,
+        totalInPiasters: totalInPiasters,
         createdAt: now.toISOString(),
         orderNotes: notes ? `⚡ طلب شراء سريع: ${notes.trim()}` : '⚡ طلب شراء سريع (Express 1-Click Order)',
         items: [
           {
             productId: product.id,
             variantId: activeVariant?.id || `${product.id}-var-default`,
-            title: `${product.nameEn} (${product.nameAr || ''}) - ${activeVariant?.titleEn || '100ml'}`,
+            title: `${product.nameEn} (${product.nameAr || ''}) - ${variantVolume}`,
             quantity: 1,
             unitPriceInPiasters: finalPriceInPiasters,
             image: product.images?.[0]?.url || product.imageUrl || '',
@@ -167,7 +194,7 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
 
       setOrderSuccess({
         orderNumber,
-        totalAmount: formatPrice(finalPriceInPiasters),
+        totalAmount: formatPrice(totalInPiasters),
       });
     } catch (err: any) {
       setErrorMessage(err.message || 'حدث خطأ في الاتصال، يرجى المحاولة أو الطلب عبر الواتساب.');
@@ -178,12 +205,13 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
 
   const handleWhatsAppRedirect = () => {
     if (!orderSuccess) return;
-    const msg = `مرحباً دار رحيق للعطور 👑%0Aأرغب في تأكيد طلب الشراء السريع الخاص بي:%0A• رقم الطلب: ${orderSuccess.orderNumber}%0A• العطر: ${product.nameEn}%0A• الحجم: ${activeVariant?.titleEn || '100ml'}%0A• الاسم: ${customerName}%0A• الهاتف: ${customerPhone}%0A• العنوان: ${governorate} - ${address}%0A• القيمة المطلوبة كاش عند الاستلام: ${orderSuccess.totalAmount}%0Aشكراً لكم!`;
+    const cleanGov = governorate.replace(/\s*\([^)]*\)/g, '').trim();
+    const msg = `مرحباً دار رحيق للعطور 👑%0Aأرغب في تأكيد طلب الشراء السريع الخاص بي:%0A• رقم الطلب: ${orderSuccess.orderNumber}%0A• العطر: ${product.nameEn} ${product.nameAr ? `(${product.nameAr})` : ''}%0A• الحجم: ${variantVolume}%0A• الاسم: ${customerName}%0A• الهاتف: ${customerPhone}%0A• العنوان: ${cleanGov} - ${address}%0A• سعر العطر: ${formatPrice(finalPriceInPiasters)}%0A• مصاريف التوصيل: ${shippingInPiasters === 0 ? 'مجاني' : formatPrice(shippingInPiasters)}%0A• القيمة المطلوبة كاش عند الاستلام: ${orderSuccess.totalAmount}%0Aشكراً لكم!`;
     window.open(`https://wa.me/201131068790?text=${msg}`, '_blank');
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
         className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden border border-[#D4AF37]/40 max-h-[92vh] flex flex-col font-sans"
         onClick={(e) => e.stopPropagation()}
@@ -373,9 +401,27 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                     required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="مثال: التجمع الخامس، شارع التسعين، عمارة 14 شقة 3"
+                    placeholder="مثال: 6 أكتوبر، الحي السادس، عمارة 14 أو التجمع..."
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-600 focus:bg-white transition-colors"
                   />
+                </div>
+              </div>
+
+              {/* Order Cost Breakdown (Item + Shipping) */}
+              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 text-xs">
+                <div className="flex justify-between items-center text-slate-700">
+                  <span>سعر العطر ({variantVolumeAr}):</span>
+                  <span className="font-bold font-mono text-slate-900">{formatPrice(finalPriceInPiasters)}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-700">
+                  <span>مصاريف الشحن والتوصيل ({governorate.replace(/\s*\([^)]*\)/g, '').trim()}):</span>
+                  <span className="font-bold font-mono text-teal-800">
+                    {shippingInPiasters === 0 ? 'شحن مجاني (عرض خاص)' : formatPrice(shippingInPiasters)}
+                  </span>
+                </div>
+                <div className="border-t border-slate-200 pt-2 flex justify-between items-center font-extrabold text-sm text-slate-900">
+                  <span>المبلغ الإجمالي كاش عند الاستلام:</span>
+                  <span className="font-mono text-emerald-800">{formatPrice(totalInPiasters)}</span>
                 </div>
               </div>
 
@@ -410,7 +456,7 @@ export function ExpressOrderModal({ isOpen, onClose, product }: ExpressOrderModa
                 <span>
                   {isSubmitting
                     ? 'جاري تأكيد وتسجيل الشحنة...'
-                    : `تأكيد الطلب كاش (${formatPrice(finalPriceInPiasters)}) ←`}
+                    : `تأكيد الطلب كاش (${formatPrice(totalInPiasters)}) ←`}
                 </span>
               </button>
             </form>

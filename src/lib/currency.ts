@@ -32,6 +32,8 @@ export function egpToPiasters(egp: number | string): number {
   return Math.round(numericVal * 100);
 }
 
+export const parsePriceToPiasters = egpToPiasters;
+
 /**
  * Convert integer piasters to EGP decimal number
  * e.g., 240000 -> 2400
