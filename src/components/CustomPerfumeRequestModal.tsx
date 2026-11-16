@@ -8,8 +8,6 @@ import {
   Send,
   MessageCircle,
   CheckCircle2,
-  Droplets,
-  ShieldCheck,
   FlaskConical,
   Phone,
   User,
@@ -318,18 +316,6 @@ export function CustomPerfumeRequestModal() {
                   }
                   className="w-full bg-[#141A19] border border-white/15 focus:border-[#54d1b2] rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#788784] focus:outline-none transition-colors"
                 />
-              </div>
-
-              {/* Value Badges */}
-              <div className="p-3 bg-[#141A19] rounded-xl border border-white/5 flex items-center justify-between text-[11px] text-[#A2ADA9]">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-[#54d1b2]" />
-                  <span>{isRtl ? 'زيوت فرنسية وسويسرية نقية 100%' : '100% Pure Swiss/French Oils'}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Droplets className="w-4 h-4 text-[#54d1b2]" />
-                  <span>{isRtl ? 'ضمان ثبات وفوحان يتجاوز 24 ساعة' : '24h+ Sillage Guarantee'}</span>
-                </div>
               </div>
 
               {/* Action Buttons */}

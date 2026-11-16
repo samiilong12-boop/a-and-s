@@ -602,7 +602,7 @@ export default function HomePage() {
 
             <p className="text-sm sm:text-base text-[#D5D1C7] max-w-2xl mx-auto font-light leading-relaxed">
               {isRtl
-                ? (siteContent.bespokeSubtitle || 'مهما كان العطر نادراً أو عالمياً، خبراؤنا يركبونه لك بتركيز 30% Extrait de Parfum مع ضمان ثبات وفوحان يتجاوز 24 ساعة.')
+                ? (siteContent.bespokeSubtitle || 'مهما كان العطر نادراً أو عالمياً، خبراؤنا يركبونه لك بتركيز Extrait de Parfum نيش فاخر مع ميزة المعاينة عند باب البيت قبل الدفع.')
                 : 'From rare vintage flacons to personal signature accords, tell us your desired perfume name and bottle volume. Our master perfumers craft and deliver it across Egypt.'}
             </p>
 
