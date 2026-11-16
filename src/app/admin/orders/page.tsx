@@ -22,7 +22,9 @@ import {
   History,
   Check,
   FileSpreadsheet,
+  Printer,
 } from 'lucide-react';
+import { PrintableInvoice } from '@/components/PrintableInvoice';
 import { formatPrice } from '@/lib/currency';
 import { OrderStatus, PaymentStatus } from '@/types';
 import {
@@ -75,6 +77,7 @@ function AdminOrdersContent() {
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [invoiceOrder, setInvoiceOrder] = useState<any | null>(null);
 
   // Edit fields for selected order
   const [editStatus, setEditStatus] = useState<OrderStatus>('PENDING_CONFIRMATION');
@@ -686,6 +689,17 @@ function AdminOrdersContent() {
                           )}
 
                           <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInvoiceOrder(order);
+                            }}
+                            className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-300 cursor-pointer"
+                            title="طباعة الفاتورة وبوليصة الشحن (PDF)"
+                          >
+                            <Printer className="w-3.5 h-3.5 text-teal-800" />
+                          </button>
+
+                          <button
                             onClick={(e) => handleDeleteOrder(order, isArchived, e)}
                             className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-200 cursor-pointer"
                             title={isArchived ? 'حذف نهائي من الأرشيف والسيرفر' : 'حذف ونقل للأرشيف'}
@@ -775,7 +789,7 @@ function AdminOrdersContent() {
                       إشعارات واتساب الرسمية التلقائية (WhatsApp Automation)
                     </span>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                       <a
                         href={generateOrderConfirmationWhatsapp(selectedOrder)}
                         target="_blank"
@@ -805,6 +819,15 @@ function AdminOrdersContent() {
                       >
                         <span>👑 شكر وإرشادات الثبات</span>
                       </a>
+
+                      <button
+                        onClick={() => setInvoiceOrder(selectedOrder)}
+                        className="p-2 bg-white hover:bg-slate-100 text-slate-900 rounded-lg text-[11px] font-bold border border-slate-300 text-center transition-colors shadow-2xs flex items-center justify-center gap-1 cursor-pointer"
+                        title="طباعة الفاتورة وبوليصة الشحن (PDF)"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-slate-800" />
+                        <span>🖨️ طباعة الفاتورة</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -987,6 +1010,14 @@ function AdminOrdersContent() {
               {/* Action Buttons: Save, Archive, and Permanent Delete */}
               <div className="pt-2 space-y-2.5">
                 <button
+                  onClick={() => setInvoiceOrder(selectedOrder)}
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 px-4 rounded-xl text-xs tracking-wider uppercase font-bold flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer border border-slate-700"
+                >
+                  <Printer className="w-4 h-4 text-emerald-400" />
+                  <span>طباعة الفاتورة وبوليصة الشحن الرسمية (PDF)</span>
+                </button>
+
+                <button
                   onClick={handleSaveChanges}
                   className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3.5 px-4 rounded-xl text-xs tracking-wider uppercase font-bold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
                 >
@@ -1035,6 +1066,14 @@ function AdminOrdersContent() {
             </div>
           </div>
         </div>
+      )}
+      {/* Printable Invoice & Delivery Manifest Modal */}
+      {invoiceOrder && (
+        <PrintableInvoice
+          order={invoiceOrder}
+          isOpen={!!invoiceOrder}
+          onClose={() => setInvoiceOrder(null)}
+        />
       )}
     </div>
   );

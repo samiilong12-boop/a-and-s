@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use } from 'react';
+import React, { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   CheckCircle2,
@@ -11,7 +11,9 @@ import {
   ShieldCheck,
   ArrowRight,
   Sparkles,
+  Printer,
 } from 'lucide-react';
+import { PrintableInvoice } from '@/components/PrintableInvoice';
 
 export default function OrderConfirmationPage({
   params,
@@ -20,6 +22,21 @@ export default function OrderConfirmationPage({
 }) {
   const resolvedParams = use(params);
   const orderNumber = resolvedParams.orderNumber;
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [orderData, setOrderData] = useState<any>(null);
+
+  useEffect(() => {
+    if (orderNumber) {
+      fetch(`/api/orders?orderNumber=${encodeURIComponent(orderNumber)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.order) {
+            setOrderData(data.order);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [orderNumber]);
 
   const whatsappMessage = encodeURIComponent(
     `مرحباً دار رَحِيقْ (RAHEEQ) للعطور الفاخرة 💎، قمت بطلب العطر برقم المرجع #${orderNumber}. أود تأكيد تفاصيل الشحن والتوصيل للباب.`
@@ -112,6 +129,14 @@ export default function OrderConfirmationPage({
             <span>تأكيد الطلب فوراً عبر واتساب</span>
           </a>
 
+          <button
+            onClick={() => setShowInvoice(true)}
+            className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white py-4 px-8 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+          >
+            <Printer className="w-4 h-4 text-emerald-400" />
+            <span>طباعة الفاتورة / حفظ كـ PDF</span>
+          </button>
+
           <Link
             href={`/track-order?orderNumber=${encodeURIComponent(orderNumber)}`}
             className="w-full sm:w-auto btn-secondary py-4 px-8 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm"
@@ -120,6 +145,15 @@ export default function OrderConfirmationPage({
             <span>تتبع مسار شحنتك مباشرة</span>
           </Link>
         </div>
+
+        {/* Printable Invoice Modal */}
+        {showInvoice && (
+          <PrintableInvoice
+            order={orderData || { orderNumber }}
+            isOpen={showInvoice}
+            onClose={() => setShowInvoice(false)}
+          />
+        )}
       </div>
     </div>
   );
